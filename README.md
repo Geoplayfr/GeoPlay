@@ -7,6 +7,7 @@
 * [Conception](#conception)
 * [Roadmap](#roadmap)
 * [Objectives of the initial prototype](#objectives-of-the-initial-prototype)
+* [Authors](#author)
 
 
 ## Synthesis
@@ -97,3 +98,11 @@ Each correct answer increases the score of the player.
 
 When the game is finished, the result page is displayed.
 The user can then go back to the main menu.
+
+
+## Authors
+
+* **François Gillioen** - [frankfg94](https://github.com/frankfg94)
+* **Marc Guiochau** - [Doratik](https://github.com/Doratik)
+* **Nicolas Guibert** - [GuibertNicolas](https://github.com/GuibertNicolas)
+* **Marine Chauveau** - [MarineCB](https://github.com/MarineCB)
