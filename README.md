@@ -36,7 +36,7 @@ We will then progressively upgrade our api, as the project will gain some functi
 
 In terms of technological choices, we plan on using a SQL database, a modern frontend framework with node.js. Those choices will be confirmed during our first sprint. 
 
-![Conception diagram][(conceptionDiagram.png?)
+![Conception diagram][(conceptionDiagram.png)
 
 In concrete terms:
 Ideally, we would have the following types of web pages:
