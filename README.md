@@ -59,7 +59,7 @@ Sprint 1 (november 9):
   * Set up of the API (basis: users)
   * Beginning of the authentication feature
   * Front-end skeleton (ex: authentication page)
-  * Searching how the vue-svg-map project works, and how to use/integrate it to our project
+  * Searching how the [vue-svg-map](https://github.com/VictorCazanave/vue-svg-map) project works, and how to use/integrate it to our project
   
 Sprint 2 (november 16):
 * Interactive map integration
