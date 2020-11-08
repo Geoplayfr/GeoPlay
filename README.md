@@ -7,7 +7,7 @@
 * [Conception](#conception)
 * [Roadmap](#roadmap)
 * [Objectives of the initial prototype](#objectives-of-the-initial-prototype)
-* [Authors](#author)
+* [Authors](#authors)
 
 
 ## Synthesis
@@ -54,25 +54,29 @@ Of course, this is a prototype liable to change if we realized some other option
 Sprint duration : 1 week
 
 Sprint 1 (november 9):
-* Technological choices
-* Creation of the database (and a test data set)
-* Set up of the API (basis: users)
-* Beginning of the authentication feature
-* Front-end skeleton (ex: authentication page)
-* Searching how the vue-svg-map project works, and how to use/integrate it to our project
+  * Technological choices
+  * Creation of the database (and a test data set)
+  * Set up of the API (basis: users)
+  * Beginning of the authentication feature
+  * Front-end skeleton (ex: authentication page)
+  * Searching how the vue-svg-map project works, and how to use/integrate it to our project
+  
 Sprint 2 (november 16):
 * Interactive map integration
 * Implementation of the basic game logic
 * Improvement of the front-end
 * Improvement of the API
 * Complete the database (with the quizz series structure)
+
 Sprint 3 (november 23):
 * New feature: creation of quiz series by users
 * Improvement of the Front-end
 * Improvement of the API
+
 Sprint 4 (november 30): 
 * Start of the multiplayer game feature(s)
 * Improvement of the existing features (test, bug fix, enhancement)
+
 Sprint 5 (december 7): 
 * End of the multiplayer game
 * Online deployment of the website
