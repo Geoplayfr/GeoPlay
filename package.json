@@ -10,17 +10,20 @@
     "test": "jest"
   },
   "dependencies": {
+    "@svg-maps/taiwan": "^1.1.0",
     "core-js": "^3.6.5",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "morgan": "^1.10.0",
-    "nuxt": "^2.14.6"
+    "nuxt": "^2.14.6",
+    "vue-svg-map": "^1.2.0"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.11.2",
     "@vue/test-utils": "^1.1.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^26.5.0",
+    "eslint": "^7.13.0",
     "jest": "^26.5.0",
     "vue-jest": "^3.0.4"
   }

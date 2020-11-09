@@ -9,6 +9,7 @@
         <v-card-title class="headline">
           Welcome to the Vuetify + Nuxt.js template
         </v-card-title>
+        <radio-svg-map :map="Taiwan"  v-model="selectedLocation" @click="onMapRegionClicked" />
         <v-card-text>
           <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower developers to create amazing applications.</p>
           <p>
@@ -79,11 +80,44 @@
 <script>
 import Logo from '~/components/Logo.vue'
 import VuetifyLogo from '~/components/VuetifyLogo.vue'
+import { RadioSvgMap  } from "vue-svg-map";
+import Taiwan from "@svg-maps/taiwan";
 
 export default {
   components: {
     Logo,
-    VuetifyLogo
+    VuetifyLogo,
+    RadioSvgMap
+  },
+	data() {
+		return {
+      Taiwan,
+      selectedLocation: null
+		};
+  },
+  mounted() {
+    // Select random location at each start
+    console.log('Taiwan',Taiwan.locations)
+    const locations = Taiwan.locations
+    const n = locations.length - Math.floor(Math.random() * locations.length)
+    console.log(n,locations[n].id)
+    this.selectedLocation = locations[n].id
+  },
+  methods: {
+    onMapRegionClicked() {
+      console.log(this.selectedLocation)
+
+      // Unselect
+      setTimeout(()=>{
+        this.selectedLocation = null
+      },10000)
+    }
   }
 }
 </script>
+<style src="vue-svg-map/dist/index.css"></style>
+<style>
+.redRegion {
+  fill:rgb(255, 119, 119);
+}
+</style>
