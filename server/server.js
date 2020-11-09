@@ -3,6 +3,9 @@ import session from 'express-session'
 import logger from 'morgan'
 import apiRouter from './routes/routes.js'
 import config from './server.config.js'
+import postgresStore from './postgres-store.js'
+
+postgresStore.init(config.postgres)
 
 const app = express()
 
