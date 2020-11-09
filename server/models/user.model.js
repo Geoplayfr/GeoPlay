@@ -28,7 +28,8 @@ export default class User {
 	static async addUser(username, password) {
 		try {
 			const result = await postgresStore.client.query({
-				text: 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
+				text: `INSERT INTO users(username, password)
+				VALUES ($1, crypt($2, gen_salt('bf'))) RETURNING *`,
 				values: [username, password]
 			})
 			return result.rows[0]
@@ -46,14 +47,4 @@ export default class User {
 			)
 		`)
 	}
-
-  	async create (username, password) {
-		await postgresStore.client.query({
-		text: `
-		INSERT INTO users(username, password)
-		VALUES ($1, crypt($2, gen_salt('bf')))
-		`,
-		values: [username, password]
-		})
-  	}
 }

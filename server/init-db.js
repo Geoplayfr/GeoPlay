@@ -17,6 +17,7 @@ async function init () {
 		}
 	}
 	await dropEverything()
+	await postgresStore.client.query('CREATE EXTENSION IF NOT EXISTS pgcrypto')
 	await User.generateTable()
 	postgresStore.close()
 }
