@@ -23,9 +23,9 @@ export default class Quiz {
         CREATE TABLE quizzes (
             id_quiz SERIAL PRIMARY KEY,
             name text NOT NULL UNIQUE,
-            map_name text NOT NULL,
+            mapId text NOT NULL,
             difficulty text NOT NULL,
-            duration integer NOT NULL,
+            duration integer,
             id_user integer NOT NULL,
             question text NOT NULL,
             CONSTRAINT fk_user
