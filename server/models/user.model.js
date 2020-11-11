@@ -3,6 +3,8 @@ import postgresStore from '../postgres-store.js'
 const debug = Debug('geoplay')
 
 export default class User {
+	/** @type {Number} */
+	id_user 
 	/** @type {String} */
 	username
 	/** @type {String} */
@@ -42,8 +44,9 @@ export default class User {
 	static async generateTable () {
 		await postgresStore.client.query(`
 			CREATE TABLE users (
-			username text PRIMARY KEY,
-			password text
+				id_user SERIAL PRIMARY KEY,
+				username text UNIQUE,
+				password text
 			)
 		`)
 	}
