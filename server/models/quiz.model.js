@@ -27,10 +27,15 @@ export default class Quiz {
             difficulty text NOT NULL,
             duration integer,
             id_user integer NOT NULL,
-            question text NOT NULL,
+            nb_question integer NOT NULL,
+            id_location_serie integer NOT NULL,
+            CHECK (nb_question >= 5 AND nb_question <= 25),
             CONSTRAINT fk_user
                 FOREIGN KEY(id_user)
-                    REFERENCES users(id_user)
+                    REFERENCES users(id_user),
+            CONSTRAINT fk_location_serie
+                FOREIGN KEY(id_location_serie)
+                    REFERENCES location_series(id_location_serie)
         )
         `)
     }
