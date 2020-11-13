@@ -8,15 +8,15 @@ export default class Quiz {
     /** @type {String} */
     quiz_name
     /** @type {String} */
-    map_name
+    map_id
     /** @type {String} */
     difficulty
     /** @type {Number} */
     duration
     /** @type {Number} */
     id_user
-    /** @type {String} */
-    questions
+    /** @type {Number} */
+    nb_questions
 
     static async generateTable() {
         await postgresStore.client.query(`
@@ -28,14 +28,10 @@ export default class Quiz {
             duration integer,
             id_user integer NOT NULL,
             nb_question integer NOT NULL,
-            id_location_serie integer NOT NULL,
             CHECK (nb_question >= 5 AND nb_question <= 25),
             CONSTRAINT fk_user
                 FOREIGN KEY(id_user)
-                    REFERENCES users(id_user),
-            CONSTRAINT fk_location_serie
-                FOREIGN KEY(id_location_serie)
-                    REFERENCES location_series(id_location_serie)
+                    REFERENCES users(id_user)
         )
         `)
     }

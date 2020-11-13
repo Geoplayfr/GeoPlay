@@ -45,8 +45,8 @@ export default class User {
 		await postgresStore.client.query(`
 			CREATE TABLE users (
 				id_user SERIAL PRIMARY KEY,
-				username text UNIQUE,
-				password text
+				username text NOT NULL UNIQUE,
+				password text NOT NULL
 			)
 		`)
 	}
