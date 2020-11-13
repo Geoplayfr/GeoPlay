@@ -27,8 +27,8 @@ export default class Quiz {
             difficulty text NOT NULL,
             duration integer,
             id_user integer NOT NULL,
-            nb_question integer NOT NULL,
-            CHECK (nb_question >= 5 AND nb_question <= 25),
+            nb_questions integer NOT NULL,
+            CHECK (nb_questions >= 5 AND nb_questions <= 25),
             CONSTRAINT fk_user
                 FOREIGN KEY(id_user)
                     REFERENCES users(id_user)
