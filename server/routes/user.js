@@ -1,9 +1,14 @@
 import { Router } from 'express'
-import getUsers from '../controllers/user/get.users.js'
-import postUser from '../controllers/user/post.user.js'
+import {getUsers, getUser} from '../controllers/user/get.user.js'
+import {postAddUser, postCheckUser} from '../controllers/user/post.user.js'
+import {putModifyPassword, putModifyUsername}  from '../controllers/user/put.user.js'
 
 const router = Router()
-router.get('/users', getUsers)
-router.post('/user', postUser)
+router.get('/all', getUsers)
+router.get('/:userId', getUser)
+router.post('/add', postAddUser)
+router.post('/check', postCheckUser)
+router.put('/:userId', putModifyPassword)
+router.put('/:userId/:newUsername', putModifyUsername)
 
 export default router
