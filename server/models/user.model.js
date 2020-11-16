@@ -74,6 +74,43 @@ export default class User {
 	}
 
 	/**
+	 * @param {Number} id
+	 * @param {String} newUsername
+	 * @param {String} password
+	 * @returns {Promise<User>}
+	 */
+	static async updateUsername(id, newUsername, password) {
+		try {
+			const result = await postgresStore.client.query({
+				text: `UPDATE users SET username = $2 
+				WHERE id_user = $1 AND password = crypt($3, password) RETURNING *`,
+				values: [id, newUsername, password]
+			})
+			return (result.rows).map(e => ({id:e.id_user, username : e.username}))[0]
+		} catch (err) {
+			return { error: err, message: err.message } // 500
+		}
+	}
+
+	/**
+	 * @param {Number} id
+	 * @param {String} password
+	 * @returns {Promise<User>}
+	 */
+	static async deleteUser(id, password) {
+		try {
+			const result = await postgresStore.client.query({
+				text: `DELETE FROM users 
+				WHERE id_user = $1 AND password = crypt($2, password) RETURNING *`,
+				values: [id, password]
+			})
+			return (result.rows).map(e => ({id:e.id_user, username : e.username}))[0]
+		} catch (err) {
+			return { error: err, message: err.message } // 500
+		}
+	}
+
+	/**
 	 * @param {String} username
 	 * @param {String} password
 	 * @returns {Promise<Todo>}
