@@ -16,7 +16,7 @@ export default class User {
 	static async getAll () {
 		const users = await postgresStore.client.query({
 			text: `
-			SELECT username FROM users
+			SELECT id_user ,username FROM users
 			`
 		  })
 		return users.rows
