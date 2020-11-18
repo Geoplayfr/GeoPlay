@@ -3,7 +3,7 @@ import postgresStore from './postgres-store.js'
 import User from './models/user.model.js'
 import Quiz from './models/quiz.model.js'
 import Score from './models/score.model.js'
-import Location from './models/location.model.js'
+import Question from './models/question.model.js'
 import { run } from 'jest'
 
 async function init () {
@@ -23,7 +23,7 @@ async function init () {
 	await postgresStore.client.query('CREATE EXTENSION IF NOT EXISTS pgcrypto')
 	await User.generateTable()
 	await Quiz.generateTable()
-	await Location.generateTable()
+	await Question.generateTable()
 	await Score.generateTable()
 	postgresStore.close()
 }
