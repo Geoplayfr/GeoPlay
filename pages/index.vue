@@ -70,6 +70,20 @@
           >
             Continue
           </v-btn>
+          <v-btn
+            color="primary"
+            nuxt
+            :to="{ name: 'game', params: {quizz : sampleFranceQuizz}}"
+          >
+            Game (France)
+          </v-btn>
+          <v-btn
+            color="primary"
+            nuxt
+            :to="{ name: 'game', params: {quizz : sampleWorldQuizz}}"
+          >
+            Game (World)
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-col>
@@ -84,6 +98,50 @@ export default {
   components: {
     Logo,
     VuetifyLogo
+  },
+  data() {
+    return {
+      sampleFranceQuizz: {
+        name: 'French departments',
+        map: 'france.departments',
+        timer: 200,
+        difficulty: 1, // 1 : easy, 2 : medium, 3 : hard
+        questions: [
+          {
+            question: 'Where is Cantal ?',
+            answer: '15'
+          },
+          {
+            question: 'Where is l\'Oise?',
+            answer: '60'
+          },
+          {
+            question: 'Where is Vendée located?',
+            answer: '85',
+          }
+        ]
+      },
+      sampleWorldQuizz: {
+        name: 'Countries & Cheese',
+        map: 'world',
+        timer: 200,
+        difficulty: 1, // 1 : easy, 2 : medium, 3 : hard
+        questions: [
+          {
+            question: 'Where is France located ?',
+            answer: 'fr'
+          },
+          {
+            question: 'Where is Armenia located ?',
+            answer: 'am'
+          },
+          {
+            question: 'What country is famous for it\'s cheese, except for France or Italy ?',
+            answer: 'ch',
+          }
+        ]
+      }
+    }
   }
 }
 </script>
