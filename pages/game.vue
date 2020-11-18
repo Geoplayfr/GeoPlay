@@ -10,7 +10,7 @@
       <div v-if="quizzLoaded" class="text-right">
         <!-- Font awesome icon -->
         <fa :icon="['fas', 'stopwatch']" />
-        Timer
+        Timer {{timeRemaining}}
         </div>
       <div class="text-center">
         <v-progress-circular
@@ -64,7 +64,10 @@ export default {
       questionIndex: 0,
       score: 0,
       maxScore: 999,
+      timeRemaining: -1,
       mapStyle: '',
+      greenMapStyle: 'green green-svg-map__location green-svg-map__location:focus green-svg-map__location:hover green-svg-map__location[aria-checked="true"]',
+      redMapStyle : 'red red-svg-map__location red-svg-map__location:focus red-svg-map__location:hover red-svg-map__location[aria-checked="true"]',
       playerList: ['François'],
 		};
   },
@@ -94,12 +97,15 @@ export default {
         if(this.questionIndex < this.quizz.questions.length-1) {
           if(this.selectedLocation === this.currentQuestion.answer) {
             this.score++
-            this.highlightMap('green green-svg-map__location green-svg-map__location:focus green-svg-map__location:hover green-svg-map__location[aria-checked="true"]',3)
+            this.highlightMap(this.greenMapStyle,3)
         } else {
-          this.highlightMap('red red-svg-map__location red-svg-map__location:focus red-svg-map__location:hover red-svg-map__location[aria-checked="true"]',3)
+          this.highlightMap(this.redMapStyle,3)
         }
         this.questionIndex++
       } else {
+        if(this.selectedLocation === this.currentQuestion.answer) {
+            this.score++
+        }
         this.$router.push({
                             name:'result', 
                                           params:{
@@ -123,6 +129,22 @@ export default {
       }
       throw new Error('Map name not defined')
     },
+    enableTimer(time) {
+      this.timeRemaining = time
+ var timerId = setInterval(() => {
+    if(this.timeRemaining > 0) {
+            this.timeRemaining--
+          } else {
+            clearInterval(timerId)
+            this.$router.push({
+                            name:'result', 
+                                          params:{
+                                          score: this.score,
+                                          maxScore: this.maxScore}
+                          })
+          }
+        }, 1000);
+    },
     loadQuizz(quizz){
       // TODO : validation of the quizz
       this.quizz = quizz
@@ -132,6 +154,11 @@ export default {
         this.maxScore = quizz.questions.length
         this.curScore = 0
         this.questionIndex = 0
+        // Timer
+        if(quizz.timer) {
+          this.enableTimer(quizz.timer)
+        }
+       
         this.quizzLoaded = true
       } catch(e) {
          this.loadText = e.message

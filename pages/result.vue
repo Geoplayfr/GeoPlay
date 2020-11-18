@@ -36,7 +36,7 @@
            this.loaded = true
            this.percent = this.$route.params.score / this.$route.params.maxScore * 100
        } else {
-           alert('error')
+           alert('route error')
        }
        console.log(this.$route.params)        
        }
