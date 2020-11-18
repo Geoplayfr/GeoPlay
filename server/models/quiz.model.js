@@ -18,6 +18,32 @@ export default class Quiz {
     /** @type {Number} */
     nb_questions
 
+    /**
+	 * @returns {Promise<Quiz[]>}
+	 */
+	static async getAll () {
+		const quizzes = await postgresStore.client.query({
+			text: `
+			SELECT * FROM quizzes
+			`
+		  })
+		return quizzes.rows
+    }
+    
+    /**
+	 * @param {Number} quizId
+	 * @returns {Promise<Quiz>}
+	 */
+	static async getQuiz (quizId) {
+		const quiz = await postgresStore.client.query({
+			text: `
+			SELECT * FROM quizzes WHERE id_quiz = $1
+			`,
+			values: [quizId]
+          })
+		return quiz.rows[0]
+    }
+    
     static async generateTable() {
         await postgresStore.client.query(`
         CREATE TABLE quizzes (

@@ -10,6 +10,19 @@ export default class Location {
     /** @type {Number} */
     id_quiz
     
+    /**
+	 * @param {Number} quizId
+	 * @returns {Promise<Location[]>}
+	 */
+	static async getLocation (quizId) {
+		const loc = await postgresStore.client.query({
+			text: `
+			SELECT location_id FROM location WHERE id_quiz = $1
+			`,
+			values: [quizId]
+          })
+		return loc.rows
+	}
     
     static async generateTable() {
         await postgresStore.client.query(`
