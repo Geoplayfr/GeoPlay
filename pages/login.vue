@@ -40,23 +40,13 @@
                     required
                   />
                   <v-text-field
-                    label="Enter your password"
-                    v-model="enter_password"
-                    :rules="pseudoRules"
+                    label="Your password"
+                    v-model="password"
+                    :rules="passwordRules"
                     @keyup.enter="submitUnique"
                     :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                     :type="show1 ? 'text' : 'password'"
                     @click:append="show1 = !show1"
-                    required
-                  />
-                  <v-text-field
-                    label="Confirm your password"
-                    v-model="confirm_password"
-                    :rules="pseudoRules"
-                    @keyup.enter="submitUnique"
-                    :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
-                    :type="show2 ? 'text' : 'password'"
-                    @click:append="show2 = !show2"
                     required
                   />
                 </v-form>
@@ -64,11 +54,17 @@
               <v-card-actions>
                 <v-spacer />
                 <v-row align="center">
-                    <v-btn
-                    color="primary"
-                    :disabled="!valid"
-                    @click="submitUnique">Sign up</v-btn>
+                  <v-btn
+                  color="primary" 
+                  :disabled="!valid"
+                  @click="submitUnique">Sign in</v-btn>
                 </v-row>
+              </v-card-actions>
+              <v-card-actions>
+                <v-spacer />
+                <v-row align="center">
+                  <a href="/register">Not subscribed yet click here</a>
+                </v-row>              
               </v-card-actions>
             </v-card>
           </v-col>
@@ -83,17 +79,20 @@ export default {
       errorMsg:"",
       snackbar: false,
       username:"",
-      enter_password:"",
-      confirm_password:"",
+      password:"",
       show1: false,
       valid: false,
       pseudoRules: [
       (username) => !!username || 'A username is required',
       (username) => username.trim() !== '' || 'A username cannot have only whitespaces'
-      ]
+      ],
+      passwordRules: [
+        (password) => !!password || 'A password is required',
+        (password) => password.trim() !== '' || 'A password cannot have only whitespaces',
+      ],
     }
   },
-   methods: {
+  methods: {
     submitUnique() {
 
     }

@@ -40,13 +40,23 @@
                     required
                   />
                   <v-text-field
-                    label="Your password"
+                    label="Enter your password"
                     v-model="password"
-                    :rules="pseudoRules"
+                    :rules="passwordRules"
                     @keyup.enter="submitUnique"
                     :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                     :type="show1 ? 'text' : 'password'"
                     @click:append="show1 = !show1"
+                    required
+                  />
+                  <v-text-field
+                    label="Confirm your password"
+                    v-model="passwordConfirm"
+                    :rules="confirmPasswordRules"
+                    @keyup.enter="submitUnique"
+                    :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+                    :type="show2 ? 'text' : 'password'"
+                    @click:append="show2 = !show2"
                     required
                   />
                 </v-form>
@@ -54,17 +64,11 @@
               <v-card-actions>
                 <v-spacer />
                 <v-row align="center">
-                  <v-btn
-                  color="primary" 
-                  :disabled="!valid"
-                  @click="submitUnique">Sign in</v-btn>
+                    <v-btn
+                    color="primary"
+                    :disabled="!valid"
+                    @click="submitUnique">Sign up</v-btn>
                 </v-row>
-              </v-card-actions>
-              <v-card-actions>
-                <v-spacer />
-                <v-row align="center">
-                  <a href="/subscribe">Not subscribed yet click here</a>
-                </v-row>              
               </v-card-actions>
             </v-card>
           </v-col>
@@ -80,17 +84,29 @@ export default {
       snackbar: false,
       username:"",
       password:"",
+      passwordConfirm:"",
       show1: false,
+      show2: false,
       valid: false,
       pseudoRules: [
       (username) => !!username || 'A username is required',
       (username) => username.trim() !== '' || 'A username cannot have only whitespaces'
+      ],
+      passwordRules: [
+        (password) => !!password || 'A password is required',
+        (password) => password.trim() !== '' || 'A password cannot have only whitespaces',
+      ],
+      confirmPasswordRules: [
+        (passwordConfirm) => !!passwordConfirm || 'Please confirm your password',
       ]
     }
   },
-  methods: {
+   methods: {
     submitUnique() {
-
+      if (this.password !== this.passwordConfirm){
+        this.errorMsg = 'The two passwords do not match'
+        this.snackbar = true
+      }
     }
   }
 }

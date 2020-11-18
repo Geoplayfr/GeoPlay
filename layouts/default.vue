@@ -108,13 +108,13 @@ export default {
         },
          {
           icon: 'mdi-chart-bubble',
-          title: 'Connection',
-          to: '/connection'
+          title: 'Login',
+          to: '/login'
         },
          {
           icon: 'mdi-chart-bubble',
-          title: 'Subscribe',
-          to: '/subscribe'
+          title: 'Register',
+          to: '/register'
         }
       ],
       miniVariant: false,
