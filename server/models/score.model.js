@@ -6,6 +6,8 @@ export default class Score {
     /** @type {Number} */
     id_score
     /** @type {Number} */
+    score_value
+    /** @type {Number} */
     id_user
     /** @type {Number} */
     id_quiz
@@ -14,6 +16,7 @@ export default class Score {
         await postgresStore.client.query(`
         CREATE TABLE scores (
             id_score SERIAL PRIMARY KEY,
+            score_value integer NOT NULL,
             id_user integer NOT NULL,
             id_quiz integer NOT NULL,
             CONSTRAINT fk_user
