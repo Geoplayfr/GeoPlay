@@ -26,13 +26,16 @@
                <div>{{quizz.questions[questionIndex].question}}</div>
                <v-card-actions>
                  <v-btn to="/">Quit</v-btn>
+                 <v-btn 
+                 v-show="nextButtonVisible"
+                 :disabled="!nextButtonVisible" 
+                 color="accent"
+                 @click="nextQuestion()"
+                 >Next question</v-btn>
                 <v-spacer></v-spacer> <!-- For aligning the score the to right -->
                  <div>Current score {{score}} / {{maxScore}}</div>
                </v-card-actions>
              </v-card>
-             <div class="text-left">
-                <v-btn @click="changeZoom" id="levitation">Zoom!</v-btn>
-             </div>
       </div>
     </v-col>
   </v-row>
@@ -69,6 +72,9 @@ export default {
       greenMapStyle: 'green green-svg-map__location green-svg-map__location:focus green-svg-map__location:hover green-svg-map__location[aria-checked="true"]',
       redMapStyle : 'red red-svg-map__location red-svg-map__location:focus red-svg-map__location:hover red-svg-map__location[aria-checked="true"]',
       playerList: ['François'],
+      highlightedRegions: null,
+      cacheRegionClassList: null,
+      nextButtonVisible: false
 		};
   },
   computed: {
@@ -77,11 +83,29 @@ export default {
     }
   },
   methods: {
-    
-    changeZoom() {
 
+    highlightMapRegion(map,regionId,color) {
+        var regions = map.locations
+        var regionToColor = document.getElementById('map').children.namedItem(regionId)
+        // console.log('highlight',regionToColor)
+        console.log('fullobj color ', color, regionToColor)
+        this.cacheRegionClassList = [...regionToColor.classList]
+        regionToColor.classList.remove(...regionToColor.classList)
+        regionToColor.blur() // Stop the focus
+        switch (color) {
+          case 'green':
+            regionToColor.classList.add(...this.greenMapStyle.split(' '))
+            break;
+          case 'red':
+            regionToColor.classList.add(...this.redMapStyle.split(' '))
+          default:
+            break;
+        }
+        if(!this.highlightedRegions) {
+          this.highlightedRegions = []
+        }
+        this.highlightedRegions.push(regionToColor)
     },
-
     /**
      * Highlight the map for a few seconds
      */
@@ -94,24 +118,9 @@ export default {
       },durationSeconds*1000)
     },
     onMapRegionClicked() {
-        if(this.questionIndex < this.quizz.questions.length-1) {
-          if(this.selectedLocation === this.currentQuestion.answer) {
-            this.score++
-            this.highlightMap(this.greenMapStyle,3)
-        } else {
-          this.highlightMap(this.redMapStyle,3)
-        }
-        this.questionIndex++
-      } else {
-        if(this.selectedLocation === this.currentQuestion.answer) {
-            this.score++
-        }
-        this.$router.push({
-                            name:'result', 
-                                          params:{
-                                          score: this.score,
-                                          maxScore: this.maxScore}
-                          })
+      // Disable svg selection when the current question is finished
+      if(this.nextButtonVisible) {
+        this.selectedLocation = null
       }
     },
     getMapByName(name) {
@@ -136,14 +145,46 @@ export default {
             this.timeRemaining--
           } else {
             clearInterval(timerId)
-            this.$router.push({
-                            name:'result', 
+            this.showEndQuestionMenu(this.currentQuestion)
+          }
+        }, 1000);
+    },
+    nextQuestion() {
+      if(this.questionIndex <  this.quizz.questions.length - 1 ) {
+        this.nextButtonVisible = false
+        this.selectedLocation = null
+        this.questionIndex++
+        for(let i = 0 ; i < this.highlightedRegions.length ; i++) {
+          this.highlightedRegions[i].classList.remove(...this.highlightedRegions[i].classList)
+          console.log('cache', this.cacheRegionClassList)  
+          this.highlightedRegions[i].classList.add(...this.cacheRegionClassList)
+        }
+        this.highlightedRegions = []
+        this.enableTimer(this.quizz.timer)
+      } else {
+        // Quizz finished 
+              this.$router.push({
+              name:'result', 
                                           params:{
                                           score: this.score,
                                           maxScore: this.maxScore}
-                          })
-          }
-        }, 1000);
+              })
+      }
+
+    },
+    showEndQuestionMenu(question) {
+      // Show on the map the correct location
+      if(this.selectedLocation !== question.answer) {
+        this.highlightMapRegion(this.quizzMap,question.answer,'red')
+      } else {
+        this.highlightMapRegion(this.quizzMap,question.answer,'green')
+        // Increment score if user choice is valid
+        this.score++
+      }
+      this.selectedLocation = null
+      
+      // Show the button "Next question"
+      this.nextButtonVisible = true
     },
     loadQuizz(quizz){
       // TODO : validation of the quizz
@@ -151,13 +192,12 @@ export default {
       try{
         this.loadText = "Loading Map"
         this.quizzMap = this.getMapByName(quizz.map)
+        console.log(this.quizzMap)
         this.maxScore = quizz.questions.length
-        this.curScore = 0
+        this.score = 0
         this.questionIndex = 0
         // Timer
-        if(quizz.timer) {
-          this.enableTimer(quizz.timer)
-        }
+        this.enableTimer(quizz.timer)
        
         this.quizzLoaded = true
       } catch(e) {
@@ -179,10 +219,3 @@ export default {
 }
 </script>
 <style src="./css/mapStyles.css"></style>
-<style scoped>
-#levitation {
-  position: fixed;
-  bottom: 0px;
-  height: 70px;
-}
-</style>

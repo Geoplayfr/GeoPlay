@@ -104,8 +104,8 @@ export default {
       sampleFranceQuizz: {
         name: 'French departments',
         map: 'france.departments',
-        timer: 200,
-        difficulty: 1, // 1 : easy, 2 : medium, 3 : hard
+        timer: 10,
+        difficulty: 'easy',
         questions: [
           {
             question: 'Where is Cantal ?',
@@ -124,8 +124,8 @@ export default {
       sampleWorldQuizz: {
         name: 'Countries & Cheese',
         map: 'world',
-        timer: 200,
-        difficulty: 1, // 1 : easy, 2 : medium, 3 : hard
+        timer: 10,
+        difficulty: 'easy', // 1 : easy, 2 : medium, 3 : hard
         questions: [
           {
             question: 'Where is France located ?',
@@ -136,7 +136,7 @@ export default {
             answer: 'am'
           },
           {
-            question: 'What country is famous for it\'s cheese, except for France or Italy ?',
+            question: 'Where is Switzerland ?',
             answer: 'ch',
           }
         ]

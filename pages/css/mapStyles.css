@@ -40,7 +40,7 @@
       fill: #13b621;
       cursor: pointer; }
       .green-svg-map__location:focus, .green-svg-map__location:hover {
-        fill: #b8e2b3;
+        fill: #7beb6e;
         outline: 0; }
         .green-svg-map__location[aria-checked="true"] {
-        fill: #f4bc44; }
+        fill: #0baf0b; }
