@@ -66,7 +66,8 @@
                 <v-row align="center">
                     <v-btn
                     color="primary"
-                    >Sign up</v-btn>
+                    :disabled="!valid"
+                    @click="submitUnique">Sign up</v-btn>
                 </v-row>
               </v-card-actions>
             </v-card>
@@ -79,13 +80,23 @@
 export default {
   data () {
     return {
+      errorMsg:"",
+      snackbar: false,
+      username:"",
+      enter_password:"",
+      confirm_password:"",
       show1: false,
-      show2: false
-    }
-  },
-  pseudoRules: [
+      valid: false,
+      pseudoRules: [
       (username) => !!username || 'A username is required',
       (username) => username.trim() !== '' || 'A username cannot have only whitespaces'
-    ]
+      ]
+    }
+  },
+   methods: {
+    submitUnique() {
+
+    }
+  }
 }
 </script>

@@ -76,13 +76,22 @@
 export default {
   data () {
     return {
+      errorMsg:"",
+      snackbar: false,
+      username:"",
+      password:"",
       show1: false,
-      valid: false
-    }
-  },
-  pseudoRules: [
+      valid: false,
+      pseudoRules: [
       (username) => !!username || 'A username is required',
       (username) => username.trim() !== '' || 'A username cannot have only whitespaces'
-    ]
+      ]
+    }
+  },
+  methods: {
+    submitUnique() {
+
+    }
+  }
 }
 </script>
