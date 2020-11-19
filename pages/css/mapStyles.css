@@ -1,3 +1,6 @@
+/*
+Default style map, automatically loaded into any created svg map
+*/
 .svg-map {
     width: 100%;
     height: auto;
@@ -13,7 +16,9 @@
         outline: 0; }
       .svg-map__location[aria-checked="true"] {
         fill: #f4bc44; }
-  
+/*
+Red theme, used for wrong answers
+*/
 .red {
     width: 100%;
     height: auto;
@@ -29,6 +34,10 @@
         outline: 0; }
         .red-svg-map__location[aria-checked="true"] {
         fill: #f4bc44; }
+
+/*
+Green theme, used for good answers
+*/
   .green {
     width: 100%;
     height: auto;
