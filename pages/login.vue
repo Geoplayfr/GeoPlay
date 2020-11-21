@@ -35,7 +35,7 @@
                     label="Your username"
                     v-model="username"
                     :rules="pseudoRules"
-                    @keyup.enter="submitUnique"
+                    @keyup.enter="login"
                     type="text"
                     required
                   />
@@ -43,7 +43,7 @@
                     label="Your password"
                     v-model="password"
                     :rules="passwordRules"
-                    @keyup.enter="submitUnique"
+                    @keyup.enter="login"
                     :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                     :type="show1 ? 'text' : 'password'"
                     @click:append="show1 = !show1"
@@ -57,7 +57,7 @@
                   <v-btn
                   color="primary" 
                   :disabled="!valid"
-                  @click="submitUnique">Sign in</v-btn>
+                  @click="login">Login</v-btn>
                 </v-row>
               </v-card-actions>
               <v-card-actions>
@@ -93,8 +93,18 @@ export default {
     }
   },
   methods: {
-    submitUnique() {
-
+    async login() {
+      await this.$axios.post('/api/users/check', {
+        username: this.username,
+        password: this.password
+      }).then(response => { 
+        this.errorMsg = 'Welcome Back'
+        this.snackbar = true
+      })
+      .catch(error => {
+        this.errorMsg = 'Incorrect credentials: '
+        this.snackbar = true
+      })
     }
   }
 }

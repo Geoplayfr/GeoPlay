@@ -102,10 +102,23 @@ export default {
     }
   },
    methods: {
-    submitUnique() {
+    async submitUnique() {
       if (this.password !== this.passwordConfirm){
         this.errorMsg = 'The two passwords do not match'
         this.snackbar = true
+      }else{
+        await this.$axios.post('/api/users/add', {
+          username: this.username,
+          password: this.password
+        }).then(response => { 
+          this.errorMsg = 'Welcome'
+          this.snackbar = true
+        })
+        .catch(error => {
+          this.errorMsg = 'Incorrect credentials: ' + error.response.data.message
+          this.snackbar = true
+          console.log(error.response.data.message)
+        })
       }
     }
   }
