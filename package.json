@@ -13,7 +13,6 @@
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-brands-svg-icons": "^5.15.1",
-    "@svg-maps/france": "^1.0.1",
     "@svg-maps/france.departments": "^1.0.1",
     "@svg-maps/taiwan": "^1.1.0",
     "@svg-maps/world": "^1.0.1",
