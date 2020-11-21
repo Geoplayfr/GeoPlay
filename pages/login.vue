@@ -63,7 +63,8 @@
               <v-card-actions>
                 <v-spacer />
                 <v-row align="center">
-                  <a href="/register">Not subscribed yet click here</a>
+                  <NuxtLink to="/register">
+                  Not subscribed yet click here</NuxtLink>
                 </v-row>              
               </v-card-actions>
             </v-card>
@@ -73,6 +74,7 @@
 </div>
 </template>
 <script>
+
 export default {
   data () {
     return {
@@ -94,18 +96,24 @@ export default {
   },
   methods: {
     async login() {
+      this.username = this.username.trim()
+      this.password = this.password.trim()
       await this.$axios.post('/api/users/check', {
         username: this.username,
         password: this.password
       }).then(response => { 
         this.errorMsg = 'Welcome Back'
         this.snackbar = true
+        this.$store.commit('users/connect', { id: response.data.id_user, username: response.data.username})
+        this.$router.push('/')
       })
       .catch(error => {
-        this.errorMsg = 'Incorrect credentials: '
+        this.errorMsg = 'Incorrect credentials'
         this.snackbar = true
+        console.log(error)
       })
     }
-  }
+  },
+  middleware: 'disconnect'
 }
 </script>

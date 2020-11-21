@@ -111,7 +111,7 @@ export default {
           title: 'Login',
           to: '/login'
         },
-         {
+        {
           icon: 'mdi-chart-bubble',
           title: 'Register',
           to: '/register'

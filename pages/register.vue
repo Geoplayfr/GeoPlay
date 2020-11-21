@@ -111,8 +111,8 @@ export default {
           username: this.username,
           password: this.password
         }).then(response => { 
-          this.errorMsg = 'Welcome'
-          this.snackbar = true
+          this.$store.commit('users/connect', { id: response.data.id_user, username: response.data.username})
+          this.$router.push('/')
         })
         .catch(error => {
           this.errorMsg = 'Incorrect credentials: ' + error.response.data.message
@@ -121,6 +121,7 @@ export default {
         })
       }
     }
-  }
+  },
+  middleware: 'disconnect'
 }
 </script>
