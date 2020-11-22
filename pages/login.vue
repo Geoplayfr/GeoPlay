@@ -35,7 +35,7 @@
                     label="Your username"
                     v-model="username"
                     :rules="pseudoRules"
-                    @keyup.enter="submitUnique"
+                    @keyup.enter="login"
                     type="text"
                     required
                   />
@@ -43,7 +43,7 @@
                     label="Your password"
                     v-model="password"
                     :rules="passwordRules"
-                    @keyup.enter="submitUnique"
+                    @keyup.enter="login"
                     :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                     :type="show1 ? 'text' : 'password'"
                     @click:append="show1 = !show1"
@@ -57,13 +57,16 @@
                   <v-btn
                   color="primary" 
                   :disabled="!valid"
-                  @click="submitUnique">Sign in</v-btn>
+                  @click="login">Login</v-btn>
                 </v-row>
               </v-card-actions>
               <v-card-actions>
                 <v-spacer />
                 <v-row align="center">
-                  <a href="/register">Not subscribed yet click here</a>
+                  <div style="color:gray">Not registered yet ? 
+                  <NuxtLink to="/register">
+                  click here</NuxtLink>
+                  </div>
                 </v-row>              
               </v-card-actions>
             </v-card>
@@ -73,7 +76,9 @@
 </div>
 </template>
 <script>
+
 export default {
+  layout: 'notAuthenticated',
   data () {
     return {
       errorMsg:"",
@@ -93,8 +98,23 @@ export default {
     }
   },
   methods: {
-    submitUnique() {
-
+    async login() {
+      this.username = this.username.trim()
+      this.password = this.password.trim()
+      await this.$axios.post('/api/users/check', {
+        username: this.username,
+        password: this.password
+      }).then(response => { 
+        this.errorMsg = 'Welcome Back'
+        this.snackbar = true
+        this.$store.commit('users/connect', { id: response.data.id_user, username: response.data.username})
+        this.$router.push('/')
+      })
+      .catch(error => {
+        this.errorMsg = 'Incorrect credentials'
+        this.snackbar = true
+        console.log(error)
+      })
     }
   }
 }
