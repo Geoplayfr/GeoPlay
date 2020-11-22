@@ -63,8 +63,10 @@
               <v-card-actions>
                 <v-spacer />
                 <v-row align="center">
+                  <div style="color:gray">Not registered yet ? 
                   <NuxtLink to="/register">
-                  Not subscribed yet click here</NuxtLink>
+                  click here</NuxtLink>
+                  </div>
                 </v-row>              
               </v-card-actions>
             </v-card>
@@ -76,6 +78,7 @@
 <script>
 
 export default {
+  layout: 'notAuthenticated',
   data () {
     return {
       errorMsg:"",
@@ -113,7 +116,6 @@ export default {
         console.log(error)
       })
     }
-  },
-  middleware: 'disconnect'
+  }
 }
 </script>

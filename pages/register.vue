@@ -78,6 +78,7 @@
 </template>
 <script>
 export default {
+  layout: 'notAuthenticated',
   data () {
     return {
       errorMsg:"",
@@ -121,7 +122,6 @@ export default {
         })
       }
     }
-  },
-  middleware: 'disconnect'
+  }
 }
 </script>
