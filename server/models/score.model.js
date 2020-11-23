@@ -17,7 +17,6 @@ export default class Score {
 	 * @returns {Promise<Score[]>}
 	 */
 	static async getScoreUser (userId) {
-        console.log('coucou')
 		const scores = await postgresStore.client.query({
 			text: `
 			SELECT scores.score_value, quizzes.name
@@ -55,7 +54,6 @@ export default class Score {
 	 * @returns {Promise<Score[]>}
 	 */
 	static async getScoreQuiz (quizId) {
-        console.log('coucou')
 		const scores = await postgresStore.client.query({
 			text: `
 			SELECT scores.score_value, users.username
