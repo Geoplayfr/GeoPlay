@@ -48,7 +48,7 @@ export default class User {
 				VALUES ($1, crypt($2, gen_salt('bf'))) RETURNING *`,
 				values: [username, password]
 			})
-			return {id: result.rows[0].id_user, username: result.rows[0].username}
+			return {id_user: result.rows[0].id_user, username: result.rows[0].username}
 		} catch (err) {
 			return { error: err, message: err.message } // 500
 		}
@@ -67,7 +67,7 @@ export default class User {
 				WHERE id_user = $1 AND password = crypt($2, password) RETURNING *`,
 				values: [id, currentPassword, newPassword]
 			})
-			return (result.rows).map(e => ({id:e.id_user, username : e.username}))[0]
+			return (result.rows).map(e => ({id_user:e.id_user, username : e.username}))[0]
 		} catch (err) {
 			return { error: err, message: err.message } // 500
 		}
@@ -86,7 +86,7 @@ export default class User {
 				WHERE id_user = $1 AND password = crypt($3, password) RETURNING *`,
 				values: [id, newUsername, password]
 			})
-			return (result.rows).map(e => ({id:e.id_user, username : e.username}))[0]
+			return (result.rows).map(e => ({id_user:e.id_user, username : e.username}))[0]
 		} catch (err) {
 			return { error: err, message: err.message } // 500
 		}
@@ -104,7 +104,7 @@ export default class User {
 				WHERE id_user = $1 AND password = crypt($2, password) RETURNING *`,
 				values: [id, password]
 			})
-			return (result.rows).map(e => ({id:e.id_user, username : e.username}))[0]
+			return (result.rows).map(e => ({id_user:e.id_user, username : e.username}))[0]
 		} catch (err) {
 			return { error: err, message: err.message } // 500
 		}
@@ -118,7 +118,7 @@ export default class User {
 	static async checkUserCreds(username, password) {
 		try {
 			const result = await postgresStore.client.query({
-				text: `SELECT id_user FROM users WHERE
+				text: `SELECT id_user, username FROM users WHERE
 				username = $1 AND password = crypt($2, password)`,
 				values: [username, password]
 			})

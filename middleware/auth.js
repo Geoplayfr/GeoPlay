@@ -1,11 +1,11 @@
 export default function (ctx) {
 	updateData(ctx.app)
-	if(!isAuth(ctx.app)) {
+	if(!isAuth()) {
 		ctx.redirect('/login')
 	}
 }
 
-function isAuth(app) {
+function isAuth() {
 	return JSON.parse(sessionStorage.getItem('authenticated'))
 }
 
