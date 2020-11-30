@@ -1,16 +1,14 @@
 <template>
   <div>
     <!-- User card (profile info) -->
-    <v-card  v-if="us">
-      <v-card-title>
-        Profile settings | {{ us.username }}
-      </v-card-title>
+    <v-card v-if="us">
+      <v-card-title> Profile settings | {{ us.username }} </v-card-title>
     </v-card>
 
     <div class="ma-5">
       <!-- User profile edition -->
       <!--    Username edition-->
-      <v-form v-model="validUsername">
+      <v-form ref="changeUsernameForm" v-model="validUsername">
         <h2>Change your username</h2>
         <v-text-field
           v-model="newUsername"
@@ -18,18 +16,16 @@
           label="New username"
           required
         ></v-text-field>
-        <v-form v-model="validPassword">
-          <v-text-field
-            label="Enter your password"
-            v-model="password"
-            :rules="passwordRulesUsername"
-            @keyup.enter="changeUsername(password)"
-            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPassword ? 'text' : 'password'"
-            @click:append="showPassword = !showPassword"
-            required
-          />
-        </v-form>
+        <v-text-field
+          label="Enter your password"
+          v-model="password"
+          :rules="passwordRulesUsername"
+          @keyup.enter="changeUsername(password)"
+          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="showPassword ? 'text' : 'password'"
+          @click:append="showPassword = !showPassword"
+          required
+        />
         <v-btn
           @click="changeUsername(password)"
           :disabled="!validUsername"
@@ -39,7 +35,7 @@
         <v-divider class="my-5"></v-divider>
       </v-form>
       <!--    Password edition-->
-      <v-form v-model="validPassword">
+      <v-form ref="changePasswordForm" v-model="validPassword">
         <h2>Change your password</h2>
         <v-text-field
           label="Enter your password"
@@ -73,7 +69,7 @@
       <h2>Others</h2>
       <v-dialog v-model="dialog" persistent max-width="600px">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn color="error" dark v-bind="attrs" v-on="on">
+          <v-btn class="ma-6" color="error" dark v-bind="attrs" v-on="on">
             Delete account
           </v-btn>
         </template>
@@ -106,7 +102,7 @@
           </v-card>
         </v-form>
       </v-dialog>
-      <v-snackbar v-model="snackbar" bottom color="error">
+      <v-snackbar v-model="snackbar" bottom :color="snackBarColor">
         {{ snackbarMsg }}
         <v-btn color="white" text @click="snackbar = false"> Close </v-btn>
       </v-snackbar>
@@ -124,6 +120,7 @@ export default {
       dialog: false,
       snackbarMsg: "",
       snackbar: false,
+      snackBarColor: "error",
       newUsername: "",
       password: "",
       password2: "",
@@ -138,27 +135,32 @@ export default {
       passwordRulesUsername: [
         (password) => !!password || "A password is required",
         (password) =>
-          password.trim() !== "" || "A password cannot have only whitespaces",
+          (password && password.trim() !== "") ||
+          "A password cannot have only whitespaces",
       ],
       pseudoRules: [
-        (username) => !!username || "A username is required",
-        (username) =>
-          username.trim() !== "" || "A username cannot have only whitespaces",
+        (newUsername) => !!newUsername || "A username is required",
+        (newUsername) =>
+          (newUsername && newUsername.trim() !== "") ||
+          "A username cannot have only whitespaces",
       ],
       passwordRules: [
         (password) => !!password || "A password is required",
         (password) =>
-          password.trim() !== "" || "A password cannot have only whitespaces",
+          (password && password.trim() !== "") ||
+          "A password cannot have only whitespaces",
       ],
       newPasswordRules: [
         (password) => !!password || "A password is required",
         (password) =>
-          password.trim() !== "" || "A password cannot have only whitespaces",
+          (password && password.trim() !== "") ||
+          "A password cannot have only whitespaces",
       ],
       deletePasswordRules: [
         (password) => !!password || "A password is required",
         (password) =>
-          password.trim() !== "" || "A password cannot have only whitespaces",
+          (password && password.trim() !== "") ||
+          "A password cannot have only whitespaces",
       ],
     };
   },
@@ -168,30 +170,31 @@ export default {
     }),
   },
   methods: {
+    showSnackbar(msg, color, show = true) {
+      this.snackbarMsg = msg;
+      this.snackBarColor = color;
+      this.snackbar = show;
+    },
     async changeUsername(changePassword) {
       const password = changePassword.trim();
       await this.$axios.get("/api/users/" + this.us.id).then((res) => {
-        console.log(res.data.username, this.newUsername);
         if (res.data.username === this.newUsername) {
-          this.snackbarMsg = "You are already using this username";
-          this.snackbar = true;
+          this.showSnackbar("You are already using this username", "error");
         } else {
           this.$axios
             .put("/api/users/" + this.us.id + "/" + this.newUsername, {
               password: password,
             })
             .then((response) => {
-              this.password = "";
               this.$store.commit("users/connect", {
                 id: this.us.id,
                 username: this.newUsername,
               });
-              this.snackbarMsg = "Username changed";
-              this.snackbar = true;
+              this.showSnackbar("Username changed", "primary");
+              this.$refs.changeUsernameForm.reset();
             })
             .catch((error) => {
-              this.snackbarMsg = "Error while changing username";
-              this.snackbar = true;
+              this.showSnackbar("Error while changing username", "error");
               console.log(error);
             });
         }
@@ -206,14 +209,11 @@ export default {
           newPassword: this.newPassword, // Entered password
         })
         .then((response) => {
-          this.snackbarMsg = "Password changed";
-          this.snackbar = true;
-          this.newPassword = "";
-          this.password2 = "";
+          this.showSnackbar("Password changed", "primary");
+          this.$refs.changePasswordForm.reset();
         })
         .catch((error) => {
-          this.snackbarMsg = "Incorrect credentials";
-          this.snackbar = true;
+          this.showSnackbar("Incorrect credentials", "error");
           console.log(error);
         });
     },
@@ -229,16 +229,17 @@ export default {
           this.password3 = "";
           this.canDeleteAccount = false;
           this.$store.commit("users/disconnect");
-          this.snackbarMsg = "Account deleted, redirecting to login...";
-          this.snackbar = true;
+          this.showSnackbar(
+            "Account deleted, redirecting to login...",
+            "primary"
+          );
           setTimeout(() => {
             this.$router.push("/");
           }, 2000);
         })
         .catch((error) => {
           this.dialog = false;
-          this.snackbarMsg = "Error while deleting your account";
-          this.snackbar = true;
+          this.showSnackbar("Error while deleting your account", "error");
           console.log(error);
         });
     },
@@ -247,8 +248,5 @@ export default {
     },
   },
   middleware: "auth",
-  mounted() {
-    console.log("STORE", this.$store.getters);
-  },
 };
 </script>
