@@ -77,7 +77,7 @@ export default class Quiz {
           VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
 				values: [name, description, mapid, difficulty, duration, id_user, nb_questions]
 			})
-			return result.rows
+			return result.rows[0]
 		} catch (err) {
 			return { error: err, message: err.message } // 500
 		}

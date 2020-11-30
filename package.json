@@ -7,16 +7,21 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "test": "jest"
+    "test": "jest",
+    "db": "node -r esm server/init-db.js"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.2",
+    "@svg-maps/france.departments": "^1.0.1",
+    "@svg-maps/france.regions": "^1.1.1",
+    "@svg-maps/world": "^1.0.1",
     "core-js": "^3.6.5",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "morgan": "^1.10.0",
     "nuxt": "^2.14.6",
-    "pg": "^8.4.2"
+    "pg": "^8.4.2",
+    "vue-svg-map": "^1.2.0"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.11.2",
