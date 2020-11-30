@@ -45,7 +45,7 @@
           label="Enter your password"
           v-model="password2"
           :rules="passwordRules"
-          @keyup.enter="changePassword(newPassword)"
+          @keyup.enter="changePassword(password2, newPassword)"
           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
           :type="showPassword ? 'text' : 'password'"
           @click:append="showPassword = !showPassword"
@@ -202,7 +202,7 @@ export default {
       newPassword = newPassword.trim();
       await this.$axios
         .put("/api/users/" + this.us.id, {
-          currentPassword: this.password, // The current password for the user
+          currentPassword: password, // The current password for the user
           newPassword: this.newPassword, // Entered password
         })
         .then((response) => {
