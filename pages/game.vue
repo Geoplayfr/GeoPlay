@@ -53,9 +53,9 @@
 </template>
 <script>
 import { RadioSvgMap } from "vue-svg-map";
-import Taiwan from "@svg-maps/taiwan";
+import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
-import France from "@svg-maps/france.departments";
+import FranceDep from "@svg-maps/france.departments";
 import { mapState, mapActions } from 'vuex';
 
 export default {
@@ -65,7 +65,7 @@ export default {
   },
   data() {
     return {
-      Taiwan,
+      FranceRegions,
       World,
       loadText: "Loading Quizz",
       quizzMap: null,
@@ -200,12 +200,12 @@ export default {
     getMapByName(name) {
       if (name) {
         switch (name.toLowerCase()) {
-          case "taiwan":
-            return Taiwan;
+          case "france.regions":
+            return FranceRegions;
           case "world":
             return World;
           case "france.departments":
-            return France;
+            return FranceDep;
           default:
             throw new Error("Map not found");
         }
