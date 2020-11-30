@@ -7,7 +7,8 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "test": "jest"
+    "test": "jest",
+    "db": "node -r esm server/init-db.js"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.2",
