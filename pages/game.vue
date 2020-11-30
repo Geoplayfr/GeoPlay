@@ -2,7 +2,7 @@
   <v-row justify="center" align="center">
     <v-col cols="12" sm="10" md="10">
       <div v-if="quizzLoaded && playerList" class="text-left">
-        Welcome {{ playerList[0] }}
+        Welcome {{ $store.getters["users/user"].username }}
       </div>
       <div v-if="quizzLoaded" class="text-right">
         <div>Loaded quizz : {{ quiz.name }}</div>
@@ -60,6 +60,7 @@ import { mapState, mapActions } from 'vuex';
 
 export default {
   name: "game",
+  middleware: "auth",
   components: {
     RadioSvgMap,
   },
@@ -199,8 +200,8 @@ export default {
      */
     getMapByName(name) {
       if (name) {
-        switch (name.toLowerCase()) {
-          case "france.regions":
+        switch (name) {
+          case "Map of France regions":
             return FranceRegions;
           case "world":
             return World;
@@ -309,6 +310,7 @@ export default {
       await this.fetchQuiz({
         id: this.$route.params.id_quiz
       })
+      console.log('quiz : ', this.$store.getters["users/user"])
       // this.quizz = this.quiz
       this.loadQuizz(this.quiz);
 

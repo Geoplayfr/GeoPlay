@@ -28,15 +28,18 @@ const state = () => ({
     }
   const actions = {
       async fetchAllQuizzes () {
-          const quizzes = await this.$axios.$get('/api/quizzes/all')
-          quizzes.forEach(q => mutations.addQuizzes(this.state.quizzes, q))
+          const results = await this.$axios.$get('/api/quizzes/all')
+          for (const q of results) {
+            mutations.addQuizzes(this.state.quizzes, q)
+          }
       },
       async fetchQuiz ({}, { id }) {
-        const quiz = await this.$axios.$get('/api/quizzes/' + id)
-        mutations.addQuiz(this.state.quizzes, quiz)
+        const result = await this.$axios.$get('/api/quizzes/' + id)
+        mutations.addQuiz(this.state.quizzes, result)
       }
   }
   
+
   export default {
     state,
     getters,

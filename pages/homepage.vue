@@ -2,6 +2,7 @@
   <div id="app">
     <v-list-item-content v-for="quizz in quizzes" :key="quizz.id">
       <quizz-item
+        v-if="quizz.questions.length >= 5"
         :quizz="quizz"
       />
     </v-list-item-content>
@@ -12,6 +13,7 @@ import QuizzItem from "../components/QuizzItem.vue";
 import { mapState, mapActions } from 'vuex'
 export default {
   layout: "default",
+  middleware: "auth",
   components: {
     QuizzItem,
   },

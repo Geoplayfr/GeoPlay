@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card :loading="loading" fluid>
+    <v-card fluid>
       <v-row>
         <v-col cols="10">
           <v-card-title>{{ quizz.name }}</v-card-title>
@@ -49,7 +49,6 @@ export default {
   props: {
     quizz: {
       required: true,
-      type: String,
     },
   },
   data() {

@@ -4,6 +4,9 @@ import User from '../../models/user.model.js'
 
 export async function getQuizzes (req, res) {
     const quizzes = await Quiz.getAll()
+    for (const quiz of quizzes) {
+        quiz.questions = await Question.getQuestions(quiz.id_quiz)
+      }
     res.status(200).json(quizzes)
 }
 

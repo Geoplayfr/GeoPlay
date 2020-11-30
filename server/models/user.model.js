@@ -118,7 +118,7 @@ export default class User {
 	static async checkUserCreds(username, password) {
 		try {
 			const result = await postgresStore.client.query({
-				text: `SELECT id_user FROM users WHERE
+				text: `SELECT id_user, username FROM users WHERE
 				username = $1 AND password = crypt($2, password)`,
 				values: [username, password]
 			})

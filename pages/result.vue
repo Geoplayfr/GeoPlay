@@ -10,7 +10,7 @@
             <strong>{{ Math.ceil(percent) }}%</strong>
           </v-progress-linear>
           <br />
-          <v-btn to="/">Main menu</v-btn>
+          <v-btn to="/homepage">Main menu</v-btn>
         </div>
       </div>
     </v-col>
@@ -18,6 +18,7 @@
 </template>
 <script>
 export default {
+  middleware: "auth",
   data() {
     return {
       score: "",
