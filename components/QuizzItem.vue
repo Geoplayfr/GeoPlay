@@ -20,7 +20,7 @@
             >
             <v-col>
               <v-card-text class="pb-0"
-                >{{ quizz.nbQuestion }} questions</v-card-text
+                >{{ quizz.nb_questions }} questions</v-card-text
               ></v-col
             >
             <v-col
@@ -32,7 +32,12 @@
         </v-col>
         <v-col class="d-flex align-end flex-column mt-auto">
           <v-card-actions>
-            <v-btn color="primary">Start</v-btn>
+            <v-btn 
+              color="primary"
+              nuxt
+              :to="{ name: 'game', params: { id_quiz: quizz.id_quiz} }">
+                Start
+            </v-btn>
           </v-card-actions>
         </v-col>
       </v-row>
@@ -49,6 +54,6 @@ export default {
   },
   data() {
     return {};
-  },
+  }
 };
 </script>

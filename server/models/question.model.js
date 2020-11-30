@@ -86,6 +86,25 @@ export default class Question {
 			return { error: err, message: err.message } // 500
 		}
     }
+
+    /**
+     * 
+     * @param {Number} questionId 
+     * @returns {Promise<Question>}
+     */
+    static async getResponse(questionId) {
+        try {
+			const result = await postgresStore.client.query({
+                text: `SELECT response_location_id
+                FROM questions
+				WHERE id_question = $1`,
+				values: [questionId]
+			})
+			return result.rows
+		} catch (err) {
+			return { error: err, message: err.message } // 500
+		}
+    }
     
     static async generateTable() {
         await postgresStore.client.query(`

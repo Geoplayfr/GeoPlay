@@ -26,7 +26,9 @@ export default class Quiz {
 	static async getAll () {
 		const quizzes = await postgresStore.client.query({
 			text: `
-			SELECT * FROM quizzes
+			SELECT quizzes.id_quiz, quizzes."name", quizzes.description, quizzes.mapid, quizzes.difficulty, quizzes.duration, quizzes.nb_questions, users.username AS creator 
+      FROM quizzes
+      JOIN users ON (quizzes.id_user = users.id_user)
 			`
 		  })
 		return quizzes.rows

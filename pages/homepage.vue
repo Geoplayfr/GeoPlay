@@ -9,6 +9,7 @@
 </template>
 <script>
 import QuizzItem from "../components/QuizzItem.vue";
+import { mapState, mapActions } from 'vuex'
 export default {
   layout: "default",
   components: {
@@ -16,15 +17,16 @@ export default {
   },
   data() {
     return {
-      errorMsg: "",
-      snackbar: false,
-      username: "",
-      password: "",
-      show1: false,
-      valid: false,
-      title: "Hello word!",
-      quizzes: "",
       }
   },
+  computed: {
+    ...mapState('quizzes', ['quizzes'])
+  },
+  async created () {
+    await this.fetchAllQuizzes()
+  },
+  methods: {
+    ...mapActions('quizzes', ['fetchAllQuizzes'])
+  }
 }
 </script>
