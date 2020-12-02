@@ -260,12 +260,12 @@
         <v-card-text>{{ message }}</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn to="/"
+          <v-btn to="/profile"
             color="green darken-1"
             text
             @click="dialog = false"
           >
-            Back to homepage
+            Back to profile
           </v-btn>
           <v-btn href="/create_quizz"
             color="green darken-1"
