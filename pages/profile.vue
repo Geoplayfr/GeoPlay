@@ -66,6 +66,39 @@
         <v-btn @click="previousPage">Go back</v-btn>
       </v-form>
       <v-divider class="my-5"></v-divider>
+
+      <!-- Quiz Management -->
+      <h2>Quiz editor</h2>
+      <v-btn to="/create_quizz" class="ma-6" color="primary">
+        <v-icon class="mr-2"> mdi-crosshairs-question </v-icon>
+        Create quiz
+      </v-btn>
+      <v-list-item-content v-for="quizz in quizzes" :key="quizz.id">
+        <quizz-profile-item
+          @qpi-delete-action="showDeleteDialog"
+          @qpi-rename-action="renameQuizItem"
+          :quizz="quizz"
+        />
+      </v-list-item-content>
+      <v-dialog v-model="dialogDelete" persistent max-width="320">
+        <v-card>
+          <v-card-title class="headline">Delete this quiz ?</v-card-title>
+          <v-card-text>The quiz will be deleted forever</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="orange darken-1"
+              text
+              @click="deleteQuiz(selectedQuizId)"
+            >
+              Delete
+            </v-btn>
+            <v-btn color="grey" text @click="dialogDelete = false">
+              Cancel
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <h2>Others</h2>
       <v-dialog v-model="dialog" persistent max-width="600px">
         <template v-slot:activator="{ on, attrs }">
@@ -101,38 +134,6 @@
             </v-card-actions>
           </v-card>
         </v-form>
-      </v-dialog>
-      <!-- Quiz Management -->
-      <h2>Quiz editor</h2>
-      <v-btn to="/create_quizz" class="ma-6" color="primary">
-        <v-icon class="mr-2"> mdi-crosshairs-question </v-icon>
-        Create quiz
-      </v-btn>
-      <v-list-item-content v-for="quizz in quizzes" :key="quizz.id">
-        <quizz-profile-item
-          @qpi-delete-action="showDeleteDialog"
-          @qpi-rename-action="renameQuizItem"
-          :quizz="quizz"
-        />
-      </v-list-item-content>
-      <v-dialog v-model="dialogDelete" persistent max-width="320">
-        <v-card>
-          <v-card-title class="headline">Delete this quiz ?</v-card-title>
-          <v-card-text>The quiz will be deleted forever</v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="orange darken-1"
-              text
-              @click="deleteQuiz(selectedQuizId)"
-            >
-              Delete
-            </v-btn>
-            <v-btn color="grey" text @click="dialogDelete = false">
-              Cancel
-            </v-btn>
-          </v-card-actions>
-        </v-card>
       </v-dialog>
       <v-snackbar v-model="snackbar" bottom :color="snackBarColor">
         {{ snackbarMsg }}
@@ -241,7 +242,6 @@ export default {
         });
     },
     async deleteQuiz(id) {
-      console.log("Delete quiz : " + id);
       await this.$axios
         .request({
           method: "delete",
