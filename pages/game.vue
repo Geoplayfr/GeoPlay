@@ -7,8 +7,6 @@
       <div v-if="quizzLoaded" class="text-right">
         <div>Loaded quizz : {{ quiz.name }}</div>
         <div>
-          <!-- Font awesome icon -->
-          <fa :icon="['fas', 'stopwatch']" />
           Timer {{ timeRemaining }}
         </div>
       </div>
@@ -56,7 +54,7 @@ import { RadioSvgMap } from "vue-svg-map";
 import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
-import { mapState, mapActions } from 'vuex';
+
 
 export default {
   name: "game",
@@ -70,7 +68,8 @@ export default {
       World,
       loadText: "Loading Quizz",
       quizzMap: null,
-      // quizz: null,
+      quizz: null,
+      question: null,
       selectedLocation: null,
       quizzLoaded: false,
       circularColor: "teal",
@@ -95,15 +94,11 @@ export default {
     };
   },
   computed: {
-    ...mapState('quizzes', ['quiz']),
-    ...mapState('questions', ['question']),
     currentQuestion() {
       return this.quiz.questions[this.questionIndex];
     },
   },
   methods: {
-    ...mapActions('quizzes', ['fetchQuiz']),
-    ...mapActions('questions', ['fetchResponse']),
     /**
      * Get the player list from the route, if no players were detected, the current player is a guest
      * @return {Array<String>} the player list
@@ -203,9 +198,9 @@ export default {
         switch (name) {
           case "Map of France regions":
             return FranceRegions;
-          case "world":
+          case "Map of World":
             return World;
-          case "france.departments":
+          case "Map of France departments":
             return FranceDep;
           default:
             throw new Error("Map not found");
@@ -246,7 +241,7 @@ export default {
           if (this.settings.noHoverAfterQuestion) {
             this.setMapHoverEffect(true);
           }
-          this.enableTimer(this.quiz.duration);
+          this.enableTimer(this.quiz.questions[this.questionIndex].duration);
         } else if(autoFinish){
           // Quizz finished
           this.$router.push({
@@ -264,9 +259,18 @@ export default {
      * @param {JSON} question_id The question to be evaluated, and corrected
      */
     async showEndQuestionMenu(question_id) {
-      await this.fetchResponse({
-        id: question_id
-      })
+      await this.$axios
+        .request({
+          method: "get",
+          url: "/api/questions/response/" + question_id
+        })
+        .then((response) => {
+          this.question = response.data
+        })
+        .catch((error) => {
+          this.showSnackbar("Error while downloading response", "error");
+          console.log(error);
+        });
       // Show on the map the correct location
       if (this.selectedLocation !== this.question[0].response_location_id) {
         this.highlightMapRegion(this.quizzMap, this.question[0].response_location_id, "red");
@@ -287,8 +291,6 @@ export default {
      * @param {JSON} quiz The quizz to be loaded
      */
     loadQuizz(quiz) {
-      // TODO : validation of the quizz
-      //this.quizz = quizz
       try {
         this.loadText = "Loading Map";
         this.playerList = this.getPlayerList();
@@ -296,7 +298,7 @@ export default {
         this.maxScore = quiz.questions.length;
         this.score = 0;
         this.questionIndex = 0;
-        this.enableTimer(quiz.duration);
+        this.enableTimer(quiz.questions[0].duration);
         this.quizzLoaded = true;
       } catch (e) {
         this.loadText = e.message;
@@ -306,14 +308,20 @@ export default {
   },
   async mounted () {
     if (this.$route.params.id_quiz) {
-      // this.quizz = await this.fetchQuiz(6)
-      await this.fetchQuiz({
-        id: this.$route.params.id_quiz
-      })
-      console.log('quiz : ', this.$store.getters["users/user"])
-      // this.quizz = this.quiz
-      this.loadQuizz(this.quiz);
-
+      await this.$axios
+        .request({
+          method: "get",
+          url: "/api/quizzes/" + this.$route.params.id_quiz,
+        })
+        .then((response) => {
+          this.quiz = response.data
+          this.loadQuizz(this.quiz);
+        })
+        .catch((error) => {
+          this.showSnackbar("Error while downloading quiz", "error");
+          console.log(error);
+        });
+     
     } else {
       // Circular loading
       console.error("Error when loading quizz (not found)");

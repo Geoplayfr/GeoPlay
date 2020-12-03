@@ -10,7 +10,6 @@
 </template>
 <script>
 import QuizzItem from "../components/QuizzItem.vue";
-import { mapState, mapActions } from 'vuex'
 export default {
   layout: "default",
   middleware: "auth",
@@ -19,16 +18,22 @@ export default {
   },
   data() {
     return {
+      quizzes: []
       }
   },
-  computed: {
-    ...mapState('quizzes', ['quizzes'])
-  },
   async created () {
-    await this.fetchAllQuizzes()
-  },
-  methods: {
-    ...mapActions('quizzes', ['fetchAllQuizzes'])
+    await this.$axios
+        .request({
+          method: "get",
+          url: "/api/quizzes/all",
+        })
+        .then((response) => {
+          this.quizzes = response.data
+        })
+        .catch((error) => {
+          this.showSnackbar("Error while downloading quizzes", "error");
+          console.log(error);
+        });
   }
 }
 </script>

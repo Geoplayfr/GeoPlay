@@ -21,7 +21,7 @@ export default class Question {
 	static async getQuestions (quizId) {
 		const question = await postgresStore.client.query({
 			text: `
-			SELECT id_question, question_tag FROM questions WHERE id_quiz = $1
+			SELECT id_question, question_tag, duration FROM questions WHERE id_quiz = $1
 			`,
 			values: [quizId]
           })
