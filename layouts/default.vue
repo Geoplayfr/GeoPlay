@@ -48,7 +48,7 @@
       >
         <v-icon>mdi-minus</v-icon>
       </v-btn>
-      <v-toolbar-title v-text="title" />
+      <v-btn to="/homepage">{{title}}</v-btn>
       <v-spacer />
       <v-btn
         icon
@@ -110,7 +110,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Vuetify.js'
+      title: 'Geoplay'
     }
   }
 }

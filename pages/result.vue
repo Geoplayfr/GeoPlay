@@ -37,7 +37,6 @@ export default {
     } else {
       alert("route error");
     }
-    console.log(this.$route.params);
   },
 };
 </script>

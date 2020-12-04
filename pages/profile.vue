@@ -209,7 +209,6 @@ export default {
   },
   methods: {
     showDeleteDialog(id) {
-      console.log("Selected : ", id);
       this.selectedQuizId = id;
       this.dialogDelete = true;
     },
@@ -248,7 +247,6 @@ export default {
           url: "/api/quizzes/delete/" + id,
         })
         .then((response) => {
-          console.log(response);
           this.dialogDelete = false;
           this.selectedQuizId = "";
           this.quizzes = this.quizzes.filter((quizz) => quizz.id_quiz !== id);
@@ -341,7 +339,6 @@ export default {
     await this.$axios
       .get("/api/users/" + this.us.id + "/quizzes")
       .then((res) => {
-        console.log("QUIZZES", res.data);
         this.quizzes = res.data;
       });
   },
