@@ -1,100 +1,70 @@
-<template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <div class="text-center">
-        <logo />
-        <vuetify-logo />
+<!-- Landing page, allow the user to go to the login page and read informations about GeoPlay -->
+<template   >
+  <div class="px-0" align="center">
+    <!-- Background image-->
+    <v-parallax
+      height="320"
+      src="https://cdn.pixabay.com/photo/2012/01/09/09/59/earth-11595_1280.jpg"
+    >
+      <div class="font-weight-regular main-title">Geo Play</div>
+      <br />
+      <div class="blue-text-shadow">Free online geography guessing game</div>
+      <br />
+      <div class="text-xs-center">
+        <v-btn to="/login" class="no-border" color="primary" max-width="200px">
+          Start playing
+        </v-btn>
       </div>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>
-            Vuetify is a progressive Material Design component framework for
-            Vue.js. It was designed to empower developers to create amazing
-            applications.
-          </p>
-          <p>
-            For more information on Vuetify, check out the
-            <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              documentation </a
-            >.
-          </p>
-          <p>
-            If you have questions, please join the official
-            <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
-            >
-              discord </a
-            >.
-          </p>
-          <p>
-            Find a bug? Report it on the github
-            <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board </a
-            >.
-          </p>
-          <p>
-            Thank you for developing with Vuetify and I look forward to bringing
-            more exciting features in the future.
-          </p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
+    </v-parallax>
+    <v-row no-gutters align-content="stretch">
+      <v-col cols="12" align="center">
+        <v-row class="left ma-12">
+          <div class="font-weight-medium subtitle">About</div>
+          <div class="text-left">
+            Play an exceedingly fun game where you must guess a location on more
+            than 42 maps. Each game consists of questions that correspond to a
+            location.
           </div>
-          <hr class="my-3" />
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt Documentation
-          </a>
-          <br />
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" nuxt to="/inspire"> Continue </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
+        </v-row>
+        <v-row class="left ma-12">
+          <div class="font-weight-medium subtitle">Playing</div>
+          <div class="text-left">
+            At each question, you have a limited time to determine the location.
+            You gain a point for each location guessed succesfully. The person
+            with the best score will be the geo winner!
+          </div></v-row
+        >
+        <!-- Feature List -->
+        <v-btn
+          elevation="0"
+          color="rgb(0, 0, 0, 0)"
+          class="outlined ma-0 no-border"
+          @click="$vuetify.goTo('#features')"
+          >More</v-btn
+        >
+        <v-divider id="features" class="ma-12"></v-divider>
+        <Features />
+      </v-col>
+    </v-row>
+  </div>
 </template>
-
+<style scoped>
+.blue-text-shadow {
+  text-shadow: 1px 1px 20px blue;
+}
+.main-title {
+  font-size: 2.2em;
+}
+.subtitle {
+  font-size: 1.3em;
+}
+.no-border {
+  border-radius: 0px;
+}
+</style>
 <script>
-import Logo from "~/components/Logo.vue";
-import VuetifyLogo from "~/components/VuetifyLogo.vue";
-import { mapGetters } from "vuex";
-
+import Features from "../components/Features";
 export default {
-  components: {
-    Logo,
-    VuetifyLogo,
-  },
-  computed: {
-    ...mapGetters({
-      us: "users/user",
-    }),
-  },
-  middleware: "auth"
+  layout: "notAuthenticated",
 };
 </script>
