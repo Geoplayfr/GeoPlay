@@ -21,7 +21,7 @@ export default class Question {
 	static async getQuestions (quizId) {
 		const question = await postgresStore.client.query({
 			text: `
-			SELECT id_question, question_tag FROM questions WHERE id_quiz = $1
+			SELECT id_question, question_tag, duration FROM questions WHERE id_quiz = $1
 			`,
 			values: [quizId]
           })
@@ -80,6 +80,25 @@ export default class Question {
 				text: `DELETE FROM questions 
 				WHERE id_question = $1 RETURNING *`,
 				values: [id]
+			})
+			return result.rows
+		} catch (err) {
+			return { error: err, message: err.message } // 500
+		}
+    }
+
+    /**
+     * 
+     * @param {Number} questionId 
+     * @returns {Promise<Question>}
+     */
+    static async getResponse(questionId) {
+        try {
+			const result = await postgresStore.client.query({
+                text: `SELECT response_location_id
+                FROM questions
+				WHERE id_question = $1`,
+				values: [questionId]
 			})
 			return result.rows
 		} catch (err) {

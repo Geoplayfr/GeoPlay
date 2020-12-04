@@ -128,6 +128,24 @@ export default class User {
 		}
 	}
 
+	/**
+	 * @param {Number} quizId
+	 * @returns {Promise<String>}
+	 */
+	static async getCreator (quizId) {
+		try {
+			const result = await postgresStore.client.query({
+				text: `SELECT users.username FROM users
+				JOIN quizzes ON (quizzes.id_user = users.id_user)
+				WHERE id_quiz = $1`,
+				values: [quizId]
+			})
+			return result.rows
+		} catch (err) {
+			return { error: err, message: err.message } // 500
+		}
+    }
+
 
 	static async generateTable () {
 		await postgresStore.client.query(`
