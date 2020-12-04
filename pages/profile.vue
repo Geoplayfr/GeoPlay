@@ -257,10 +257,17 @@ export default {
           console.log(error);
         });
     },
-    showSnackbar(msg, color, show = true) {
+    showSnackbar(msg, color, show = true, timeout = 4000) {
       this.snackbarMsg = msg;
       this.snackBarColor = color;
       this.snackbar = show;
+
+      if(show) {
+        // Auto hide the snackbar after the given timeout
+        setTimeout(() => {
+          this.snackbar = false
+        }, timeout)       
+      }
     },
     async changeUsername(changePassword) {
       const password = changePassword.trim();
