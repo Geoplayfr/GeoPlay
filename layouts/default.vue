@@ -58,14 +58,24 @@ export default {
       fixed: false,
       items: [
         {
-          icon: "mdi-apps",
+          icon: "mdi-account-circle",
           title: "Welcome",
-          to: "/",
+          to: "/homepage",
         },
         {
-          icon: "mdi-chart-bubble",
-          title: "Inspire",
-          to: "/inspire",
+          icon: "mdi-account-circle",
+          title: "Profile",
+          to: "/profile",
+        },
+          {
+            icon: "mdi-crosshairs-question",
+            title: "Create Quiz",
+            to: "/create_quizz",
+          },
+        {
+          icon: "mdi-door",
+          title: "Disconnect",
+          to: "/",
         },
       ],
       miniVariant: false,
