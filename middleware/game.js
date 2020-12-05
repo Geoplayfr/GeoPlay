@@ -3,6 +3,7 @@ export default function (ctx) {
 	if (!isAuth()) {
 		ctx.redirect('/login')
 	} else {
+		// Only load the game pages if the passed params are recognized
 		switch (ctx.route.name) {
 			case 'game':
 				if (!canLoadQuiz(ctx)) {
@@ -19,12 +20,12 @@ export default function (ctx) {
 }
 
 function canLoadQuiz(ctx) {
-	return ctx.route.params.hasOwnProperty('id_quiz')
+	return ctx.route.params.hasOwnProperty('id_quiz') && typeof ctx.route.params.id_quiz === 'number'
 }
 
 function canLoadResults(ctx) {
-	return ctx.route.params.hasOwnProperty('score')
-	&& ctx.route.params.hasOwnProperty('maxScore')
+	return ctx.route.params.hasOwnProperty('score') && typeof ctx.route.params.score === 'number'
+	&& ctx.route.params.hasOwnProperty('maxScore') && typeof ctx.route.params.maxScore === 'number'
 }
 
 function isAuth() {

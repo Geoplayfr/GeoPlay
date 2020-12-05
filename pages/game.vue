@@ -32,7 +32,7 @@
             <v-card  class="pa-4" v-if="quizzLoaded" elevation="10">
               <div class="my-2">Q{{ questionIndex + 1 }}</div>
               <div class="my-2">{{ currentQuestion.question_tag }}</div>
-                <v-btn to="/">Quit</v-btn>
+                <v-btn to="/homepage">Quit</v-btn>
                 <v-btn
                   v-show="nextButtonVisible"
                   :disabled="!nextButtonVisible"

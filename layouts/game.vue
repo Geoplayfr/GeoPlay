@@ -39,6 +39,7 @@
       </v-avatar>
     </v-app-bar>
     <v-main>
+      <!-- Removed the container to give more space to game components -->
         <nuxt />
     </v-main>
     <v-footer :absolute="!fixed" app>
@@ -69,7 +70,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: "Geoplay Game",
+      title: "Quit Game",
     };
   },
 };

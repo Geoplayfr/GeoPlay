@@ -338,6 +338,9 @@ export default {
 		},
 	},
 	methods: {
+		/**
+		 * Fetch a location name from the location id of the clicked location on the map
+		 */
 		onLocationClicked() {
 			this.selectedLocationName = this.ChoosenMap.locations.find(
 				(loc) => loc.id === this.selectedLocationId
@@ -346,7 +349,7 @@ export default {
 		submitQuestion() {
 			if (this.questions.length >= this.questionsNumber)
 				alert(
-					"Please modify the number of question if you want to add questions"
+					"Please modify the number of questions if you want to add questions"
 				);
 			else {
 				this.duration = parseInt(this.duration);
