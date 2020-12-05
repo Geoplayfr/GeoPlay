@@ -18,7 +18,7 @@
 </template>
 <script>
 export default {
-  middleware: "auth",
+  middleware: "game",
   data() {
     return {
       score: "",
@@ -28,14 +28,12 @@ export default {
     };
   },
   mounted() {
-    if (this.$route.params) {
+    if (this.$route.params.hasOwnProperty('score') && this.$route.params.hasOwnProperty('maxScore')) {
       this.score = this.$route.params.score;
       this.maxScore = this.$route.params.maxScore;
       this.loaded = true;
       this.percent =
         (this.$route.params.score / this.$route.params.maxScore) * 100;
-    } else {
-      alert("route error");
     }
   },
 };

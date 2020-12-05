@@ -58,7 +58,7 @@ import FranceDep from "@svg-maps/france.departments";
 
 export default {
   name: "game",
-  middleware: "auth",
+  middleware: "game",
   components: {
     RadioSvgMap,
   },
