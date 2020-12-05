@@ -6,9 +6,7 @@
       </div>
       <div v-if="quizzLoaded" class="text-right">
         <div>Loaded quizz : {{ quiz.name }}</div>
-        <div>
-          Timer {{ timeRemaining }}
-        </div>
+        <div><v-icon>mdi-timer </v-icon> Timer {{ timeRemaining }}</div>
       </div>
       <div class="text-center">
         <v-progress-circular
@@ -19,32 +17,34 @@
         >
           {{ loadText }}</v-progress-circular
         >
-
-        <radio-svg-map
-          id="map"
-          :location-class="mapStyle"
-          v-if="quizzLoaded"
-          :map="quizzMap"
-          v-model="selectedLocation"
-          @click="onMapRegionClicked"
-        />
-        <v-card v-if="quizzLoaded">
-          <div>Q{{ questionIndex + 1 }}</div>
-          <div>{{ currentQuestion.question_tag }}</div>
-          <v-card-actions>
-            <v-btn to="/">Quit</v-btn>
-            <v-btn
-              v-show="nextButtonVisible"
-              :disabled="!nextButtonVisible"
-              color="accent"
-              @click="nextQuestion()"
-              >{{this.nextButtonText}}</v-btn
-            >
-            <v-spacer></v-spacer>
-            <!-- For aligning the score the to right -->
-            <div>Current score {{ score }} / {{ maxScore }}</div>
-          </v-card-actions>
-        </v-card>
+        <v-row>
+          <v-col :cols="mapSize" xs="12">
+            <radio-svg-map
+              id="map"
+              :location-class="mapStyle"
+              v-if="quizzLoaded"
+              :map="quizzMap"
+              v-model="selectedLocation"
+              @click="onMapRegionClicked"
+            />
+          </v-col>
+          <v-col xs="12">
+            <v-card  class="pa-4" v-if="quizzLoaded" elevation="10">
+              <div class="my-2">Q{{ questionIndex + 1 }}</div>
+              <div class="my-2">{{ currentQuestion.question_tag }}</div>
+                <v-btn to="/">Quit</v-btn>
+                <v-btn
+                  v-show="nextButtonVisible"
+                  :disabled="!nextButtonVisible"
+                  color="accent"
+                  @click="nextQuestion()"
+                  >{{ this.nextButtonText }}</v-btn>
+                <v-spacer></v-spacer>
+                <!-- For aligning the score the to right -->
+                <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
+            </v-card>
+          </v-col>
+        </v-row>
       </div>
     </v-col>
   </v-row>
@@ -55,8 +55,8 @@ import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
 
-
 export default {
+  layout: "game",
   name: "game",
   middleware: "game",
   components: {
@@ -78,6 +78,7 @@ export default {
       maxScore: 999,
       timeRemaining: -1,
       mapStyle: "",
+      mapSize: 8,
       greenMapStyle:
         'green green-svg-map__location green-svg-map__location:focus green-svg-map__location:hover green-svg-map__location[aria-checked="true"]',
       redMapStyle:
@@ -86,7 +87,8 @@ export default {
       highlightedRegions: null,
       cacheRegionClassList: null,
       nextButtonVisible: false,
-      nextButtonText: 'Next question',
+      nextButtonText: "Next question",
+      goToResultPageText: "Finish",
       settings: {
         noHoverAfterQuestion: true,
         noClickAfterQuestion: false,
@@ -197,10 +199,13 @@ export default {
       if (name) {
         switch (name) {
           case "Map of France regions":
+            this.mapSize = 6
             return FranceRegions;
           case "Map of World":
+            this.mapSize = 10 // World map is extremely big, we can make it take more screen space
             return World;
           case "Map of France departments":
+            this.mapSize = 6
             return FranceDep;
           default:
             throw new Error("Map not found");
@@ -234,15 +239,15 @@ export default {
           this.nextButtonVisible = false;
           this.selectedLocation = null;
           this.questionIndex++;
-          if(this.questionIndex === this.quiz.questions.length - 1) {
-            this.nextButtonText = "Finish"
+          if (this.questionIndex === this.quiz.questions.length - 1) {
+            this.nextButtonText = this.goToResultPageText;
           }
           this.removeHighlighting();
           if (this.settings.noHoverAfterQuestion) {
             this.setMapHoverEffect(true);
           }
           this.enableTimer(this.quiz.questions[this.questionIndex].duration);
-        } else if(autoFinish){
+        } else if (autoFinish) {
           // Quizz finished
           this.$router.push({
             name: "result",
@@ -262,10 +267,10 @@ export default {
       await this.$axios
         .request({
           method: "get",
-          url: "/api/questions/response/" + question_id
+          url: "/api/questions/response/" + question_id,
         })
         .then((response) => {
-          this.question = response.data
+          this.question = response.data;
         })
         .catch((error) => {
           this.showSnackbar("Error while downloading response", "error");
@@ -273,9 +278,17 @@ export default {
         });
       // Show on the map the correct location
       if (this.selectedLocation !== this.question[0].response_location_id) {
-        this.highlightMapRegion(this.quizzMap, this.question[0].response_location_id, "red");
+        this.highlightMapRegion(
+          this.quizzMap,
+          this.question[0].response_location_id,
+          "red"
+        );
       } else {
-        this.highlightMapRegion(this.quizzMap, this.question[0].response_location_id, "green");
+        this.highlightMapRegion(
+          this.quizzMap,
+          this.question[0].response_location_id,
+          "green"
+        );
         // Increment score if user choice is valid
         this.score++;
       }
@@ -290,7 +303,7 @@ export default {
      * Load the input quizz json & start the game
      * @param {JSON} quiz The quizz to be loaded
      */
-    loadQuizz(quiz) {
+     loadQuizz(quiz) {
       try {
         this.loadText = "Loading Map";
         this.playerList = this.getPlayerList();
@@ -306,7 +319,7 @@ export default {
       }
     },
   },
-  async mounted () {
+  async mounted() {
     if (this.$route.params.id_quiz) {
       await this.$axios
         .request({
@@ -314,14 +327,13 @@ export default {
           url: "/api/quizzes/" + this.$route.params.id_quiz,
         })
         .then((response) => {
-          this.quiz = response.data
+          this.quiz = response.data;
           this.loadQuizz(this.quiz);
         })
         .catch((error) => {
           this.showSnackbar("Error while downloading quiz", "error");
           console.log(error);
         });
-     
     } else {
       // Circular loading
       console.error("Error when loading quizz (not found)");

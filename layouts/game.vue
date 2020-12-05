@@ -39,9 +39,7 @@
       </v-avatar>
     </v-app-bar>
     <v-main>
-      <v-container>
         <nuxt />
-      </v-container>
     </v-main>
     <v-footer :absolute="!fixed" app>
       <span>&copy; {{ new Date().getFullYear() }}</span>
@@ -71,7 +69,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: "Geoplay",
+      title: "Geoplay Game",
     };
   },
 };

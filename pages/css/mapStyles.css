@@ -2,7 +2,7 @@
 Default style map, automatically loaded into any created svg map
 */
 .svg-map {
-    width: 100%;
+    max-width: 100%;
     height: auto;
     stroke: #666;
     stroke-width: 1;
