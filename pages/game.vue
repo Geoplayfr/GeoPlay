@@ -56,6 +56,13 @@ import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
 
 export default {
+    head() {
+      return {
+        script: [
+          { src:"/svg-pan-zoom.min.js"}
+        ]
+      }
+    },
   layout: "game",
   name: "game",
   middleware: "game",
@@ -89,6 +96,7 @@ export default {
       nextButtonVisible: false,
       nextButtonText: "Next question",
       goToResultPageText: "Finish",
+      zoomEnabled: false,
       settings: {
         noHoverAfterQuestion: true,
         noClickAfterQuestion: false,
@@ -146,9 +154,14 @@ export default {
      *  @param color {String} the theme to apply, possible values : 'green' | 'red'
      */
     highlightMapRegion(map, regionId, color) {
-      var regionToColor = document
-        .getElementById("map")
-        .children.namedItem(regionId);
+      let mapHtml = document.getElementById("map")
+      let regionToColor = null
+         // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
+          if(mapHtml.children.length == 1 && mapHtml.children[0].className.baseVal ==="svg-pan-zoom_viewport") {
+            regionToColor = mapHtml.children[0].children.namedItem(regionId)
+          } else {
+            regionToColor = mapHtml.children.namedItem(regionId)
+          }
       this.cacheRegionClassList = [...regionToColor.classList];
       regionToColor.classList.remove(...regionToColor.classList); // Remove all classes from regionToColor
       regionToColor.blur(); // Stop the focus
@@ -203,6 +216,7 @@ export default {
             return FranceRegions;
           case "Map of World":
             this.mapSize = 10 // World map is extremely big, we can make it take more screen space
+            this.zoomEnabled = true
             return World;
           case "Map of France departments":
             this.mapSize = 6
@@ -329,6 +343,13 @@ export default {
         .then((response) => {
           this.quiz = response.data;
           this.loadQuizz(this.quiz);
+          if(this.zoomEnabled) {
+            setTimeout(()=> {
+              let zoomPlugin = svgPanZoom('#map');
+              document.getElementById('map').style = 'height:700px;width:100%'
+            },1000)
+          }
+
         })
         .catch((error) => {
           this.showSnackbar("Error while downloading quiz", "error");
