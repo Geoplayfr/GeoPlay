@@ -37,6 +37,9 @@
       </v-btn>
       <v-btn to="/homepage">{{ title }}</v-btn>
       <v-spacer />
+      <v-avatar @click="$router.push('/')" color="gray">
+        <v-icon dark> mdi-power </v-icon>
+      </v-avatar>
       <v-avatar @click="$router.push('/profile')" color="gray">
         <v-icon dark> mdi-account-circle </v-icon>
       </v-avatar>

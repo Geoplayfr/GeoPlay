@@ -6,7 +6,7 @@
         <div v-if="loaded">
           <div>Final score {{ score }} / {{ maxScore }}</div>
           <br />
-          <v-progress-linear v-model="percent" height="25" ma-3>
+          <v-progress-linear  :value="percent" height="25" ma-3>
             <strong>{{ Math.ceil(percent) }}%</strong>
           </v-progress-linear>
           <br />
