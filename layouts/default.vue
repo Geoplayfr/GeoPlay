@@ -7,22 +7,22 @@
       fixed
       app
     >
-        <v-list>
-          <v-list-item
-            v-for="(item, i) in items"
-            :key="i"
-            :to="item.to"
-            router
-            exact
-          >
-            <v-list-item-action>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title v-text="item.title" />
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+      <v-list>
+        <v-list-item
+          v-for="(item, i) in items"
+          :key="i"
+          :to="item.to"
+          router
+          exact
+        >
+          <v-list-item-action>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title v-text="item.title" />
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
     </v-navigation-drawer>
     <v-app-bar :clipped-left="clipped" fixed app>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
@@ -31,12 +31,7 @@
       </v-btn>
       <v-btn to="/homepage">{{ title }}</v-btn>
       <v-spacer />
-      <v-avatar @click="$router.push('/')" color="gray">
-        <v-icon dark> mdi-power </v-icon>
-      </v-avatar>
-      <v-avatar @click="$router.push('/profile')" color="gray">
-        <v-icon dark> mdi-account-circle </v-icon>
-      </v-avatar>
+      <ProfileAvatar :user="$store.getters['users/user']"/>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -67,11 +62,11 @@ export default {
           title: "Profile",
           to: "/profile",
         },
-          {
-            icon: "mdi-crosshairs-question",
-            title: "Create Quiz",
-            to: "/create_quizz",
-          },
+        {
+          icon: "mdi-crosshairs-question",
+          title: "Create Quiz",
+          to: "/create_quizz",
+        },
         {
           icon: "mdi-door",
           title: "Disconnect",
