@@ -2,8 +2,9 @@
   <v-row justify="center" align="center">
     <v-col cols="12" sm="10" md="10">
       <div v-if="quizzLoaded && playerList" class="text-left">
-        Welcome {{ $store.getters["users/user"].username }}
+        Welcome {{ $store.getters["users/user"].username }} 
       </div>
+      <player-list :playerList="playerList"/>
       <div v-if="quizzLoaded" class="text-right">
         <div>Loaded quizz : {{ quiz.name }}</div>
         <div><v-icon>mdi-timer </v-icon> Timer {{ timeRemaining }}</div>
@@ -54,6 +55,7 @@ import { RadioSvgMap } from "vue-svg-map";
 import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
+import PlayerList from '../components/PlayerList.vue';
 
 export default {
     head() {
@@ -65,58 +67,18 @@ export default {
     },
   layout: "game",
   name: "game",
-  middleware: "game",
+  // middleware: "game",
   components: {
     RadioSvgMap,
   },
   data() {
+    PlayerList
     return {
       FranceRegions,
       World,
       loadText: "Loading Quizz",
       quizzMap: null,
-      quizz: {
-  "id_quiz": 2,
-  "name": "TEST 2",
-  "description": "AUTO description",
-  "mapid": "Map of France regions",
-  "difficulty": "easy",
-  "duration": 60,
-  "id_user": 1,
-  "nb_questions": 5,
-  "creator": [
-    {
-      "username": "fr"
-    }
-  ],
-  "questions": [
-    {
-      "id_question": 6,
-      "question_tag": "Where is idf",
-      "duration": 5
-    },
-    {
-      "id_question": 7,
-      "question_tag": "What is ges",
-      "duration": 5
-    },
-    {
-      "id_question": 8,
-      "question_tag": "cvl?",
-      "duration": 5
-    },
-    {
-      "id_question": 9,
-      "question_tag": "bfc?",
-      "duration": 5
-    },
-    {
-      "id_question": 10,
-      "question_tag": "naq?",
-      "duration": 5
-    }
-  ]
-},
+      quizz: null,
       question: null,
       selectedLocation: null,
       quizzLoaded: false,
@@ -156,7 +118,7 @@ export default {
      */
     getPlayerList() {
       if (this.$route.params.quizz && this.$route.params.quizz.playerList) {
-        return [this.$route.params.quizz.playerList];
+        return this.$route.params.quizz.playerList;
       } else {
         return ["Guest"];
       }
@@ -375,6 +337,7 @@ export default {
     },
   },
   async mounted() {
+    this.$route.params.id_quiz = 1  
     if (this.$route.params.id_quiz) {
       await this.$axios
         .request({
@@ -390,7 +353,6 @@ export default {
               document.getElementById('map').style = 'height:700px;width:100%'
             },1000)
           }
-          console.log(this.quiz)
 
         })
         .catch((error) => {
