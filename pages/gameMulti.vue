@@ -2,9 +2,8 @@
   <v-row justify="center" align="center">
     <v-col cols="12" sm="10" md="10">
       <div v-if="quizzLoaded && playerList" class="text-left">
-        Welcome {{ $store.getters["users/user"].username }} 
+        Welcome {{ $store.getters["users/user"].username }}
       </div>
-      <player-list :playerList="playerList"/>
       <div v-if="quizzLoaded" class="text-right">
         <div>Loaded quizz : {{ quiz.name }}</div>
         <div><v-icon>mdi-timer </v-icon> Timer {{ timeRemaining }}</div>
@@ -30,20 +29,22 @@
             />
           </v-col>
           <v-col xs="12">
-            <v-card  class="pa-4" v-if="quizzLoaded" elevation="10">
+            <v-card class="pa-4" v-if="quizzLoaded" elevation="10">
               <div class="my-2">Q{{ questionIndex + 1 }}</div>
               <div class="my-2">{{ currentQuestion.question_tag }}</div>
-                <v-btn to="/homepage">Quit</v-btn>
-                <v-btn
-                  v-show="nextButtonVisible"
-                  :disabled="!nextButtonVisible"
-                  color="accent"
-                  @click="nextQuestion()"
-                  >{{ this.nextButtonText }}</v-btn>
-                <v-spacer></v-spacer>
-                <!-- For aligning the score the to right -->
-                <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
+              <v-btn to="/homepage">Quit</v-btn>
+              <v-btn
+                v-show="nextButtonVisible"
+                :disabled="!nextButtonVisible"
+                color="accent"
+                @click="nextQuestion()"
+                >{{ this.nextButtonText }}</v-btn
+              >
+              <v-spacer></v-spacer>
+              <!-- For aligning the score the to right -->
+              <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
             </v-card>
+            <player-list :playerList="playerList" />
           </v-col>
         </v-row>
       </div>
@@ -55,16 +56,14 @@ import { RadioSvgMap } from "vue-svg-map";
 import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
-import PlayerList from '../components/PlayerList.vue';
+import PlayerList from "../components/PlayerList.vue";
 
 export default {
-    head() {
-      return {
-        script: [
-          { src:"/svg-pan-zoom.min.js"}
-        ]
-      }
-    },
+  head() {
+    return {
+      script: [{ src: "/svg-pan-zoom.min.js" }],
+    };
+  },
   layout: "game",
   name: "game",
   // middleware: "game",
@@ -72,7 +71,7 @@ export default {
     RadioSvgMap,
   },
   data() {
-    PlayerList
+    PlayerList;
     return {
       FranceRegions,
       World,
@@ -93,7 +92,7 @@ export default {
         'green green-svg-map__location green-svg-map__location:focus green-svg-map__location:hover green-svg-map__location[aria-checked="true"]',
       redMapStyle:
         'red red-svg-map__location red-svg-map__location:focus red-svg-map__location:hover red-svg-map__location[aria-checked="true"]',
-      playerList: ["Guest"],
+      playerList: [],
       highlightedRegions: null,
       cacheRegionClassList: null,
       nextButtonVisible: false,
@@ -120,7 +119,7 @@ export default {
       if (this.$route.params.quizz && this.$route.params.quizz.playerList) {
         return this.$route.params.quizz.playerList;
       } else {
-        return ["Guest"];
+        return [{username:"Guest",score:0, id:0}, {username:"François",score:0,id:1}, {username:"Marine",score:1, id:2},{username:"Guest",score:0,id:3}, {username:"François",score:0, id:4}, {username:"Marine",score:8, id:5}, ];
       }
     },
     /**
@@ -157,14 +156,17 @@ export default {
      *  @param color {String} the theme to apply, possible values : 'green' | 'red'
      */
     highlightMapRegion(map, regionId, color) {
-      let mapHtml = document.getElementById("map")
-      let regionToColor = null
-         // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
-          if(mapHtml.children.length == 1 && mapHtml.children[0].className.baseVal ==="svg-pan-zoom_viewport") {
-            regionToColor = mapHtml.children[0].children.namedItem(regionId)
-          } else {
-            regionToColor = mapHtml.children.namedItem(regionId)
-          }
+      let mapHtml = document.getElementById("map");
+      let regionToColor = null;
+      // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
+      if (
+        mapHtml.children.length == 1 &&
+        mapHtml.children[0].className.baseVal === "svg-pan-zoom_viewport"
+      ) {
+        regionToColor = mapHtml.children[0].children.namedItem(regionId);
+      } else {
+        regionToColor = mapHtml.children.namedItem(regionId);
+      }
       this.cacheRegionClassList = [...regionToColor.classList];
       regionToColor.classList.remove(...regionToColor.classList); // Remove all classes from regionToColor
       regionToColor.blur(); // Stop the focus
@@ -215,14 +217,14 @@ export default {
       if (name) {
         switch (name) {
           case "Map of France regions":
-            this.mapSize = 6
+            this.mapSize = 6;
             return FranceRegions;
           case "Map of World":
-            this.mapSize = 10 // World map is extremely big, we can make it take more screen space
-            this.zoomEnabled = true
+            this.mapSize = 10; // World map is extremely big, we can make it take more screen space
+            this.zoomEnabled = true;
             return World;
           case "Map of France departments":
-            this.mapSize = 6
+            this.mapSize = 6;
             return FranceDep;
           default:
             throw new Error("Map not found");
@@ -320,7 +322,7 @@ export default {
      * Load the input quizz json & start the game
      * @param {JSON} quiz The quizz to be loaded
      */
-     loadQuizz(quiz) {
+    loadQuizz(quiz) {
       try {
         this.loadText = "Loading Map";
         this.playerList = this.getPlayerList();
@@ -337,7 +339,7 @@ export default {
     },
   },
   async mounted() {
-    this.$route.params.id_quiz = 1  
+    this.$route.params.id_quiz = 2;
     if (this.$route.params.id_quiz) {
       await this.$axios
         .request({
@@ -347,13 +349,12 @@ export default {
         .then((response) => {
           this.quiz = response.data;
           this.loadQuizz(this.quiz);
-          if(this.zoomEnabled) {
-            setTimeout(()=> {
-              let zoomPlugin = svgPanZoom('#map');
-              document.getElementById('map').style = 'height:700px;width:100%'
-            },1000)
+          if (this.zoomEnabled) {
+            setTimeout(() => {
+              let zoomPlugin = svgPanZoom("#map");
+              document.getElementById("map").style = "height:700px;width:100%";
+            }, 1000);
           }
-
         })
         .catch((error) => {
           this.showSnackbar("Error while downloading quiz", "error");
