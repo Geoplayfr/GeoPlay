@@ -267,7 +267,7 @@
           >
             Back to profile
           </v-btn>
-          <v-btn href="/create_quizz"
+          <v-btn href="/my_quizzes"
             color="green darken-1"
             text
             @click="dialog = false"
@@ -314,6 +314,7 @@ export default {
 		questionTag: "",
 		selectedLocationId: "",
 		selectedLocationName: "",
+		defaultDuration: 15,
 		duration: 15,
 		dialog: false,
 		message: 'Your quizz has been successfully created',
@@ -321,6 +322,9 @@ export default {
 			(input) => (!!input && input.trim() !== "") || "This cannot be empty",
 		],
 	}),
+	mounted() {
+		this.duration = this.defaultDuration
+	},
 	computed: {
 		currentQuestNb: function () {
 			return this.questions.length;
@@ -359,11 +363,12 @@ export default {
 					question_tag: this.questionTag,
 					duration: this.duration,
 				});
+				this.$refs.form.resetValidation();
 				this.selectedLocationId = "";
 				this.selectedLocationName = "";
 				this.questionTag = "";
 				this.questionsValid = false;
-				this.$refs.form.reset();
+				this.duration = this.defaultDuration
 			}
 		},
 		async submitQuizz() {

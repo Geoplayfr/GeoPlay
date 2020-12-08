@@ -1,11 +1,11 @@
 <template>
   <div id="app">
-    <v-list-item-content v-for="quizz in quizzes" :key="quizz.id">
-      <quizz-item v-if="quizz.questions.length >= 5" :quizz="quizz" />
+    <svg></svg>
+    <v-list-item-content v-for="quizz in filteredQuizzes" :key="quizz.id">
+      <quizz-item :quizz="quizz" />
     </v-list-item-content>
     <v-card v-if="!quizzAvailable">
-      <v-row align="center"
-      justify="center">
+      <v-row align="center" justify="center">
         <v-col cols="6">
           <v-card-title>Didn't find any quizzes yet</v-card-title>
           <v-card-text
@@ -13,10 +13,10 @@
             to be created by other players</v-card-text
           >
         </v-col>
-        <v-col cols="6" class="text-right" >
-          <v-btn to="/profile"
-           class="mr-5"
-           color="primary">Go to Profile</v-btn>
+        <v-col cols="6" class="text-right">
+          <v-btn to="/profile" class="mr-5" color="primary"
+            >Go to Profile</v-btn
+          >
         </v-col>
       </v-row>
     </v-card>
@@ -33,8 +33,13 @@ export default {
   data() {
     return {
       quizzes: [],
-      quizzAvailable: false
+      quizzAvailable: false,
     };
+  },
+  computed: {
+    filteredQuizzes() {
+      return this.quizzes.filter(q => q.questions.length >= 5)
+    }
   },
   async created() {
     await this.$axios
@@ -43,9 +48,9 @@ export default {
         url: "/api/quizzes/all",
       })
       .then((response) => {
-        this.quizzes = response.data
-        if(this.quizzes.length > 0 ) {
-          this.quizzAvailable = true
+        this.quizzes = response.data;
+        if (this.quizzes.length > 0) {
+          this.quizzAvailable = true;
         }
       })
       .catch((error) => {

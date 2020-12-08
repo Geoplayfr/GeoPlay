@@ -14,7 +14,9 @@
               ></v-col
             >
             <v-col>
-              <v-card-text class="pb-0">Duration : {{ quizz.duration }} sec</v-card-text>
+              <v-card-text class="pb-0"
+                >Duration : {{ quizz.duration }} sec</v-card-text
+              >
             </v-col>
 
             <v-col>
@@ -28,9 +30,12 @@
           <v-btn class="ma-2" color="primary" @click="renameAction"
             >Rename</v-btn
           >
-          <v-btn class="ma-2" color="primary" @click="deleteAction"
-            >Delete</v-btn
-          >
+          <v-tooltip right>
+              Delete this Quiz
+            <template v-slot:activator="{ on }">
+            <v-icon v-on="on" color="primary" @click="deleteAction">mdi-delete</v-icon>
+            </template>
+          </v-tooltip>
         </v-col>
       </v-row>
     </v-card>

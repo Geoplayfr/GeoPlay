@@ -5,7 +5,7 @@
         <template v-slot:activator="{ on }">
           <v-btn icon x-large v-on="on">
             <v-avatar color="brown" size="48">
-              <span class="white--text headline">{{user.username.toUpperCase()}}</span>
+              <span class="white--text headline">{{usernameInitials}}</span>
             </v-avatar>
           </v-btn>
         </template>
@@ -13,7 +13,7 @@
           <v-list-item-content class="justify-center pa-2">
             <div class="mx-auto text-center">
               <v-avatar color="brown">
-                <span class="white--text headline">{{user.username.toUpperCase()}}</span>
+                <span class="white--text headline">{{usernameInitials}}</span>
               </v-avatar>
               <h3 class="mt-1">{{user.username }}</h3>
               <p class="caption mt-1">Account active</p>
@@ -35,5 +35,13 @@ export default {
       required: true,
     },
   },
+  computed: {
+    usernameInitials() {
+      if(this.user.username.length >=2 ) {
+        this.user.username.toUpperCase().substring(0,2)
+      }
+      return this.user.username.toUpperCase()
+    }
+  }
 };
 </script>
