@@ -101,7 +101,7 @@ export default {
           );
         })
         .catch((error) => {
-          this.showSnackbar("Error while renaming quiz", "error");
+          this.showSnackbar(error.response.data, "error");
           console.log(error);
         });
     },
