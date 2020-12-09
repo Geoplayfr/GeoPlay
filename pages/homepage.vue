@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <svg></svg>
     <v-list-item-content v-for="quizz in filteredQuizzes" :key="quizz.id">
       <quizz-item :quizz="quizz" />
     </v-list-item-content>

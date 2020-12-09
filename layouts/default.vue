@@ -29,7 +29,7 @@
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
       </v-btn>
-      <v-btn to="/homepage">{{ title }}</v-btn>
+      <div style=" font-size: 1.3em; cursor:pointer" @click="$router.push('/homepage')">{{ title }}</div>
       <v-spacer />
       <ProfileAvatar :user="$store.getters['users/user']"/>
     </v-app-bar>
