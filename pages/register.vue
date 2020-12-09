@@ -113,7 +113,7 @@ export default {
           password: this.password
         }).then(response => { 
           this.$store.commit('users/connect', { id: response.data.id_user, username: response.data.username})
-          this.$router.push('/')
+          this.$router.push('/homepage')
         })
         .catch(error => {
           this.errorMsg = 'Incorrect credentials: ' + error.response.data.message
