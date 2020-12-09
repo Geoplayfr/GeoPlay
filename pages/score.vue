@@ -10,8 +10,8 @@
             </v-card>
           </v-col>
           <v-col align="center" class="ma-2">
-            <v-card height="160px" color="blue darken-1">
-              a
+            <v-card height="160px" color="blue darken-1" class="d-flex align-center">
+              NOM SCORE
             </v-card>
           </v-col>
           <v-col align="center" class="ma-2">
@@ -21,14 +21,46 @@
           </v-col>
         </v-row>
       </v-card>
-      <ul id="example-1">
-        <li v-for="player in players" :key="player.name">
-          {{ player.name }} :
-          <v-avatar color="indigo" size="36">
-            <span class="white--text">{{ player.score }}</span>
-          </v-avatar> 
-        </li>
-      </ul>
+      <h2>Details</h2>
+      <v-card max-width="500px">
+        <!-- <template>
+          <v-data-table
+            :headers="headers"
+            :items="desserts"
+            :items-per-page="5"
+            class="elevation-1" >
+            
+          </v-data-table>
+        </template> -->
+        <v-simple-table>
+                  <thead>
+                    <tr>
+                      <th class="text-left">
+                        Name
+                      </th>
+                      <th class="text-left">
+                        Score
+                      </th>
+                      <th class="text-left">
+                        %
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="score in scores" :key="score.id_score">
+                      <td>
+                        {{score.username}}
+                      </td>
+                      <td>
+                        {{score.score_value}}
+                      </td>
+                      <td>
+                        {{score.score_value/5*100}}
+                      </td>
+                    </tr>
+                  </tbody>
+      </v-simple-table>
+      </v-card>
     </div>
   </v-container>
 </template>
@@ -37,25 +69,14 @@ export default {
   middleware: "auth",
   data() {
     return {
-      players: [
-        { name: "Marc", score: 12 },
-        { name: "François", score: 0 },
-        { name: "Marine", score: 0.25 },
-        { name: "Nicolas", score: 2044 },
-      ],
+      scores: undefined,
     };
   },
-  mounted() {
-    if (this.$route.params) {
-      this.score = this.$route.params.score;
-      this.maxScore = this.$route.params.maxScore;
-      this.loaded = true;
-      this.percent =
-        (this.$route.params.score / this.$route.params.maxScore) * 100;
-    } else {
-      alert("route error");
-    }
-    console.log(this.$route.params);
-  },
-};
+  async mounted() {
+    await this.$axios.get("/api/quizzes/"+ 1 +"/scores").then((res) => {
+      this.scores = res.data    
+      console.log(this.scores) 
+    })
+  }
+}
 </script>
