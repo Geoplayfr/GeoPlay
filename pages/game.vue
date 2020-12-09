@@ -54,7 +54,7 @@ import { RadioSvgMap } from "vue-svg-map";
 import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
-
+import Vue from 'vue';
 export default {
     head() {
       return {
@@ -78,6 +78,7 @@ export default {
       quizz: null,
       question: null,
       selectedLocation: null,
+      borderEnabled: false,
       quizzLoaded: false,
       circularColor: "teal",
       questionIndex: 0,
@@ -100,6 +101,7 @@ export default {
       settings: {
         noHoverAfterQuestion: true,
         noClickAfterQuestion: false,
+        forceBorder: false
       },
     };
   },
@@ -109,6 +111,17 @@ export default {
     },
   },
   methods: {
+    /***
+     * Check if the border needs to be activated with the param this.borderEnabled
+     */
+    checkBorder(){
+      if(this.borderEnabled  === true || this.settings.forceBorder === true) {
+        const map = document.getElementById('map')
+        map.style['border'] = "0.25rem solid rgb(30, 30, 30)";
+      } else {
+        map.style['border'] = "none";
+      }
+    },
     /**
      * Get the player list from the route, if no players were detected, the current player is a guest
      * @return {Array<String>} the player list
@@ -210,6 +223,9 @@ export default {
      */
     getMapByName(name) {
       if (name) {
+        setTimeout(()=>{
+          this.checkBorder()
+        },2000)
         switch (name) {
           case "Map of France regions":
             this.mapSize = 6
@@ -217,6 +233,7 @@ export default {
           case "Map of World":
             this.mapSize = 10 // World map is extremely big, we can make it take more screen space
             this.zoomEnabled = true
+            this.borderEnabled = true
             return World;
           case "Map of France departments":
             this.mapSize = 6

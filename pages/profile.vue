@@ -77,8 +77,8 @@
           <v-card>
             <span class="headline p a-5">Delete this account</span>
             <v-card-text
-              >This action is not reversible. Type your password to delete your
-              account definitely</v-card-text
+              >This action is not reversible. Type your password to delete your account
+              definitely</v-card-text
             >
             <v-text-field
               v-model="password3"
@@ -108,6 +108,10 @@
         <v-icon class="mr-2"> mdi-crosshairs-question </v-icon>
         My Quizzes
       </v-btn>
+      <v-snackbar v-model="snackbar" bottom :color="snackBarColor">
+        {{ snackbarMsg }}
+        <v-btn color="white" text @click="snackbar = false"> Close </v-btn>
+      </v-snackbar> 
     </div>
   </div>
 </template>
@@ -243,10 +247,7 @@ export default {
           this.password3 = "";
           this.canDeleteAccount = false;
           this.$store.commit("users/disconnect");
-          this.showSnackbar(
-            "Account deleted, redirecting to login...",
-            "primary"
-          );
+          this.showSnackbar("Account deleted, redirecting to login...", "primary");
           setTimeout(() => {
             this.$router.push("/");
           }, 2000);
