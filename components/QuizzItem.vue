@@ -38,6 +38,13 @@
               :to="{ name: 'game', params: { id_quiz: quizz.id_quiz} }">
                 Start
             </v-btn>
+            <v-btn 
+              color="primary"
+              nuxt
+              icon
+              :to="{ name: 'ladder', params: { id_quiz: quizz.id_quiz, nb_questions: quizz.nb_questions} }">
+                <v-icon>mdi-trophy</v-icon>
+            </v-btn>
           </v-card-actions>
         </v-col>
       </v-row>
