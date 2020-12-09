@@ -6,9 +6,7 @@
       </div>
       <div v-if="quizzLoaded" class="text-right">
         <div>Loaded quizz : {{ quiz.name }}</div>
-        <div>
-          Timer {{ timeRemaining }}
-        </div>
+        <div><v-icon>mdi-timer </v-icon> Timer {{ timeRemaining }}</div>
       </div>
       <div class="text-center">
         <v-progress-circular
@@ -19,32 +17,34 @@
         >
           {{ loadText }}</v-progress-circular
         >
-
-        <radio-svg-map
-          id="map"
-          :location-class="mapStyle"
-          v-if="quizzLoaded"
-          :map="quizzMap"
-          v-model="selectedLocation"
-          @click="onMapRegionClicked"
-        />
-        <v-card v-if="quizzLoaded">
-          <div>Q{{ questionIndex + 1 }}</div>
-          <div>{{ currentQuestion.question_tag }}</div>
-          <v-card-actions>
-            <v-btn to="/">Quit</v-btn>
-            <v-btn
-              v-show="nextButtonVisible"
-              :disabled="!nextButtonVisible"
-              color="accent"
-              @click="nextQuestion()"
-              >{{this.nextButtonText}}</v-btn
-            >
-            <v-spacer></v-spacer>
-            <!-- For aligning the score the to right -->
-            <div>Current score {{ score }} / {{ maxScore }}</div>
-          </v-card-actions>
-        </v-card>
+        <v-row>
+          <v-col :cols="mapSize" xs="12">
+            <radio-svg-map
+              id="map"
+              :location-class="mapStyle"
+              v-if="quizzLoaded"
+              :map="quizzMap"
+              v-model="selectedLocation"
+              @click="onMapRegionClicked"
+            />
+          </v-col>
+          <v-col xs="12">
+            <v-card  class="pa-4" v-if="quizzLoaded" elevation="10">
+              <div class="my-2">Q{{ questionIndex + 1 }}</div>
+              <div class="my-2">{{ currentQuestion.question_tag }}</div>
+                <v-btn to="/homepage">Quit</v-btn>
+                <v-btn
+                  v-show="nextButtonVisible"
+                  :disabled="!nextButtonVisible"
+                  color="accent"
+                  @click="nextQuestion()"
+                  >{{ this.nextButtonText }}</v-btn>
+                <v-spacer></v-spacer>
+                <!-- For aligning the score the to right -->
+                <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
+            </v-card>
+          </v-col>
+        </v-row>
       </div>
     </v-col>
   </v-row>
@@ -54,11 +54,18 @@ import { RadioSvgMap } from "vue-svg-map";
 import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
-
-
+import Vue from 'vue';
 export default {
+    head() {
+      return {
+        script: [
+          { src:"/svg-pan-zoom.min.js"}
+        ]
+      }
+    },
+  layout: "game",
   name: "game",
-  middleware: "auth",
+  middleware: "game",
   components: {
     RadioSvgMap,
   },
@@ -71,6 +78,7 @@ export default {
       quizz: null,
       question: null,
       selectedLocation: null,
+      borderEnabled: false,
       quizzLoaded: false,
       circularColor: "teal",
       questionIndex: 0,
@@ -78,6 +86,7 @@ export default {
       maxScore: 999,
       timeRemaining: -1,
       mapStyle: "",
+      mapSize: 8,
       greenMapStyle:
         'green green-svg-map__location green-svg-map__location:focus green-svg-map__location:hover green-svg-map__location[aria-checked="true"]',
       redMapStyle:
@@ -86,10 +95,13 @@ export default {
       highlightedRegions: null,
       cacheRegionClassList: null,
       nextButtonVisible: false,
-      nextButtonText: 'Next question',
+      nextButtonText: "Next question",
+      goToResultPageText: "Finish",
+      zoomEnabled: false,
       settings: {
         noHoverAfterQuestion: true,
         noClickAfterQuestion: false,
+        forceBorder: false
       },
     };
   },
@@ -99,6 +111,17 @@ export default {
     },
   },
   methods: {
+    /***
+     * Check if the border needs to be activated with the param this.borderEnabled
+     */
+    checkBorder(){
+      if(this.borderEnabled  === true || this.settings.forceBorder === true) {
+        const map = document.getElementById('map')
+        map.style['border'] = "0.25rem solid rgb(30, 30, 30)";
+      } else {
+        map.style['border'] = "none";
+      }
+    },
     /**
      * Get the player list from the route, if no players were detected, the current player is a guest
      * @return {Array<String>} the player list
@@ -144,9 +167,14 @@ export default {
      *  @param color {String} the theme to apply, possible values : 'green' | 'red'
      */
     highlightMapRegion(map, regionId, color) {
-      var regionToColor = document
-        .getElementById("map")
-        .children.namedItem(regionId);
+      let mapHtml = document.getElementById("map")
+      let regionToColor = null
+         // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
+          if(mapHtml.children.length == 1 && mapHtml.children[0].className.baseVal ==="svg-pan-zoom_viewport") {
+            regionToColor = mapHtml.children[0].children.namedItem(regionId)
+          } else {
+            regionToColor = mapHtml.children.namedItem(regionId)
+          }
       this.cacheRegionClassList = [...regionToColor.classList];
       regionToColor.classList.remove(...regionToColor.classList); // Remove all classes from regionToColor
       regionToColor.blur(); // Stop the focus
@@ -195,12 +223,20 @@ export default {
      */
     getMapByName(name) {
       if (name) {
+        setTimeout(()=>{
+          this.checkBorder()
+        },2000)
         switch (name) {
           case "Map of France regions":
+            this.mapSize = 6
             return FranceRegions;
           case "Map of World":
+            this.mapSize = 10 // World map is extremely big, we can make it take more screen space
+            this.zoomEnabled = true
+            this.borderEnabled = true
             return World;
           case "Map of France departments":
+            this.mapSize = 6
             return FranceDep;
           default:
             throw new Error("Map not found");
@@ -234,21 +270,22 @@ export default {
           this.nextButtonVisible = false;
           this.selectedLocation = null;
           this.questionIndex++;
-          if(this.questionIndex === this.quiz.questions.length - 1) {
-            this.nextButtonText = "Finish"
+          if (this.questionIndex === this.quiz.questions.length - 1) {
+            this.nextButtonText = this.goToResultPageText;
           }
           this.removeHighlighting();
           if (this.settings.noHoverAfterQuestion) {
             this.setMapHoverEffect(true);
           }
           this.enableTimer(this.quiz.questions[this.questionIndex].duration);
-        } else if(autoFinish){
+        } else if (autoFinish) {
           // Quizz finished
           this.$router.push({
             name: "result",
             params: {
               score: this.score,
               maxScore: this.maxScore,
+              quizId: this.$route.params.id_quiz
             },
           });
         }
@@ -262,10 +299,10 @@ export default {
       await this.$axios
         .request({
           method: "get",
-          url: "/api/questions/response/" + question_id
+          url: "/api/questions/response/" + question_id,
         })
         .then((response) => {
-          this.question = response.data
+          this.question = response.data;
         })
         .catch((error) => {
           this.showSnackbar("Error while downloading response", "error");
@@ -273,9 +310,17 @@ export default {
         });
       // Show on the map the correct location
       if (this.selectedLocation !== this.question[0].response_location_id) {
-        this.highlightMapRegion(this.quizzMap, this.question[0].response_location_id, "red");
+        this.highlightMapRegion(
+          this.quizzMap,
+          this.question[0].response_location_id,
+          "red"
+        );
       } else {
-        this.highlightMapRegion(this.quizzMap, this.question[0].response_location_id, "green");
+        this.highlightMapRegion(
+          this.quizzMap,
+          this.question[0].response_location_id,
+          "green"
+        );
         // Increment score if user choice is valid
         this.score++;
       }
@@ -290,7 +335,7 @@ export default {
      * Load the input quizz json & start the game
      * @param {JSON} quiz The quizz to be loaded
      */
-    loadQuizz(quiz) {
+     loadQuizz(quiz) {
       try {
         this.loadText = "Loading Map";
         this.playerList = this.getPlayerList();
@@ -306,7 +351,7 @@ export default {
       }
     },
   },
-  async mounted () {
+  async mounted() {
     if (this.$route.params.id_quiz) {
       await this.$axios
         .request({
@@ -314,14 +359,20 @@ export default {
           url: "/api/quizzes/" + this.$route.params.id_quiz,
         })
         .then((response) => {
-          this.quiz = response.data
+          this.quiz = response.data;
           this.loadQuizz(this.quiz);
+          if(this.zoomEnabled) {
+            setTimeout(()=> {
+              let zoomPlugin = svgPanZoom('#map');
+              document.getElementById('map').style = 'height:700px;width:100%'
+            },1000)
+          }
+
         })
         .catch((error) => {
           this.showSnackbar("Error while downloading quiz", "error");
           console.log(error);
         });
-     
     } else {
       // Circular loading
       console.error("Error when loading quizz (not found)");
