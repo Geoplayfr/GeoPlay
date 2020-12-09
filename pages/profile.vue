@@ -109,6 +109,10 @@
         My Quizzes
       </v-btn>
     </div>
+    <v-snackbar v-model="snackbar" bottom :color="snackBarColor">
+      {{ snackbarMsg }}
+      <v-btn color="white" text @click="snackbar = false"> Close </v-btn>
+    </v-snackbar>
   </div>
 </template>
 <script>
@@ -208,7 +212,7 @@ export default {
               this.$refs.changeUsernameForm.reset();
             })
             .catch((error) => {
-              this.showSnackbar("Error while changing username", "error");
+              this.showSnackbar(error.response.data, "error", true);
               console.log(error);
             });
         }
