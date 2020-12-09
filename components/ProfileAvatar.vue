@@ -38,7 +38,7 @@ export default {
   computed: {
     usernameInitials() {
       if(this.user.username.length >=2 ) {
-        this.user.username.toUpperCase().substring(0,2)
+        return this.user.username.toUpperCase().substring(0,2)
       }
       return this.user.username.toUpperCase()
     }
