@@ -1,16 +1,22 @@
 <template>
-  <v-row justify="center" align="center">
+  <v-row>
     <v-col cols="12" sm="10" md="10">
-      <div>
-        Quizz finished
-        <div v-if="loaded">
-          <div>Final score {{ score }} / {{ maxScore }}</div>
-          <br />
-          <v-progress-linear :value="percent" height="25" ma-3>
-            <strong>{{ Math.ceil(percent) }}%</strong>
-          </v-progress-linear>
-          <br />
+      <v-row class="d-flex align-start flex-column">
           <v-btn to="/homepage">Main menu</v-btn>
+      </v-row>
+      <br />
+      <v-row justify="center" align="center">
+      <div justify="center" align="center">
+        <h3>
+        Quizz finished !
+        </h3>
+        <br/>
+        <div v-if="loaded">
+          <div justify="center" align="center">Final score {{ score }} / {{ maxScore }}</div>
+          <br />
+          <v-progress-circular :value="percent" :size="150" ma-3>
+            <strong>{{ Math.ceil(percent) }}%</strong>
+          </v-progress-circular>
         </div>
       </div>
       <v-snackbar v-model="snackbar" bottom :color="snackBarColor">
@@ -63,9 +69,6 @@ export default {
           quizId:this.$route.params.quizId,
           userId: parseInt(this.$store.getters["users/user"].id),
           score_value: parseInt(this.score),
-        })
-        .then((response) => {
-          this.showSnackbar("Score sent to server", "primary");
         })
         .catch((error) => {
           this.showSnackbar("Error while submitting your score", "error");

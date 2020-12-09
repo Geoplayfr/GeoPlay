@@ -267,12 +267,12 @@
           >
             Back to profile
           </v-btn>
-          <v-btn href="/create_quizz"
+          <v-btn
             color="green darken-1"
             text
             @click="dialog = false"
           >
-            Create quizz
+            Modify
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -384,7 +384,7 @@ export default {
 				const id_quiz = response.data.id_quiz;
 				await this.submitQuestions(id_quiz);
 			} catch (error) {
-				this.message = error
+				this.message = error.response.data
 				this.dialog = true
 			}
 		},
@@ -397,8 +397,7 @@ export default {
 				this.message = 'Your quizz has been successfully created'
 				this.dialog = true
 			} catch (error) {
-				this.message = error
-				this.dialog = true
+				console.log(error)
 			}
 		},
 	},
