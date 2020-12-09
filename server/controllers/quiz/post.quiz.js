@@ -11,7 +11,9 @@ export async function postAddQuiz (req, res) {
         req.body.nb_questions
         )
 	if(!(quiz.name)) {
-		res.status(500).json(quiz)
+                if(quiz.message.includes("rompt la contrainte unique « quizzes_name_key »")) 
+                        quiz.message = "A question with this name already exists"
+		res.status(500).json(quiz.message)
 	}else {
 		res.status(200).json(quiz)
 	}
