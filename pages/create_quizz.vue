@@ -368,7 +368,6 @@ export default {
 				this.selectedLocationName = "";
 				this.questionTag = "";
 				this.questionsValid = false;
-				this.duration = this.defaultDuration
 			}
 		},
 		async submitQuizz() {

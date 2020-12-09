@@ -285,6 +285,7 @@ export default {
             params: {
               score: this.score,
               maxScore: this.maxScore,
+              quizId: this.$route.params.id_quiz
             },
           });
         }
