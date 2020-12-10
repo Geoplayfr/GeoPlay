@@ -41,7 +41,7 @@ export default {
 
   axios: {
     // extra config e.g
-    BaseURL: 'https://thawing-garden-13155.herokuapp.com/'
+    // BaseURL: 'https://thawing-garden-13155.herokuapp.com/'
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
