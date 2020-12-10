@@ -8,7 +8,10 @@ import postgresStore from './postgres-store.js'
 postgresStore.init(config.postgres)
 
 const app = express()
-
+let port=process.env.PORT||4000
+app.listen(port, () => {
+    console.log(`App running on port ${port} `);
+});
 app.use(logger('dev'))
 app.use(session({
   secret: config.SESSION_SECRET,
