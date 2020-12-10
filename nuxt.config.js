@@ -3,10 +3,7 @@ import colors from 'vuetify/es5/util/colors'
 export default {
   // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
   ssr: false,
-  server: {
-    port: 5432, // par défaut : 3000
-    host: '0.0.0.0' // par défaut : localhost
-  },
+
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: 'GeoPlay',
@@ -44,7 +41,7 @@ export default {
 
   axios: {
     // extra config e.g
-    BaseURL: 'http://localhost:5432/'
+    BaseURL: 'http://localhost:3000/'
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
