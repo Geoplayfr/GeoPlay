@@ -18,6 +18,16 @@
           {{ loadText }}</v-progress-circular
         >
         <v-row>
+          <v-col :cols="mapSize" xs="12">
+            <radio-svg-map
+              id="map"
+              :location-class="mapStyle"
+              v-if="quizzLoaded"
+              :map="quizzMap"
+              v-model="selectedLocation"
+              @click="onMapRegionClicked"
+            />
+          </v-col>
           <v-col xs="12">
             <v-card class="pa-4" v-if="quizzLoaded" elevation="10">
               <div class="my-2">Q{{ questionIndex + 1 }}</div>
@@ -34,16 +44,7 @@
               <!-- For aligning the score the to right -->
               <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
             </v-card>
-          </v-col>
-          <v-col :cols="mapSize" xs="12">
-            <radio-svg-map
-              id="map"
-              :location-class="mapStyle"
-              v-if="quizzLoaded"
-              :map="quizzMap"
-              v-model="selectedLocation"
-              @click="onMapRegionClicked"
-            />
+            <player-list :playerList="playerList" />
           </v-col>
         </v-row>
       </div>
@@ -55,8 +56,8 @@ import { RadioSvgMap } from "vue-svg-map";
 import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
-import Vue from "vue";
-import socket from "~/plugins/socket.io.js";
+import PlayerList from "../components/PlayerList.vue";
+
 export default {
   head() {
     return {
@@ -65,61 +66,20 @@ export default {
   },
   layout: "game",
   name: "game",
-  middleware: "game",
+  // middleware: "game",
   components: {
     RadioSvgMap,
   },
   data() {
+    PlayerList;
     return {
       FranceRegions,
       World,
       loadText: "Loading Quizz",
       quizzMap: null,
-      quizz: {
-  "id_quiz": 2,
-  "name": "TEST 2",
-  "description": "AUTO description",
-  "mapid": "Map of France regions",
-  "difficulty": "easy",
-  "duration": 60,
-  "id_user": 1,
-  "nb_questions": 5,
-  "creator": [
-    {
-      "username": "fr"
-    }
-  ],
-  "questions": [
-    {
-      "id_question": 6,
-      "question_tag": "Where is idf",
-      "duration": 5
-    },
-    {
-      "id_question": 7,
-      "question_tag": "What is ges",
-      "duration": 5
-    },
-    {
-      "id_question": 8,
-      "question_tag": "cvl?",
-      "duration": 5
-    },
-    {
-      "id_question": 9,
-      "question_tag": "bfc?",
-      "duration": 5
-    },
-    {
-      "id_question": 10,
-      "question_tag": "naq?",
-      "duration": 5
-    }
-  ]
-},
+      quizz: null,
       question: null,
       selectedLocation: null,
-      borderEnabled: false,
       quizzLoaded: false,
       circularColor: "teal",
       questionIndex: 0,
@@ -132,7 +92,7 @@ export default {
         'green green-svg-map__location green-svg-map__location:focus green-svg-map__location:hover green-svg-map__location[aria-checked="true"]',
       redMapStyle:
         'red red-svg-map__location red-svg-map__location:focus red-svg-map__location:hover red-svg-map__location[aria-checked="true"]',
-      playerList: ["Guest"],
+      playerList: [],
       highlightedRegions: null,
       cacheRegionClassList: null,
       nextButtonVisible: false,
@@ -142,7 +102,6 @@ export default {
       settings: {
         noHoverAfterQuestion: true,
         noClickAfterQuestion: false,
-        forceBorder: false,
       },
     };
   },
@@ -152,26 +111,22 @@ export default {
     },
   },
   methods: {
-    /***
-     * Check if the border needs to be activated with the param this.borderEnabled
-     */
-    checkBorder() {
-      if (this.borderEnabled === true || this.settings.forceBorder === true) {
-        const map = document.getElementById("map");
-        map.style["border"] = "0.25rem solid rgb(30, 30, 30)";
-      } else {
-        map.style["border"] = "none";
-      }
-    },
     /**
      * Get the player list from the route, if no players were detected, the current player is a guest
      * @return {Array<String>} the player list
      */
     getPlayerList() {
       if (this.$route.params.quizz && this.$route.params.quizz.playerList) {
-        return [this.$route.params.quizz.playerList];
+        return this.$route.params.quizz.playerList;
       } else {
-        return ["Guest"];
+        return [
+          { username: "Guest", score: 0, id: 0 },
+          { username: "François", score: 0, id: 1 },
+          { username: "Marine", score: 1, id: 2 },
+          { username: "Guest", score: 0, id: 3 },
+          { username: "François", score: 0, id: 4 },
+          { username: "Marine", score: 8, id: 5 },
+        ];
       }
     },
     /**
@@ -267,9 +222,6 @@ export default {
      */
     getMapByName(name) {
       if (name) {
-        setTimeout(() => {
-          this.checkBorder();
-        }, 2000);
         switch (name) {
           case "Map of France regions":
             this.mapSize = 6;
@@ -277,7 +229,6 @@ export default {
           case "Map of World":
             this.mapSize = 10; // World map is extremely big, we can make it take more screen space
             this.zoomEnabled = true;
-            this.borderEnabled = true;
             return World;
           case "Map of France departments":
             this.mapSize = 6;
@@ -329,7 +280,6 @@ export default {
             params: {
               score: this.score,
               maxScore: this.maxScore,
-              quizId: this.$route.params.id_quiz,
             },
           });
         }
@@ -349,7 +299,7 @@ export default {
           this.question = response.data;
         })
         .catch((error) => {
-          console.log("Error while downloading response");
+          console.log("Error while downloading response", "error");
           console.log(error);
         });
       // Show on the map the correct location
@@ -389,11 +339,6 @@ export default {
         this.questionIndex = 0;
         this.enableTimer(quiz.questions[0].duration);
         this.quizzLoaded = true;
-        console.log("Socket EMIT", socket);
-        socket.emit(
-          "send-message",
-          "SOCKET IO LOADED FOR " + this.$store.getters["users/user"].username
-        );
       } catch (e) {
         this.loadText = e.message;
         this.circularColor = "red";
@@ -401,39 +346,32 @@ export default {
     },
   },
   async mounted() {
-  
-      console.log('MOUNTED')
-      await this.$axios
-        .request({
-          method: "get",
-          url: "/api/quizzes/" + this.$route.params.id_quiz,
-        })
-        .then((response) => {
-          this.quiz = response.data;
-          this.loadQuizz(this.quiz);
-          if (this.zoomEnabled) {
-            setTimeout(() => {
-              let zoomPlugin = svgPanZoom("#map");
-              document.getElementById("map").style = "height:700px;width:100%";
-            }, 1000);
-          }
-        })
-        .catch((error) => {
-          this.loadText = "No input Quizz";
-          this.circularColor = "red";
-          console.log(error);
-          console.log("Error when loading quizz (not found)");
-        });
-    socket.on('msg-to-game', function (data) {
-    console.log('Received message from server : ' + data)
-  })
-
-    return new Promise((resolve) =>
-      socket.emit(
-        "send-message",
-        "SOCKET IO LOADED FOR " + this.$store.getters["users/user"].username
-      )
-    );
+    this.$route.params.id_quiz = 1;
+    await this.$axios
+      .request({
+        method: "get",
+        url: "/api/quizzes/" + this.$route.params.id_quiz,
+      })
+      .then((response) => {
+        this.quiz = response.data;
+        this.loadQuizz(this.quiz);
+        if (this.zoomEnabled) {
+          setTimeout(() => {
+            let zoomPlugin = svgPanZoom("#map");
+            document.getElementById("map").style = "height:700px;width:100%";
+          }, 1000);
+        }
+      })
+      .catch((error) => {
+        console.log("Error while downloading quiz");
+        this.circularColor = "red";
+        if (error.response.status === 404) {
+          this.loadText = "Quiz was not found in the database"
+        }
+        else {
+          this.loadText = error;
+        }
+      });
   },
 };
 </script>

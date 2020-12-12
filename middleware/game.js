@@ -1,4 +1,5 @@
 export default function (ctx) {
+	console.log('Entering middleware')
 	updateData(ctx.app)
 	if (!isAuth()) {
 		ctx.redirect('/login')
