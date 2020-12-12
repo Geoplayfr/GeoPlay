@@ -18,16 +18,6 @@
           {{ loadText }}</v-progress-circular
         >
         <v-row>
-          <v-col :cols="mapSize" xs="12">
-            <radio-svg-map
-              id="map"
-              :location-class="mapStyle"
-              v-if="quizzLoaded"
-              :map="quizzMap"
-              v-model="selectedLocation"
-              @click="onMapRegionClicked"
-            />
-          </v-col>
           <v-col xs="12">
             <v-card class="pa-4" v-if="quizzLoaded" elevation="10">
               <div class="my-2">Q{{ questionIndex + 1 }}</div>
@@ -44,6 +34,16 @@
               <!-- For aligning the score the to right -->
               <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
             </v-card>
+          </v-col>
+          <v-col :cols="mapSize" xs="12">
+            <radio-svg-map
+              id="map"
+              :location-class="mapStyle"
+              v-if="quizzLoaded"
+              :map="quizzMap"
+              v-model="selectedLocation"
+              @click="onMapRegionClicked"
+            />
           </v-col>
         </v-row>
       </div>
