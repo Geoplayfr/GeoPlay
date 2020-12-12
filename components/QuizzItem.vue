@@ -43,7 +43,7 @@
               color="primary"
               nuxt
               :to="{ name: 'game', params: { id_quiz: quizz.id_quiz} }">
-                Start {{ quizz.id_quiz }}
+                Start
               </v-btn>
             </v-col>
           </v-row>
