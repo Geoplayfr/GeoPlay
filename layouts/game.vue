@@ -34,9 +34,8 @@
       <ProfileAvatar :user="$store.getters['users/user']"/>
     </v-app-bar>
     <v-main>
-      <v-container>
-        <nuxt />
-      </v-container>
+      <!-- Removed the container to give more space to game components -->
+      <nuxt />
     </v-main>
     <v-footer :absolute="!fixed" app>
       <span>&copy; {{ new Date().getFullYear() }}</span>
@@ -53,30 +52,20 @@ export default {
       fixed: false,
       items: [
         {
-          icon: "mdi-account-circle",
+          icon: "mdi-apps",
           title: "Welcome",
-          to: "/homepage",
-        },
-        {
-          icon: "mdi-account-circle",
-          title: "Profile",
-          to: "/profile",
-        },
-        {
-          icon: "mdi-crosshairs-question",
-          title: "Create Quiz",
-          to: "/create_quizz",
-        },
-        {
-          icon: "mdi-door",
-          title: "Disconnect",
           to: "/",
+        },
+        {
+          icon: "mdi-chart-bubble",
+          title: "Inspire",
+          to: "/inspire",
         },
       ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: "Geoplay",
+      title: "Quit Game",
     };
   },
 };
