@@ -108,8 +108,8 @@ export default class Quiz {
                 nb_questions = $7
 				        WHERE id_quiz = $1 RETURNING *`,
 				values: [quizId, newName, newDescription, newMapId, newDifficulty, newDuration, newNbQuestion]
-			})
-			return result.rows
+      })
+			return result.rows[0]
 		} catch (err) {
 			return { error: err, message: err.message } // 500
 		}
