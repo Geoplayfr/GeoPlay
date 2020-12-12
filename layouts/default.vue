@@ -67,11 +67,6 @@ export default {
           title: "Create Quiz",
           to: "/create_quizz",
         },
-        {
-          icon: "mdi-door",
-          title: "Disconnect",
-          to: "/",
-        },
       ],
       miniVariant: false,
       right: true,

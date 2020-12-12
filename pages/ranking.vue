@@ -70,6 +70,7 @@
           </template>
         </v-col>
       </v-row>
+      <v-btn to="/homepage">Go back</v-btn>
     </div>
   </v-container>
 </template>
@@ -82,35 +83,37 @@ export default {
       scores: [],
       headers: [
         {
-            text: 'Name',
-            align: 'center',
-            value: 'username',
-          },
-          { 
-            text: 'Score (' + this.$route.params.nb_questions + ' questions)',
-            align: 'center',
-            value: 'score_value'
-          },
-          {
-            text: '%',
-            align: 'center',
-            value: 'percent'
-          }
-      ]
+          text: "Name",
+          align: "center",
+          value: "username",
+        },
+        {
+          text: "Score (" + this.$route.params.nb_questions + " questions)",
+          align: "center",
+          value: "score_value",
+        },
+        {
+          text: "%",
+          align: "center",
+          value: "percent",
+        },
+      ],
     };
   },
   async mounted() {
-    await this.$axios.get("/api/quizzes/"+ this.$route.params.id_quiz +"/scores")
-    .then((res) => {
-      this.scores = res.data
-      this.scores.forEach(element => {
-        element.percent = element.score_value / this.$route.params.nb_questions * 100
+    await this.$axios
+      .get("/api/quizzes/" + this.$route.params.id_quiz + "/scores")
+      .then((res) => {
+        this.scores = res.data;
+        this.scores.forEach((element) => {
+          element.percent =
+            (element.score_value / this.$route.params.nb_questions) * 100;
+        });
+        this.scores.sort((a, b) => b.score_value - a.score_value);
+      })
+      .catch((error) => {
+        console.log(error);
       });
-      this.scores.sort((a, b) => b.score_value - a.score_value)
-    })
-    .catch((error) => {
-      console.log(error)
-    })
   }
-}
+};
 </script>
