@@ -18,16 +18,6 @@
           {{ loadText }}</v-progress-circular
         >
         <v-row>
-          <v-col :cols="mapSize" xs="12">
-            <radio-svg-map
-              id="map"
-              :location-class="mapStyle"
-              v-if="quizzLoaded"
-              :map="quizzMap"
-              v-model="selectedLocation"
-              @click="onMapRegionClicked"
-            />
-          </v-col>
           <v-col xs="12">
             <v-card class="pa-4" v-if="quizzLoaded" elevation="10">
               <div class="my-2">Q{{ questionIndex + 1 }}</div>
@@ -45,6 +35,16 @@
               <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
             </v-card>
             <player-list :playerList="playerList" />
+          </v-col>
+          <v-col :cols="mapSize" xs="12">
+            <radio-svg-map
+              id="map"
+              :location-class="mapStyle"
+              v-if="quizzLoaded"
+              :map="quizzMap"
+              v-model="selectedLocation"
+              @click="onMapRegionClicked"
+            />
           </v-col>
         </v-row>
       </div>
@@ -66,6 +66,7 @@ export default {
   },
   layout: "game",
   name: "game",
+  middleware: "auth",
   // middleware: "game",
   components: {
     RadioSvgMap,
@@ -346,7 +347,7 @@ export default {
     },
   },
   async mounted() {
-    this.$route.params.id_quiz = 1;
+    this.$route.params.id_quiz = 8;
     await this.$axios
       .request({
         method: "get",
@@ -365,10 +366,9 @@ export default {
       .catch((error) => {
         console.log("Error while downloading quiz");
         this.circularColor = "red";
-        if (error.response.status === 404) {
-          this.loadText = "Quiz was not found in the database"
-        }
-        else {
+        if (error.response && error.response.status === 404) {
+          this.loadText = "Quiz was not found in the database";
+        } else {
           this.loadText = error;
         }
       });
