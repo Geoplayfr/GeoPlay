@@ -29,19 +29,20 @@
             />
           </v-col>
           <v-col xs="12">
-            <v-card  class="pa-4" v-if="quizzLoaded" elevation="10">
+            <v-card class="pa-4" v-if="quizzLoaded" elevation="10">
               <div class="my-2">Q{{ questionIndex + 1 }}</div>
               <div class="my-2">{{ currentQuestion.question_tag }}</div>
-                <v-btn to="/homepage">Quit</v-btn>
-                <v-btn
-                  v-show="nextButtonVisible"
-                  :disabled="!nextButtonVisible"
-                  color="accent"
-                  @click="nextQuestion()"
-                  >{{ this.nextButtonText }}</v-btn>
-                <v-spacer></v-spacer>
-                <!-- For aligning the score the to right -->
-                <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
+              <v-btn to="/homepage">Quit</v-btn>
+              <v-btn
+                v-show="nextButtonVisible"
+                :disabled="!nextButtonVisible"
+                color="accent"
+                @click="nextQuestion()"
+                >{{ this.nextButtonText }}</v-btn
+              >
+              <v-spacer></v-spacer>
+              <!-- For aligning the score the to right -->
+              <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
             </v-card>
           </v-col>
         </v-row>
@@ -54,15 +55,14 @@ import { RadioSvgMap } from "vue-svg-map";
 import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
-import Vue from 'vue';
+import Vue from "vue";
+import socket from "~/plugins/socket.io.js";
 export default {
-    head() {
-      return {
-        script: [
-          { src:"/svg-pan-zoom.min.js"}
-        ]
-      }
-    },
+  head() {
+    return {
+      script: [{ src: "/svg-pan-zoom.min.js" }],
+    };
+  },
   layout: "game",
   name: "game",
   middleware: "game",
@@ -101,7 +101,7 @@ export default {
       settings: {
         noHoverAfterQuestion: true,
         noClickAfterQuestion: false,
-        forceBorder: false
+        forceBorder: false,
       },
     };
   },
@@ -114,12 +114,12 @@ export default {
     /***
      * Check if the border needs to be activated with the param this.borderEnabled
      */
-    checkBorder(){
-      if(this.borderEnabled  === true || this.settings.forceBorder === true) {
-        const map = document.getElementById('map')
-        map.style['border'] = "0.25rem solid rgb(30, 30, 30)";
+    checkBorder() {
+      if (this.borderEnabled === true || this.settings.forceBorder === true) {
+        const map = document.getElementById("map");
+        map.style["border"] = "0.25rem solid rgb(30, 30, 30)";
       } else {
-        map.style['border'] = "none";
+        map.style["border"] = "none";
       }
     },
     /**
@@ -167,14 +167,17 @@ export default {
      *  @param color {String} the theme to apply, possible values : 'green' | 'red'
      */
     highlightMapRegion(map, regionId, color) {
-      let mapHtml = document.getElementById("map")
-      let regionToColor = null
-         // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
-          if(mapHtml.children.length == 1 && mapHtml.children[0].className.baseVal ==="svg-pan-zoom_viewport") {
-            regionToColor = mapHtml.children[0].children.namedItem(regionId)
-          } else {
-            regionToColor = mapHtml.children.namedItem(regionId)
-          }
+      let mapHtml = document.getElementById("map");
+      let regionToColor = null;
+      // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
+      if (
+        mapHtml.children.length == 1 &&
+        mapHtml.children[0].className.baseVal === "svg-pan-zoom_viewport"
+      ) {
+        regionToColor = mapHtml.children[0].children.namedItem(regionId);
+      } else {
+        regionToColor = mapHtml.children.namedItem(regionId);
+      }
       this.cacheRegionClassList = [...regionToColor.classList];
       regionToColor.classList.remove(...regionToColor.classList); // Remove all classes from regionToColor
       regionToColor.blur(); // Stop the focus
@@ -223,20 +226,20 @@ export default {
      */
     getMapByName(name) {
       if (name) {
-        setTimeout(()=>{
-          this.checkBorder()
-        },2000)
+        setTimeout(() => {
+          this.checkBorder();
+        }, 2000);
         switch (name) {
           case "Map of France regions":
-            this.mapSize = 6
+            this.mapSize = 6;
             return FranceRegions;
           case "Map of World":
-            this.mapSize = 10 // World map is extremely big, we can make it take more screen space
-            this.zoomEnabled = true
-            this.borderEnabled = true
+            this.mapSize = 10; // World map is extremely big, we can make it take more screen space
+            this.zoomEnabled = true;
+            this.borderEnabled = true;
             return World;
           case "Map of France departments":
-            this.mapSize = 6
+            this.mapSize = 6;
             return FranceDep;
           default:
             throw new Error("Map not found");
@@ -285,7 +288,7 @@ export default {
             params: {
               score: this.score,
               maxScore: this.maxScore,
-              quizId: this.$route.params.id_quiz
+              quizId: this.$route.params.id_quiz,
             },
           });
         }
@@ -335,7 +338,7 @@ export default {
      * Load the input quizz json & start the game
      * @param {JSON} quiz The quizz to be loaded
      */
-     loadQuizz(quiz) {
+    loadQuizz(quiz) {
       try {
         this.loadText = "Loading Map";
         this.playerList = this.getPlayerList();
@@ -345,6 +348,11 @@ export default {
         this.questionIndex = 0;
         this.enableTimer(quiz.questions[0].duration);
         this.quizzLoaded = true;
+        console.log("Socket EMIT", socket);
+        socket.emit(
+          "send-message",
+          "SOCKET IO LOADED FOR " + this.$store.getters["users/user"].username
+        );
       } catch (e) {
         this.loadText = e.message;
         this.circularColor = "red";
@@ -352,6 +360,8 @@ export default {
     },
   },
   async mounted() {
+
+
     if (this.$route.params.id_quiz) {
       await this.$axios
         .request({
@@ -361,13 +371,12 @@ export default {
         .then((response) => {
           this.quiz = response.data;
           this.loadQuizz(this.quiz);
-          if(this.zoomEnabled) {
-            setTimeout(()=> {
-              let zoomPlugin = svgPanZoom('#map');
-              document.getElementById('map').style = 'height:700px;width:100%'
-            },1000)
+          if (this.zoomEnabled) {
+            setTimeout(() => {
+              let zoomPlugin = svgPanZoom("#map");
+              document.getElementById("map").style = "height:700px;width:100%";
+            }, 1000);
           }
-
         })
         .catch((error) => {
           this.showSnackbar("Error while downloading quiz", "error");
@@ -379,6 +388,17 @@ export default {
       this.loadText = "No input Quizz";
       this.circularColor = "red";
     }
+
+    socket.on('msg-to-game', function (data) {
+    console.log('Received message from server : ' + data)
+  })
+
+    return new Promise((resolve) =>
+      socket.emit(
+        "send-message",
+        "SOCKET IO LOADED FOR " + this.$store.getters["users/user"].username
+      )
+    );
   },
 };
 </script>

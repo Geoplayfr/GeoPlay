@@ -37,7 +37,12 @@ export default {
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     '@nuxtjs/axios',
+    '~/io'
   ],
+
+  env: {
+    WS_URL: process.env.WS_URL || 'http://localhost:3000'
+  },
 
   axios: {
     // extra config e.g
@@ -69,5 +74,5 @@ export default {
 
   serverMiddleware: [
     '~/server/server.js'
-  ],   
+  ],
 }
