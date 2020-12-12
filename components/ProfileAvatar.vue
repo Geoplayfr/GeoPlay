@@ -20,7 +20,7 @@
               <v-divider class="my-3"></v-divider>
               <v-btn depressed rounded text to="/profile"> Edit Account </v-btn>
               <v-divider class="my-3"></v-divider>
-              <v-btn depressed rounded text to="/"> Disconnect </v-btn>
+              <v-btn depressed rounded text @click="disconnect"> Disconnect </v-btn>
             </div>
           </v-list-item-content>
         </v-card>
@@ -41,6 +41,12 @@ export default {
         return this.user.username.toUpperCase().substring(0,2)
       }
       return this.user.username.toUpperCase()
+    }
+  },
+  methods: {
+    disconnect(){
+      this.$store.commit('users/disconnect')
+      this.$router.push('/')
     }
   }
 };

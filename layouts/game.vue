@@ -29,9 +29,14 @@
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
       </v-btn>
-      <div style=" font-size: 1.3em; cursor:pointer" @click="$router.push('/homepage')">{{ title }}</div>
+      <div
+        style="font-size: 1.3em; cursor: pointer"
+        @click="$router.push('/homepage')"
+      >
+        {{ title }}
+      </div>
       <v-spacer />
-      <ProfileAvatar :user="$store.getters['users/user']"/>
+      <ProfileAvatar :user="$store.getters['users/user']" />
     </v-app-bar>
     <v-main>
       <!-- Removed the container to give more space to game components -->
@@ -52,14 +57,19 @@ export default {
       fixed: false,
       items: [
         {
-          icon: "mdi-apps",
+          icon: "mdi-account-circle",
           title: "Welcome",
-          to: "/",
+          to: "/homepage",
         },
         {
-          icon: "mdi-chart-bubble",
-          title: "Inspire",
-          to: "/inspire",
+          icon: "mdi-account-circle",
+          title: "Profile",
+          to: "/profile",
+        },
+        {
+          icon: "mdi-crosshairs-question",
+          title: "Create Quiz",
+          to: "/create_quizz",
         },
       ],
       miniVariant: false,
