@@ -56,7 +56,6 @@ import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
 import Vue from "vue";
-import socket from "~/plugins/socket.io.js";
 export default {
   head() {
     return {
@@ -323,7 +322,7 @@ export default {
           }
           this.enableTimer(this.quiz.questions[this.questionIndex].duration);
         } else if (autoFinish) {
-          // Quizz finished
+          // Quizz finished (all questions are done)
           this.$router.push({
             name: "result",
             params: {
@@ -389,11 +388,6 @@ export default {
         this.questionIndex = 0;
         this.enableTimer(quiz.questions[0].duration);
         this.quizzLoaded = true;
-        console.log("Socket EMIT", socket);
-        socket.emit(
-          "send-message",
-          "SOCKET IO LOADED FOR " + this.$store.getters["users/user"].username
-        );
       } catch (e) {
         this.loadText = e.message;
         this.circularColor = "red";
@@ -401,9 +395,7 @@ export default {
     },
   },
   async mounted() {
-  
-      console.log('MOUNTED')
-      await this.$axios
+        await this.$axios
         .request({
           method: "get",
           url: "/api/quizzes/" + this.$route.params.id_quiz,
@@ -424,16 +416,6 @@ export default {
           console.log(error);
           console.log("Error when loading quizz (not found)");
         });
-    socket.on('msg-to-game', function (data) {
-    console.log('Received message from server : ' + data)
-  })
-
-    return new Promise((resolve) =>
-      socket.emit(
-        "send-message",
-        "SOCKET IO LOADED FOR " + this.$store.getters["users/user"].username
-      )
-    );
   },
 };
 </script>

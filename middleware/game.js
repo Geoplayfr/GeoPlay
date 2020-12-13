@@ -1,22 +1,27 @@
+import socket from "~/plugins/socket.io.js";
 export default function (ctx) {
 	console.log('Entering middleware')
 	updateData(ctx.app)
 	if (!isAuth()) {
 		ctx.redirect('/login')
 	} else {
-		// Only load the game pages if the passed params are recognized
-		switch (ctx.route.name) {
-			case 'game':
-				if (!canLoadQuiz(ctx)) {
-					ctx.redirect('/homepage')
-				}
-				break;
-			case 'result':
-				if (!canLoadResults(ctx)) {
-					ctx.redirect('/homepage')
-				}
-				break;
+		// Auto quit current online game
+		if(ctx.route.previous === 'gameMulti') {
+			socket.emit('QuitGame',ctx.app.store.getters["users/user"])
 		}
+		// Only load the game pages if the passed params are recognized
+			switch (ctx.route.name) {
+				case 'game':
+					if (!canLoadQuiz(ctx)) {
+						ctx.redirect('/homepage')
+					}
+					break;
+				case 'result':
+					if (!canLoadResults(ctx)) {
+						ctx.redirect('/homepage')
+					}
+					break;
+			}
 	}
 }
 

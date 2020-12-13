@@ -27,7 +27,7 @@
                 v-show="nextButtonVisible"
                 :disabled="!nextButtonVisible"
                 color="accent"
-                @click="nextQuestion()"
+                @click="askNextQuestion()"
                 >{{ this.nextButtonText }}</v-btn
               >
               <v-spacer></v-spacer>
@@ -57,7 +57,7 @@ import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
 import PlayerList from "../components/PlayerList.vue";
-
+import socket from "~/plugins/socket.io.js";
 export default {
   head() {
     return {
@@ -85,10 +85,12 @@ export default {
       circularColor: "teal",
       questionIndex: 0,
       score: 0,
+      room: 0,
       maxScore: 999,
       timeRemaining: -1,
       mapStyle: "",
       mapSize: 8,
+      currentQuestion: null,
       greenMapStyle:
         'green green-svg-map__location green-svg-map__location:focus green-svg-map__location:hover green-svg-map__location[aria-checked="true"]',
       redMapStyle:
@@ -105,11 +107,6 @@ export default {
         noClickAfterQuestion: false,
       },
     };
-  },
-  computed: {
-    currentQuestion() {
-      return this.quiz.questions[this.questionIndex];
-    },
   },
   methods: {
     /**
@@ -241,56 +238,48 @@ export default {
       throw new Error("Map name not defined");
     },
     /**
-     * Enable a timer to end the current quizz question
-     * at the end of this timer, the "correction menu" is shown
-     * @param {Number} time the number of seconds to do the question
+     * Local timer, that displays the time you have to answer the question, the server will by itself send the correction
      */
-    enableTimer(time) {
-      this.timeRemaining = time;
-      var timerId = setInterval(() => {
+    enableRemainingSecondsTimer(timeInSeconds) {
+      this.timeRemaining = timeInSeconds;
+      var timerId = setTimeout(() => {
         if (this.timeRemaining > 0) {
           this.timeRemaining--;
         } else {
           clearInterval(timerId);
-          this.showEndQuestionMenu(this.currentQuestion.id_question);
         }
       }, 1000);
     },
-    /**
-     * Close the "correction menu" and start a new question
-     * @param {boolean} autoFinish If set to true, automatically redirects the player to the scoreboard page if there are no questions left
-     */
-    nextQuestion(autoFinish = true) {
-      if (this.quizzLoaded) {
-        if (this.questionIndex < this.quiz.questions.length - 1) {
-          this.nextButtonVisible = false;
-          this.selectedLocation = null;
-          this.questionIndex++;
-          if (this.questionIndex === this.quiz.questions.length - 1) {
-            this.nextButtonText = this.goToResultPageText;
-          }
-          this.removeHighlighting();
-          if (this.settings.noHoverAfterQuestion) {
-            this.setMapHoverEffect(true);
-          }
-          this.enableTimer(this.quiz.questions[this.questionIndex].duration);
-        } else if (autoFinish) {
-          // Quizz finished
-          this.$router.push({
-            name: "result",
-            params: {
-              score: this.score,
-              maxScore: this.maxScore,
-            },
-          });
-        }
-      }
+    askNextQuestion() {
+      // Do nothing, feature not implemented yet
+      console.log("Not implemented yet");
     },
     /**
-     * Load the input quizz json & start the game
-     * @param {JSON} question_id The question to be evaluated, and corrected
+     * Authorize the player to play the current question
+     * */
+    showCurQuestionMenu(serverData) {
+      this.loadQuizz = false;
+      this.nextButtonVisible = false;
+      this.selectedLocation = null;
+      this.questionIndex = serverData.questionIndex;
+      if (this.quiz.questions < this.quiz.nb_questions) {
+        this.nextButtonText = this.goToResultPageText;
+      }
+      this.removeHighlighting();
+      if (this.settings.noHoverAfterQuestion) {
+        this.setMapHoverEffect(true);
+      }
+      this.enableRemainingSecondsTimer(serverData.remainingSeconds);
+
+      // TO MOVE TO SERVER
+      //this.enableTimer(this.quiz.questions[this.questionIndex].duration);
+    },
+    /**
+     * serverData : response_location_id + score
+     * @param {JSON} serverData The data from the server
      */
-    async showEndQuestionMenu(question_id) {
+    async showEndQuestionMenu(serverData) {
+      /*
       await this.$axios
         .request({
           method: "get",
@@ -303,21 +292,22 @@ export default {
           console.log("Error while downloading response", "error");
           console.log(error);
         });
+        */
       // Show on the map the correct location
-      if (this.selectedLocation !== this.question[0].response_location_id) {
+      if (this.selectedLocation !== serverData.response_location_id) {
         this.highlightMapRegion(
           this.quizzMap,
-          this.question[0].response_location_id,
+          serverData.response_location_id,
           "red"
         );
       } else {
         this.highlightMapRegion(
           this.quizzMap,
-          this.question[0].response_location_id,
+          serverData.response_location_id,
           "green"
         );
         // Increment score if user choice is valid
-        this.score++;
+        this.score = serverData.score;
       }
       this.selectedLocation = null;
       if (this.settings.noHoverAfterQuestion) {
@@ -325,6 +315,104 @@ export default {
       }
       // Show the button "Next question"
       this.nextButtonVisible = true;
+    },
+    setupSocketIO() {
+      console.log("Loading socket io");
+
+      /**
+       * Check data before using it in the handlers
+       */
+      function c(data) {
+        if (typeof data !== "object")
+          throw new TypeError(
+            "Every data exchanged for the geoplay game session should be in JSON, data obtained is " +
+              data
+          );
+        else return data;
+      }
+
+      socket.on("GameStateReceived", (serverData) => {
+        // OK ?
+        console.log("GameStateReceived Received message from server : ", data);
+        const state = c(data).state;
+        switch (state) {
+          case "STOPPED": // OK
+            // Quizz finished (arrived too late / bug)
+            this.$router.push({
+              name: "result",
+              params: {
+                score: serverData.score,
+                maxScore: serverData.maxScore,
+                quizId: this.$route.params.id_quiz,
+              },
+            });
+            break;
+          case "WAITING": // OK
+            this.quizzLoaded = false;
+            this.loadQuizz = true;
+            this.loadText = "Waiting for players";
+            const playerInfo = this.$store.getters["users/user"]; // Contains id_user && username
+            socket.emit(
+              "CanStartGame",
+              {
+                player: playerInfo,
+              },
+              // Execute callback for indicating if registration is successful
+              (data) => {
+                if (typeof data === "string") {
+                  console.error(data);
+                  throw new Error(data);
+                }
+              }
+            );
+            // TO DO LATER
+            break;
+          case "PLAYING": // OK
+            this.showCurQuestionMenu(c(data.playing_data));
+            break;
+          case "CORRECTING": // OK
+            const playerAnswer = {
+              player: playerInfo,
+              answer: this.selectedLocation,
+            };
+            if (this.selectedLocation !== null) {
+              socket.emit(playerAnswer);
+            }
+            this.showEndQuestionMenu(c(data.correcting_data));
+            break;
+          default:
+            throw new Error("Unknown game state" + state);
+        }
+      });
+
+      // Future update Ping system
+      // socket.on("PingReceived", (data) => socket.emit('PlayerStillConnected', $store.getters["users/user"].id))
+
+      // Can be updated dynamically (the results can appear as the you are watching the correction)
+      socket.on("CurQuestionResultsReceived", (data) => {
+        // OK
+        console.log(
+          "CurQuestionResultsReceived Received message from server : ",
+          data
+        );
+        this.showCurQuestionResults(c(data));
+      });
+
+      socket.on("CurQuestionReceived", (data) => {
+        // OK
+        console.log(
+          "CurQuestionReceived Received message from server : ",
+          data
+        );
+        this.currentQuestion = c(data);
+      });
+
+      socket.on("UpdatePlayers", (data) => {
+        //OK
+        console.log("UpdatePlayers Received message from server : ", data);
+        this.playerList = c(data);
+        console.log("updated players");
+      });
     },
     /**
      * Load the input quizz json & start the game
@@ -338,8 +426,16 @@ export default {
         this.maxScore = quiz.questions.length;
         this.score = 0;
         this.questionIndex = 0;
-        this.enableTimer(quiz.questions[0].duration);
+        this.setupSocketIO();
         this.quizzLoaded = true;
+        console.log("Requesting game state...")
+        // Entry point for network game
+        socket.emit("RequestGameState", {
+          username: this.$store.getters["users/user"].username,
+          id: this.$store.getters["users/user"].id,
+          id_quiz: this.$route.params.id_quiz,
+          room: this.room,
+        });
       } catch (e) {
         this.loadText = e.message;
         this.circularColor = "red";
@@ -348,6 +444,7 @@ export default {
   },
   async mounted() {
     this.$route.params.id_quiz = 8;
+    this.room = 0; // Is pushed to the server
     await this.$axios
       .request({
         method: "get",
