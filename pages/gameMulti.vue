@@ -21,7 +21,7 @@
           <v-col xs="12">
             <v-card class="pa-4" v-if="quizzLoaded" elevation="10">
               <div class="my-2">Q{{ questionIndex + 1 }}</div>
-              <div class="my-2">{{ currentQuestion.question_tag }}</div>
+              <div v-if="currentQuestion" class="my-2">{{ currentQuestion.question_tag }}</div>
               <v-btn to="/homepage">Quit</v-btn>
               <v-btn
                 v-show="nextButtonVisible"
@@ -317,7 +317,7 @@ export default {
       this.nextButtonVisible = true;
     },
     setupSocketIO() {
-      console.log("Loading socket io");
+      console.log(">>> Loading socket io");
 
       /**
        * Check data before using it in the handlers
@@ -330,15 +330,14 @@ export default {
           );
         else return data;
       }
-
       socket.on("GameStateReceived", (serverData) => {
         // OK ?
-        console.log("GameStateReceived Received message from server : ", data);
-        const state = c(data).state;
+        console.log("GameStateReceived Received message from server : ", serverData);
+        const state = c(serverData).status;
         switch (state) {
           case "STOPPED": // OK
             // Quizz finished (arrived too late / bug)
-            this.$router.push({
+            this.$router.push({ 
               name: "result",
               params: {
                 score: serverData.score,
@@ -368,7 +367,7 @@ export default {
             // TO DO LATER
             break;
           case "PLAYING": // OK
-            this.showCurQuestionMenu(c(data.playing_data));
+            this.showCurQuestionMenu(c(serverData.playing_data));
             break;
           case "CORRECTING": // OK
             const playerAnswer = {
@@ -378,10 +377,10 @@ export default {
             if (this.selectedLocation !== null) {
               socket.emit(playerAnswer);
             }
-            this.showEndQuestionMenu(c(data.correcting_data));
+            this.showEndQuestionMenu(c(serverData.correcting_data));
             break;
           default:
-            throw new Error("Unknown game state" + state);
+            throw new Error("Unknown game state " + state);
         }
       });
 

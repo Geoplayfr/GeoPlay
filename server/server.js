@@ -4,7 +4,6 @@ import express from 'express'
 import apiRouter from './routes/routes.js'
 import config from './server.config.js'
 import postgresStore from './postgres-store.js'
-import setupMultiplayer from './multiplayerConfig'
 const app = express()
 const { Nuxt, Builder } = require('nuxt')
 const http = require('http').createServer(app)
@@ -12,7 +11,6 @@ const http = require('http').createServer(app)
 postgresStore.init(config.postgres)
 config.dev = process.env.NODE_ENV !== 'production'
 const io = require('socket.io')(http)
-setupMultiplayer(io)
 
 async function start() {
   const nuxt = new Nuxt(config)
@@ -23,7 +21,7 @@ async function start() {
   }
   app.use(nuxt.render)
   const port = 3000
-  http.listen(port,'0.0.0.0')
+  http.listen(port, '0.0.0.0')
   console.log('Server listening on localhost:' + port) // eslint-disable-line no-console
 
 

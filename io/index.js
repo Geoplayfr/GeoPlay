@@ -1,10 +1,12 @@
 import http from 'http'
 import socketIO from 'socket.io'
+import setupMultiplayer from '../server/multiplayerConfig'
 
 export default function () {
   this.nuxt.hook('render:before', (renderer) => {
     const server = http.createServer(this.nuxt.renderer.app)
     const io = socketIO(server)
+    setupMultiplayer(io)
 
     // overwrite nuxt.server.listen()
     this.nuxt.server.listen = (port, host) => new Promise(resolve => server.listen(port || 3000, host || 'localhost', resolve))
@@ -13,6 +15,8 @@ export default function () {
 
     // Add socket.io events
     const messages = []
+
+    /*
     io.on('connection', (socket) => {
       // Sending every 5 seconds a message to the game (test)
       setInterval(() => {
@@ -22,5 +26,6 @@ export default function () {
         console.log('Server received something : ' + message)
       })
     })
+    */
   })
 }
