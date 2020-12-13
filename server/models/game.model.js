@@ -1,3 +1,5 @@
+import Quiz from "./quiz.model"
+
 /**
  * Game instance for multiplayer only
  */
@@ -14,7 +16,8 @@ export default class Game {
     quizz
     /** @type {String} */
     room
-
+    /** @type {Number} */
+    correction_duration = 5
 
     /**
      * Determines if new players can connect to the game

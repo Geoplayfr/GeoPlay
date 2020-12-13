@@ -6,7 +6,12 @@
       </div>
       <div v-if="quizzLoaded" class="text-right">
         <div>Loaded quizz : {{ quiz.name }}</div>
-        <div><v-icon>mdi-timer </v-icon> Timer {{ timeRemaining }}</div>
+        <div v-if="state === 'PLAYING'">
+          <v-icon>mdi-timer </v-icon> Timer {{ timeRemaining }}
+        </div>
+        <div v-else-if="state === 'CORRECTING'">
+          <v-icon>mdi-timer </v-icon> Next question in {{ timeRemaining }}
+        </div>
       </div>
       <div class="text-center">
         <v-progress-circular
@@ -21,7 +26,9 @@
           <v-col xs="12">
             <v-card class="pa-4" v-if="quizzLoaded" elevation="10">
               <div class="my-2">Q{{ questionIndex + 1 }}</div>
-              <div v-if="currentQuestion" class="my-2">{{ currentQuestion.question_tag }}</div>
+              <div v-if="currentQuestion" class="my-2">
+                {{ currentQuestion.question_tag }}
+              </div>
               <v-btn to="/homepage">Quit</v-btn>
               <v-btn
                 v-show="nextButtonVisible"
@@ -84,7 +91,9 @@ export default {
       quizzLoaded: false,
       circularColor: "teal",
       questionIndex: 0,
+      timerId: undefined,
       score: 0,
+      state: "WAITING",
       room: 0,
       maxScore: 999,
       timeRemaining: -1,
@@ -96,7 +105,7 @@ export default {
       redMapStyle:
         'red red-svg-map__location red-svg-map__location:focus red-svg-map__location:hover red-svg-map__location[aria-checked="true"]',
       playerList: [],
-      highlightedRegions: null,
+      highlightedRegions: [],
       cacheRegionClassList: null,
       nextButtonVisible: false,
       nextButtonText: "Next question",
@@ -132,15 +141,18 @@ export default {
      * @param {boolean} enabled  Enable / disable hovering the current map areas
      */
     setMapHoverEffect(enabled) {
-      var regions = document.getElementById("map").children;
+      if (document.getElementById("map") !== null) {
+        var regions = document.getElementById("map").children;
 
-      for (let i = 0; i < regions.length; i++) {
-        if (enabled) {
-          regions[i].style["pointer-events"] = "auto";
-        } else {
-          regions[i].style["pointer-events"] = "none";
+        for (let i = 0; i < regions.length; i++) {
+          if (enabled) {
+            regions[i].style["pointer-events"] = "auto";
+          } else {
+            regions[i].style["pointer-events"] = "none";
+          }
         }
       }
+      console.warn("Map not loaded yet (hover effect");
     },
     /***
      * Remove all the region highlighted from the map and apply the style present before the highlight
@@ -241,12 +253,15 @@ export default {
      * Local timer, that displays the time you have to answer the question, the server will by itself send the correction
      */
     enableRemainingSecondsTimer(timeInSeconds) {
+      clearInterval(this.timerId);
       this.timeRemaining = timeInSeconds;
-      var timerId = setTimeout(() => {
+      this.timerId = setInterval(() => {
         if (this.timeRemaining > 0) {
           this.timeRemaining--;
         } else {
-          clearInterval(timerId);
+          if (timerId) {
+            clearInterval(timerId);
+          }
         }
       }, 1000);
     },
@@ -293,19 +308,13 @@ export default {
           console.log(error);
         });
         */
+      this.timeRemaining = serverData.correction_duration;
       // Show on the map the correct location
       if (this.selectedLocation !== serverData.response_location_id) {
-        this.highlightMapRegion(
-          this.quizzMap,
-          serverData.response_location_id,
-          "red"
-        );
+        this.highlightMapRegion(this.quizzMap, this.selectedLocation, "red");
+        this.highlightMapRegion(this.quizzMap, serverData.response_location_id, "green");
       } else {
-        this.highlightMapRegion(
-          this.quizzMap,
-          serverData.response_location_id,
-          "green"
-        );
+        this.highlightMapRegion(this.quizzMap, serverData.response_location_id, "green");
         // Increment score if user choice is valid
         this.score = serverData.score;
       }
@@ -318,6 +327,14 @@ export default {
     },
     setupSocketIO() {
       console.log(">>> Loading socket io");
+      socket.on("RequestQuestionResult", (data) => {
+        let result = {
+          id: this.$store.getters["users/user"].id,
+          response_location_id: this.selectedLocation,
+        };
+        console.log("Requesting results, sending them...", this.selectedLocation);
+        socket.emit("QuestionResult", result);
+      });
 
       /**
        * Check data before using it in the handlers
@@ -334,14 +351,14 @@ export default {
         // OK ?
         console.log("GameStateReceived Received message from server : ", serverData);
         const state = c(serverData).status;
+        this.state = state;
         switch (state) {
           case "STOPPED": // OK
             // Quizz finished (arrived too late / bug)
-            this.$router.push({ 
+            this.$router.push({
               name: "result",
               params: {
-                score: serverData.score,
-                maxScore: serverData.maxScore,
+                playerList: serverData.playerList,
                 quizId: this.$route.params.id_quiz,
               },
             });
@@ -367,16 +384,13 @@ export default {
             // TO DO LATER
             break;
           case "PLAYING": // OK
+            this.quizzLoaded = true;
+            this.loadQuizz = false;
+            this.questionIndex = serverData.playing_data.questionIndex;
+            this.currentQuestion = c(serverData.playing_data.question);
             this.showCurQuestionMenu(c(serverData.playing_data));
             break;
           case "CORRECTING": // OK
-            const playerAnswer = {
-              player: playerInfo,
-              answer: this.selectedLocation,
-            };
-            if (this.selectedLocation !== null) {
-              socket.emit(playerAnswer);
-            }
             this.showEndQuestionMenu(c(serverData.correcting_data));
             break;
           default:
@@ -390,19 +404,13 @@ export default {
       // Can be updated dynamically (the results can appear as the you are watching the correction)
       socket.on("CurQuestionResultsReceived", (data) => {
         // OK
-        console.log(
-          "CurQuestionResultsReceived Received message from server : ",
-          data
-        );
+        console.log("CurQuestionResultsReceived Received message from server : ", data);
         this.showCurQuestionResults(c(data));
       });
 
       socket.on("CurQuestionReceived", (data) => {
         // OK
-        console.log(
-          "CurQuestionReceived Received message from server : ",
-          data
-        );
+        console.log("CurQuestionReceived Received message from server : ", data);
         this.currentQuestion = c(data);
       });
 
@@ -427,7 +435,7 @@ export default {
         this.questionIndex = 0;
         this.setupSocketIO();
         this.quizzLoaded = true;
-        console.log("Requesting game state...")
+        console.log("Requesting game state...");
         // Entry point for network game
         socket.emit("RequestGameState", {
           username: this.$store.getters["users/user"].username,

@@ -23,7 +23,7 @@
         </v-list-item-avatar>
       </v-badge>
     </div>
-    <div v-else>No players except you were detected</div>
+    <div v-else>No players were detected</div>
   </v-list>
 </template>
 <script>
