@@ -15,6 +15,10 @@ let games = []
  * @param {Socket} io 
  */
 function setupCorrectionListener(socket, game, io) {
+
+    socket.off('QuestionResult', () => {})
+
+
     if (!socket.eventNames().includes('QuestionResult')) {
         socket.on('QuestionResult', (data) => {
             if (!data.id) {
@@ -49,7 +53,7 @@ function setupGameTimer(io, socket, game, firstTime = true) {
     console.log('>>>    Starting game round ...')
     //console.log('Game to start quiz : ', game.quizz.questions)
     // Show cur question
-    console.log(game.curQuestionIndex + '/' + game.nb_questions - 1)
+    console.log(game.curQuestionIndex , '/' , game.nb_questions - 1)
     if (game.curQuestionIndex < game.quizz.nb_questions) {
 
         const questionDur = game.quizz.questions[game.curQuestionIndex].duration
@@ -93,6 +97,7 @@ function setupGameTimer(io, socket, game, firstTime = true) {
             }, game.correction_duration * 1000);
         }, questionDur * 1000)
     } else {
+        game.playerList.forEach(p => p )
         io.to(game.room).emit(GAME_STATE_RECEIVED, {
             status: 'STOPPED',
             stopped_data: {
@@ -166,8 +171,10 @@ function setupGameSockets(io) {
                         data.socketId = socket.id
                         data.score = 0
                         games.push(game)
+                        console.log('Game pushed')
                         io.to(data.room).emit('UpdatePlayers', game.playerList)
                         io.to(socket.id).emit(GAME_STATE_RECEIVED, game.state)
+                        console.log('emitted events')
                         setupGameTimer(io, socket, game)
                     }).catch((error) => {
                         console.error(error)
