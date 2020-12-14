@@ -1,12 +1,11 @@
 import socket from "~/plugins/socket.io.js";
 export default function (ctx) {
-	console.log('Entering middleware')
 	updateData(ctx.app)
 	if (!isAuth()) {
 		ctx.redirect('/login')
 	} else {
 		// Auto quit current online game
-		if(ctx.route.previous === 'gameMulti') {
+		if(ctx.route.previous === 'game_multi') {
 			socket.emit('QuitGame',ctx.app.store.getters["users/user"])
 		}
 		// Only load the game pages if the passed params are recognized
@@ -32,6 +31,10 @@ function canLoadQuiz(ctx) {
 function canLoadResults(ctx) {
 	return ctx.route.params.hasOwnProperty('score') && typeof ctx.route.params.score === 'number'
 	&& ctx.route.params.hasOwnProperty('maxScore') && typeof ctx.route.params.maxScore === 'number'
+}
+
+function canLoadResultsMulti(ctx) {
+	return ctx.route.params.hasOwnProperty('game')
 }
 
 function isAuth() {

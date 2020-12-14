@@ -56,6 +56,8 @@ import FranceRegions from "@svg-maps/france.regions";
 import World from "@svg-maps/world";
 import FranceDep from "@svg-maps/france.departments";
 import Vue from "vue";
+import socket from "~/plugins/socket.io.js";
+
 export default {
   head() {
     return {
@@ -75,47 +77,47 @@ export default {
       loadText: "Loading Quizz",
       quizzMap: null,
       quizz: {
-  "id_quiz": 2,
-  "name": "TEST 2",
-  "description": "AUTO description",
-  "mapid": "Map of France regions",
-  "difficulty": "easy",
-  "duration": 60,
-  "id_user": 1,
-  "nb_questions": 5,
-  "creator": [
-    {
-      "username": "fr"
-    }
-  ],
-  "questions": [
-    {
-      "id_question": 6,
-      "question_tag": "Where is idf",
-      "duration": 5
-    },
-    {
-      "id_question": 7,
-      "question_tag": "What is ges",
-      "duration": 5
-    },
-    {
-      "id_question": 8,
-      "question_tag": "cvl?",
-      "duration": 5
-    },
-    {
-      "id_question": 9,
-      "question_tag": "bfc?",
-      "duration": 5
-    },
-    {
-      "id_question": 10,
-      "question_tag": "naq?",
-      "duration": 5
-    }
-  ]
-},
+        id_quiz: 2,
+        name: "TEST 2",
+        description: "AUTO description",
+        mapid: "Map of France regions",
+        difficulty: "easy",
+        duration: 60,
+        id_user: 1,
+        nb_questions: 5,
+        creator: [
+          {
+            username: "fr",
+          },
+        ],
+        questions: [
+          {
+            id_question: 6,
+            question_tag: "Where is idf",
+            duration: 5,
+          },
+          {
+            id_question: 7,
+            question_tag: "What is ges",
+            duration: 5,
+          },
+          {
+            id_question: 8,
+            question_tag: "cvl?",
+            duration: 5,
+          },
+          {
+            id_question: 9,
+            question_tag: "bfc?",
+            duration: 5,
+          },
+          {
+            id_question: 10,
+            question_tag: "naq?",
+            duration: 5,
+          },
+        ],
+      },
       question: null,
       selectedLocation: null,
       borderEnabled: false,
@@ -207,6 +209,9 @@ export default {
      *  @param color {String} the theme to apply, possible values : 'green' | 'red'
      */
     highlightMapRegion(map, regionId, color) {
+      if(regionId === undefined  || regionId === null){
+        return
+      }
       let mapHtml = document.getElementById("map");
       let regionToColor = null;
       // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
@@ -290,16 +295,24 @@ export default {
     /**
      * Enable a timer to end the current quizz question
      * at the end of this timer, the "correction menu" is shown
-     * @param {Number} time the number of seconds to do the question
      */
-    enableTimer(time) {
-      this.timeRemaining = time;
-      var timerId = setInterval(() => {
+    enableServerTimer(currentQuestion) {
+      this.timeRemaining = currentQuestion.duration;
+      socket.emit("enableServerTimer", { duration: currentQuestion.duration }); // Sending the duration in seconds to the server
+      socket.once("timerFinished", (data) => {
+        console.log("timerFinished");
+        this.showEndQuestionMenu(currentQuestion.id_question);
+      });
+
+      // UI only timer
+      if (this.timerId) {
+        clearInterval(this.timerId);
+      }
+      this.timerId = setInterval(() => {
         if (this.timeRemaining > 0) {
           this.timeRemaining--;
         } else {
-          clearInterval(timerId);
-          this.showEndQuestionMenu(this.currentQuestion.id_question);
+          clearInterval(this.timerId);
         }
       }, 1000);
     },
@@ -320,7 +333,7 @@ export default {
           if (this.settings.noHoverAfterQuestion) {
             this.setMapHoverEffect(true);
           }
-          this.enableTimer(this.quiz.questions[this.questionIndex].duration);
+          this.enableServerTimer(this.currentQuestion);
         } else if (autoFinish) {
           // Quizz finished (all questions are done)
           this.$router.push({
@@ -356,8 +369,9 @@ export default {
         this.highlightMapRegion(
           this.quizzMap,
           this.question[0].response_location_id,
-          "red"
+          "green"
         );
+        this.highlightMapRegion(this.quizzMap, this.selectedLocation, "red");
       } else {
         this.highlightMapRegion(
           this.quizzMap,
@@ -386,7 +400,7 @@ export default {
         this.maxScore = quiz.questions.length;
         this.score = 0;
         this.questionIndex = 0;
-        this.enableTimer(quiz.questions[0].duration);
+        this.enableServerTimer(this.currentQuestion);
         this.quizzLoaded = true;
       } catch (e) {
         this.loadText = e.message;
@@ -395,27 +409,27 @@ export default {
     },
   },
   async mounted() {
-        await this.$axios
-        .request({
-          method: "get",
-          url: "/api/quizzes/" + this.$route.params.id_quiz,
-        })
-        .then((response) => {
-          this.quiz = response.data;
-          this.loadQuizz(this.quiz);
-          if (this.zoomEnabled) {
-            setTimeout(() => {
-              let zoomPlugin = svgPanZoom("#map");
-              document.getElementById("map").style = "height:700px;width:100%";
-            }, 1000);
-          }
-        })
-        .catch((error) => {
-          this.loadText = "No input Quizz";
-          this.circularColor = "red";
-          console.log(error);
-          console.log("Error when loading quizz (not found)");
-        });
+    await this.$axios
+      .request({
+        method: "get",
+        url: "/api/quizzes/" + this.$route.params.id_quiz,
+      })
+      .then((response) => {
+        this.quiz = response.data;
+        this.loadQuizz(this.quiz);
+        if (this.zoomEnabled) {
+          setTimeout(() => {
+            let zoomPlugin = svgPanZoom("#map");
+            document.getElementById("map").style = "height:700px;width:100%";
+          }, 1000);
+        }
+      })
+      .catch((error) => {
+        this.loadText = "No input Quizz";
+        this.circularColor = "red";
+        console.log(error);
+        console.log("Error when loading quizz (not found)");
+      });
   },
 };
 </script>

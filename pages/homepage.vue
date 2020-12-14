@@ -19,7 +19,7 @@
         </v-col>
       </v-row>
     </v-card>
-    <v-btn to="/gameMulti">Multi Test</v-btn>
+    <v-btn to="/game_multi">Multi Test</v-btn>
   </div>
 </template>
 <script>

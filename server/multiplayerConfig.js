@@ -9,6 +9,37 @@ let gameId = 0
  */
 let games = []
 
+/**
+ * @param {Socket} socket - The player's socket
+ * @param {Game} game 
+ * @param {Socket} io 
+ */
+function setupCorrectionListener(socket, game, io) {
+    if (!socket.eventNames().includes('QuestionResult')) {
+        socket.on('QuestionResult', (data) => {
+            if (!data.id) {
+                throw new Error('Player id not found')
+            }
+            const player = game.playerList.find(p => p.id === data.id)
+            console.log('Received result from', player.username)
+            // Verify player's answer
+            if (data.response_location_id === game.quizz.questions[game.curQuestionIndex].response_location_id) {
+                player.score++
+                io.to(data.room).emit('UpdatePlayers', game.playerList)
+            }
+            const correction = {
+                status: 'CORRECTING',
+                correcting_data: {
+                    response_location_id: game.quizz.questions[game.curQuestionIndex].response_location_id,
+                    score: parseInt(player.score),
+                    correction_duration: game.correction_duration
+                }
+            }
+            io.to(socket.id).emit(GAME_STATE_RECEIVED, correction)
+            console.log('Emitted correction to client, wait ' + game.correction_duration + ' seconds')
+        })
+    }
+}
 
 /**
  * @param {Socket} socket
@@ -19,7 +50,7 @@ function setupGameTimer(io, socket, game, firstTime = true) {
     //console.log('Game to start quiz : ', game.quizz.questions)
     // Show cur question
     console.log(game.curQuestionIndex + '/' + game.nb_questions - 1)
-    if (game.curQuestionIndex < game.quizz.nb_questions - 1) {
+    if (game.curQuestionIndex < game.quizz.nb_questions) {
 
         const questionDur = game.quizz.questions[game.curQuestionIndex].duration
         let obj = {
@@ -30,6 +61,7 @@ function setupGameTimer(io, socket, game, firstTime = true) {
                 remainingSeconds: questionDur
             }
         }
+        game.state = obj
         // Start the game
         io.to(game.room).emit(GAME_STATE_RECEIVED, obj)
         console.log('Waiting for the question to end: ', questionDur, ' seconds')
@@ -39,29 +71,22 @@ function setupGameTimer(io, socket, game, firstTime = true) {
             console.log('Collecting player results')
             io.to(game.room).emit('RequestQuestionResult')
 
+            // For new players
+            game.state = {
+                status: 'CORRECTING',
+                correcting_data: {
+                    response_location_id: game.quizz.questions[game.curQuestionIndex].response_location_id,
+                    score: 0,
+                    correction_duration: game.correction_duration
+                }
+            }
+            console.log("IO", io.on)
             // React to each player answer for the current question
+
+            // IDEE : mauvais socket utilisé quand le joueur rejoint la partie
+            // Prendre l'ensemble des sockets dans la room
             if (firstTime)
-                socket.on('QuestionResult', (data) => {
-                    console.log('Received result')
-                    if (!data.id) {
-                        throw new Error('Player id not found')
-                    }
-                    const player = game.playerList.find(p => p.id === data.id)
-                    // Verify player's answer
-                    if (data.response_location_id === game.quizz.questions[game.curQuestionIndex].response_location_id) {
-                        player.score++
-                    }
-                    const correction = {
-                        status: 'CORRECTING',
-                        correcting_data: {
-                            response_location_id: game.quizz.questions[game.curQuestionIndex].response_location_id,
-                            score: parseInt(player.score),
-                            correction_duration: game.correction_duration
-                        }
-                    }
-                    io.to(socket.id).emit(GAME_STATE_RECEIVED, correction)
-                    console.log('Emitted correction to client, wait ' + game.correction_duration + ' seconds')
-                })
+                setupCorrectionListener(socket, game, io)
             setTimeout(() => {
                 game.curQuestionIndex++
                 setupGameTimer(io, socket, game, false)
@@ -71,10 +96,10 @@ function setupGameTimer(io, socket, game, firstTime = true) {
         io.to(game.room).emit(GAME_STATE_RECEIVED, {
             status: 'STOPPED',
             stopped_data: {
-                playerList: game.playerList, // contains updated scores
-                maxScore: game.nb_questions
+                game: game
             }
         })
+        games = games.filter(g => g != game)
     }
 }
 
@@ -85,6 +110,17 @@ function setupGameTimer(io, socket, game, firstTime = true) {
 function setupGameSockets(io) {
     console.log(">>> Setting up socket IO")
     io.on('connection', socket => {
+
+        socket.on('disconnect', function () {
+            games.forEach(g => {
+                let playerToRmv = g.playerList.find(p => p.socketId === socket.id)
+                if (playerToRmv !== undefined) {
+                    g.playerList = g.playerList.filter(p => p !== playerToRmv)
+                    io.to(g.room).emit('UpdatePlayers', g.playerList)
+                }
+            });
+        });
+
         // Register the player to the game network for the given room
         socket.on('RequestGameState', (data, errorCallback) => {
             if (!data.id || !data.username) {
@@ -97,6 +133,7 @@ function setupGameSockets(io) {
             let assignedGame = games.find(g => g.room === data.room)
 
             if (!assignedGame) {
+                console.log('MODE : New game')
                 // First player to start the game, instantiate the Game room
                 let game = new Game()
                 game.curQuestionIndex = 0
@@ -126,6 +163,7 @@ function setupGameSockets(io) {
                         game.room = data.room
                         delete data.quiz_id // Not needed because referenced in the game
                         game.playerList = [data]
+                        data.socketId = socket.id
                         data.score = 0
                         games.push(game)
                         io.to(data.room).emit('UpdatePlayers', game.playerList)
@@ -139,6 +177,7 @@ function setupGameSockets(io) {
                 })
             }
             else {
+                console.log('MODE : Join game')
                 games.forEach(g => {
                     if (player === undefined) {
                         player = g.playerList.find(p => p.id === data.id)
@@ -146,19 +185,18 @@ function setupGameSockets(io) {
                 });
                 // New player
                 if (player === undefined) {
+                    player = data
+                    player.score = 0
+                    data.socketId = socket.id
                     assignedGame.playerList.push(player)
                 } else {
 
                 }
-                io.to(data.room).emit('UpdatePlayers', player)
+                setupCorrectionListener(socket, assignedGame, io)
+                io.to(data.room).emit('UpdatePlayers', assignedGame.playerList)
                 // TODO send game state to everyone
-                io.to(data.room).emit(GAME_STATE_RECEIVED, game.state)
+                io.to(data.room).emit(GAME_STATE_RECEIVED, assignedGame.state)
             }
-
-
-
-
-
         })
     })
 }

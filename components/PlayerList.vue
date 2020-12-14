@@ -54,11 +54,6 @@ export default {
     return {};
   },
   mounted() {
-    setTimeout(() => {
-      if (this.playerList.length > 0) {
-        this.playerList[this.playerList.length - 1].score += 200;
-      }
-    }, 2000);
   },
 };
 </script>

@@ -173,6 +173,9 @@ export default {
      *  @param color {String} the theme to apply, possible values : 'green' | 'red'
      */
     highlightMapRegion(map, regionId, color) {
+      if (regionId === undefined || regionId === null) {
+        return;
+      }
       let mapHtml = document.getElementById("map");
       let regionToColor = null;
       // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
@@ -259,8 +262,8 @@ export default {
         if (this.timeRemaining > 0) {
           this.timeRemaining--;
         } else {
-          if (timerId) {
-            clearInterval(timerId);
+          if (this.timerId !== undefined) {
+            clearInterval(this.timerId);
           }
         }
       }, 1000);
@@ -309,12 +312,21 @@ export default {
         });
         */
       this.timeRemaining = serverData.correction_duration;
-      // Show on the map the correct location
       if (this.selectedLocation !== serverData.response_location_id) {
+        // Show the location you selected
         this.highlightMapRegion(this.quizzMap, this.selectedLocation, "red");
-        this.highlightMapRegion(this.quizzMap, serverData.response_location_id, "green");
+        // Show on the map the correct location
+        this.highlightMapRegion(
+          this.quizzMap,
+          serverData.response_location_id,
+          "green"
+        );
       } else {
-        this.highlightMapRegion(this.quizzMap, serverData.response_location_id, "green");
+        this.highlightMapRegion(
+          this.quizzMap,
+          serverData.response_location_id,
+          "green"
+        );
         // Increment score if user choice is valid
         this.score = serverData.score;
       }
@@ -332,7 +344,10 @@ export default {
           id: this.$store.getters["users/user"].id,
           response_location_id: this.selectedLocation,
         };
-        console.log("Requesting results, sending them...", this.selectedLocation);
+        console.log(
+          "Requesting results, sending them...",
+          this.selectedLocation
+        );
         socket.emit("QuestionResult", result);
       });
 
@@ -349,17 +364,21 @@ export default {
       }
       socket.on("GameStateReceived", (serverData) => {
         // OK ?
-        console.log("GameStateReceived Received message from server : ", serverData);
+        console.log(
+          "GameStateReceived Received message from server : ",
+          serverData
+        );
         const state = c(serverData).status;
         this.state = state;
         switch (state) {
           case "STOPPED": // OK
+            this.removeHighlighting();
+            this.cacheRegionClassList = [];
             // Quizz finished (arrived too late / bug)
             this.$router.push({
-              name: "result",
+              name: "result_multi",
               params: {
-                playerList: serverData.playerList,
-                quizId: this.$route.params.id_quiz,
+                game: serverData.stopped_data.game,
               },
             });
             break;
@@ -404,13 +423,19 @@ export default {
       // Can be updated dynamically (the results can appear as the you are watching the correction)
       socket.on("CurQuestionResultsReceived", (data) => {
         // OK
-        console.log("CurQuestionResultsReceived Received message from server : ", data);
+        console.log(
+          "CurQuestionResultsReceived Received message from server : ",
+          data
+        );
         this.showCurQuestionResults(c(data));
       });
 
       socket.on("CurQuestionReceived", (data) => {
         // OK
-        console.log("CurQuestionReceived Received message from server : ", data);
+        console.log(
+          "CurQuestionReceived Received message from server : ",
+          data
+        );
         this.currentQuestion = c(data);
       });
 
