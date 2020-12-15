@@ -124,7 +124,6 @@ function setupGameSockets (io) {
       socket.join(data.room)
       let player
       const assignedGame = games.find(g => g.room === data.room)
-
       if (!assignedGame) {
         console.log('MODE : New game')
         // First player to start the game, instantiate the Game room
@@ -143,6 +142,7 @@ function setupGameSockets (io) {
               const q = game.quizz.questions[index]
               game.quizz.questions[index].response_location_id =
                                     axios.get('http://localhost:3000/api/questions/response/' + q.id_question).then(respQuestion => {
+                                      console.log('response of question ' + q.id_question + ' : ' + respQuestion)
                                       q.response_location_id = respQuestion.data[0].response_location_id
                                       if (index === game.quizz.questions.length - 1) {
                                         resolve()
@@ -171,7 +171,18 @@ function setupGameSockets (io) {
           console.error(error)
         })
       } else {
-        console.log('MODE : Join game')
+        console.log('MODE : Join')
+        for (let index = 0; index < assignedGame.quizz.questions.length; index++) {
+          const q = assignedGame.quizz.questions[index]
+          assignedGame.quizz.questions[index].response_location_id =
+                                axios.get('http://localhost:3000/api/questions/response/' + q.id_question).then(respQuestion => {
+                                  console.log('response of question ' + q.id_question + ' : ' + respQuestion)
+                                  q.response_location_id = respQuestion.data[0].response_location_id
+                                  if (index === assignedGame.quizz.questions.length - 1) {
+                                    resolve()
+                                  }
+                                })
+        }
         games.forEach(g => {
           if (player === undefined) {
             player = g.playerList.find(p => p.id === data.id)
@@ -215,7 +226,8 @@ function setupGameSockets (io) {
                   if (!userAlreadyConnected) {
                       game.playerList.push({
                       id: data.id,
-                      username: data.username
+                      username: data.username,
+                      score: 0
                     })
                   }
               }
@@ -234,7 +246,8 @@ function setupGameSockets (io) {
               if (!userAlreadyConnected) {
                   assignedGame.playerList.push({
                       id: data.id,
-                      username: data.username
+                      username: data.username,
+                      score: 0
                   })
               }
           }

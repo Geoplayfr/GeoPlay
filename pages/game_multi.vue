@@ -51,9 +51,6 @@
               >
                 {{ currentQuestion.question_tag }}
               </div>
-              <v-btn to="/homepage">
-                Quit
-              </v-btn>
               <v-btn
                 v-show="nextButtonVisible"
                 :disabled="!nextButtonVisible"
