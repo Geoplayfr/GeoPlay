@@ -146,7 +146,7 @@ function setupGameSockets (io) {
         io.to(socket.id).emit(GAME_STATE_RECEIVED, game.state)
         axios.get('http://localhost:3000/api/quizzes/' + data.id_quiz).then((response) => {
           game.quizz = response.data
-          var waitForQuestions = new Promise((resolve, reject) => {
+          const waitForQuestions = new Promise((resolve, reject) => {
             for (let index = 0; index < game.quizz.questions.length; index++) {
               const q = game.quizz.questions[index]
               game.quizz.questions[index].response_location_id =
@@ -193,8 +193,6 @@ function setupGameSockets (io) {
           player.score = 0
           data.socketId = socket.id
           assignedGame.playerList.push(player)
-        } else {
-
         }
         setupCorrectionListener(socket, assignedGame, io)
         io.to(data.room).emit(UPDATE_PLAYERS, assignedGame.playerList)

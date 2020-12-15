@@ -43,7 +43,7 @@
               <div class="my-2">
                 {{ currentQuestion.question_tag }}
               </div>
-              <v-btn to="/homepage">
+              <v-btn @click="stopTimerAndQuit()">
                 Quit
               </v-btn>
               <v-btn
@@ -181,6 +181,10 @@ export default {
     }
   },
   async mounted () {
+    socket.removeAllListeners('timerFinished')
+    this.highlightedRegions = []
+    this.cacheRegionClassList = []
+    socket.emit('disableServerTimer')
     await this.$axios
       .request({
         method: 'get',
@@ -204,6 +208,10 @@ export default {
       })
   },
   methods: {
+    stopTimerAndQuit () {
+      socket.emit('disableServerTimer')
+      this.$router.push('/homepage')
+    },
     /***
      * Check if the border needs to be activated with the param this.borderEnabled
      */
@@ -231,20 +239,24 @@ export default {
      * @param {boolean} enabled  Enable / disable hovering the current map areas
      */
     setMapHoverEffect (enabled) {
-      var regions = document.getElementById('map').children
-
-      for (let i = 0; i < regions.length; i++) {
-        if (enabled) {
-          regions[i].style['pointer-events'] = 'auto'
-        } else {
-          regions[i].style['pointer-events'] = 'none'
+      if (document.getElementById('map')) {
+        var regions = document.getElementById('map').children
+        for (let i = 0; i < regions.length; i++) {
+          if (enabled) {
+            regions[i].style['pointer-events'] = 'auto'
+          } else {
+            regions[i].style['pointer-events'] = 'none'
+          }
         }
+      } else {
+        console.warn('Could not set map hover effect')
       }
     },
     /***
      * Remove all the region highlighted from the map and apply the style present before the highlight
      */
     removeHighlighting () {
+      console.log('rmvHighlight, regions :', this.highlightedRegions)
       for (let i = 0; i < this.highlightedRegions.length; i++) {
         this.highlightedRegions[i].classList.remove(
           ...this.highlightedRegions[i].classList
@@ -260,38 +272,41 @@ export default {
      *  @param color {String} the theme to apply, possible values : 'green' | 'red'
      */
     highlightMapRegion (map, regionId, color) {
+      console.log('highlight : ' + regionId + ' in : ' + color)
       if (regionId === undefined || regionId === null) {
         return
       }
       const mapHtml = document.getElementById('map')
-      let regionToColor = null
-      // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
-      if (
-        mapHtml.children.length === 1 &&
-        mapHtml.children[0].className.baseVal === 'svg-pan-zoom_viewport'
-      ) {
-        regionToColor = mapHtml.children[0].children.namedItem(regionId)
-      } else {
-        regionToColor = mapHtml.children.namedItem(regionId)
-      }
-      this.cacheRegionClassList = [...regionToColor.classList]
-      regionToColor.classList.remove(...regionToColor.classList) // Remove all classes from regionToColor
-      regionToColor.blur() // Stop the focus
+      if (mapHtml) {
+        let regionToColor = null
+        // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
+        if (
+          mapHtml.children.length === 1 &&
+          mapHtml.children[0].className.baseVal === 'svg-pan-zoom_viewport'
+        ) {
+          regionToColor = mapHtml.children[0].children.namedItem(regionId)
+        } else {
+          regionToColor = mapHtml.children.namedItem(regionId)
+        }
+        this.cacheRegionClassList = [...regionToColor.classList]
+        regionToColor.classList.remove(...regionToColor.classList) // Remove all classes from regionToColor
+        regionToColor.blur() // Stop the focus
 
-      switch (color) {
-        case 'green':
-          regionToColor.classList.add(...this.greenMapStyle.split(' '))
-          break
-        case 'red':
-          regionToColor.classList.add(...this.redMapStyle.split(' '))
-          break
-        default:
-          break
+        switch (color) {
+          case 'green':
+            regionToColor.classList.add(...this.greenMapStyle.split(' '))
+            break
+          case 'red':
+            regionToColor.classList.add(...this.redMapStyle.split(' '))
+            break
+          default:
+            break
+        }
+        if (!this.highlightedRegions) {
+          this.highlightedRegions = []
+        }
+        this.highlightedRegions.push(regionToColor)
       }
-      if (!this.highlightedRegions) {
-        this.highlightedRegions = []
-      }
-      this.highlightedRegions.push(regionToColor)
     },
     /**
      * Highlight the map for a few seconds
@@ -348,10 +363,11 @@ export default {
      * at the end of this timer, the "correction menu" is shown
      */
     enableServerTimer (currentQuestion) {
+      console.log('>>>Enabled server timer' + Date.now())
       this.timeRemaining = currentQuestion.duration
       socket.emit('enableServerTimer', { duration: currentQuestion.duration }) // Sending the duration in seconds to the server
       socket.once('timerFinished', (data) => {
-        console.log('timerFinished')
+        console.log('timerFinished ' + Date.now())
         this.showEndQuestionMenu(currentQuestion.id_question)
       })
 
@@ -371,19 +387,24 @@ export default {
      * Close the "correction menu" and start a new question
      * @param {boolean} autoFinish If set to true, automatically redirects the player to the scoreboard page if there are no questions left
      */
-    nextQuestion (autoFinish = true) {
+    nextQuestion (firstStart = false, autoFinish = true) {
       if (this.quizzLoaded) {
         if (this.questionIndex < this.quiz.questions.length - 1) {
           this.nextButtonVisible = false
           this.selectedLocation = null
-          this.questionIndex++
+          if (!firstStart) {
+            this.questionIndex++
+          }
           if (this.questionIndex === this.quiz.questions.length - 1) {
             this.nextButtonText = this.goToResultPageText
           }
           this.removeHighlighting()
+
           if (this.settings.noHoverAfterQuestion) {
+            console.log('setting hover effect')
             this.setMapHoverEffect(true)
           }
+
           this.enableServerTimer(this.currentQuestion)
         } else if (autoFinish) {
           // Quizz finished (all questions are done)
@@ -403,6 +424,8 @@ export default {
      * @param {JSON} question_id The question to be evaluated, and corrected
      */
     async showEndQuestionMenu (question_id) {
+      console.log('Showing end question menu for question :', question_id)
+      this.timeRemaining = 0
       await this.$axios
         .request({
           method: 'get',
@@ -451,8 +474,8 @@ export default {
         this.maxScore = quiz.questions.length
         this.score = 0
         this.questionIndex = 0
-        this.enableServerTimer(this.currentQuestion)
         this.quizzLoaded = true
+        this.nextQuestion(true)
       } catch (e) {
         this.loadText = e.message
         this.circularColor = 'red'

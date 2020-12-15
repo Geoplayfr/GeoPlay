@@ -104,7 +104,6 @@ export default {
   layout: 'game',
   middleware: 'auth',
   data () {
-    PlayerList
     return {
       FranceRegions,
       World,
@@ -238,7 +237,7 @@ export default {
       let regionToColor = null
       // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
       if (
-        mapHtml.children.length == 1 &&
+        mapHtml.children.length === 1 &&
         mapHtml.children[0].className.baseVal === 'svg-pan-zoom_viewport'
       ) {
         regionToColor = mapHtml.children[0].children.namedItem(regionId)
