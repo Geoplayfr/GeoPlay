@@ -100,7 +100,8 @@ function setupGameTimer (io, socket, game, firstTime = true) {
         game: game
       }
     })
-    games = games.filter(g => g !== game)
+    games = games.filter(g => g.room !== game.room)
+    console.log('Number of games after delete : ', games.length)
   }
 }
 
@@ -159,17 +160,15 @@ function setupGameSockets (io) {
             }
           })
           waitForQuestions.then(() => {
-            console.log('Quiz obtained', game.quizz)
+            // console.log('Quiz obtained', game.quizz)
             game.room = data.room
             delete data.quiz_id // Not needed because referenced in the game
             game.playerList = [data]
             data.socketId = socket.id
             data.score = 0
             games.push(game)
-            console.log('Game pushed')
             io.to(data.room).emit(UPDATE_PLAYERS, game.playerList)
             io.to(socket.id).emit(GAME_STATE_RECEIVED, game.state)
-            console.log('emitted events')
             setupGameTimer(io, socket, game)
           }).catch((error) => {
             console.error(error.message)

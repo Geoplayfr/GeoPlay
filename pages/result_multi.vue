@@ -85,7 +85,7 @@ export default {
   },
   async mounted () {
     const game = this.$route.params.game
-    this.maxScore = game.quizz.nb_questions - 1
+    this.maxScore = game.quizz.nb_questions
     this.playerList = game.playerList
     const userId = parseInt(this.$store.getters['users/user'].id)
     await this.$axios
