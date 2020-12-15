@@ -23,8 +23,9 @@
               </v-btn>
             </v-col>
           </v-card-title>
-          <v-card-text class="pt-0 pb-0"
-            >Description: {{ quizz.description }}</v-card-text
+          <v-card-text
+            v-if="!!quizz.description"
+            class="pt-0 pb-0"
           >
           <v-row>
             <v-col
@@ -38,14 +39,36 @@
               ></v-col
             >
             <v-col>
-              <v-card-text class="pb-0"
-                >{{ quizz.nb_questions }} questions</v-card-text
-              ></v-col
-            >
+              <v-card-text
+                class="pb-0"
+              >
+                Difficulty: {{ quizz.difficulty }}
+              </v-card-text>
+            </v-col>
+            <v-col>
+              <v-card-text
+                class="pb-0"
+              >
+                Duration: {{ quizz.duration }} sec
+              </v-card-text>
+            </v-col>
+            <v-col>
+              <v-card-text
+                class="pb-0"
+              >
+                {{ quizz.nb_questions }} questions
+              </v-card-text>
+            </v-col>
+            <v-col>
+              <v-card-text
+                class="pb-0"
+              >
+                Creator: {{ quizz.creator }}
+              </v-card-text>
+            </v-col>
             <v-col
-              ><v-card-text class="pb-0"
-                >Creator: {{ quizz.creator }}</v-card-text
-              ></v-col
+              class="text-right"
+              style="margin:10px"
             >
             <v-col class="text-right">
               <v-dialog v-model="dialog" width="600">
@@ -99,7 +122,9 @@
               >
                 Solo
               </v-btn>
+            </v-col>
           </v-row>
+          </v-card-text>
         </v-col>
       </v-row>
     </v-card>
@@ -109,8 +134,8 @@
 export default {
   props: {
     quizz: {
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
@@ -119,5 +144,5 @@ export default {
       username: this.$store.getters["users/user"].username
     }
   }
-};
+}
 </script>

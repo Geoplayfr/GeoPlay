@@ -1,3 +1,5 @@
+import Quiz from "./quiz.model"
+
 /**
  * Game instance for multiplayer only
  */
@@ -14,12 +16,18 @@ export default class Game {
     quizz
     /** @type {String} */
     room
-
+    /** @type {Number} */
+    correction_duration = 5
+    /** @type {Number} */
+    playerLimit = 0
 
     /**
      * Determines if new players can connect to the game
      */
     canJoin(player) {
-        return true
+        if(this.playerList.length < this.playerLimit){
+            return true
+        }
+        return false
     }
 }

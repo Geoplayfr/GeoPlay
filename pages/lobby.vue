@@ -36,7 +36,7 @@
         <template v-if="isCreator">
         <v-btn 
         color="primary"
-        to="/homepage"
+        @click="launchMulti()"
         >Start</v-btn>
         </template>
       </v-col>
@@ -91,6 +91,9 @@ export default {
       socket.on("playerLeave", (serverData) => {
         this.$router.push({path: 'homepage'})
       })
+      socket.on('startGame', (serverData) => {
+        this.$router.push({path: 'game_multi'})
+      })
     },
     goBack() {
       if (!this.isCreator) {
@@ -103,6 +106,11 @@ export default {
         room: this.$route.query.room
       })
       }
+    },
+    launchMulti() {
+      socket.emit('launchGame', {
+        room: this.$route.query.room
+      })
     }
   },
 
