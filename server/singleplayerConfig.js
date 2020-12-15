@@ -24,11 +24,10 @@ function setupSingleplayerSockets (io) {
     })
 
     socket.on('disableServerTimer', data => {
-      console.log('disable')
       const selectedPlayerTimer = timerPlayer.find(t => t.player.id === data.player.id)
+      timerPlayer = timerPlayer.filter(t => t.player.id !== data.player.id)
       console.log(selectedPlayerTimer)
       if (selectedPlayerTimer !== undefined) {
-        console.log('clear timer')
         clearTimeout(selectedPlayerTimer.timer)
       }
     })
