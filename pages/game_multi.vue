@@ -151,7 +151,7 @@ export default {
     }
   },
   async mounted () {
-    this.$route.params.id_quiz = 19
+    // this.$route.params.id_quiz = 91
     this.room = 0 // Is pushed to the server
     await this.$axios
       .request({
@@ -185,8 +185,9 @@ export default {
      * @return {Array<String>} the player list
      */
     getPlayerList () {
-      if (this.$route.params.quizz && this.$route.params.quizz.playerList) {
-        return this.$route.params.quizz.playerList
+      console.log(this.$route.params.playerList)
+      if (this.$route.params && this.$route.params.playerList) {
+        return this.$route.params.playerList
       } else {
         return [
           { username: 'Guest', score: 0, id: 0 },
@@ -408,7 +409,6 @@ export default {
         } else return data
       }
       socket.on('GameStateReceived', (serverData) => {
-        // OK ?
         console.log(
           'GameStateReceived Received message from server : ',
           serverData
@@ -416,7 +416,7 @@ export default {
         const state = c(serverData).status
         this.state = state
         switch (state) {
-          case 'STOPPED': // OK
+          case 'STOPPED':
             this.removeHighlighting()
             this.cacheRegionClassList = []
             // Quizz finished (arrived too late / bug)
@@ -431,22 +431,6 @@ export default {
             this.quizzLoaded = false
             this.loadQuizz = true
             this.loadText = 'Waiting for players'
-            // eslint-disable-next-line no-case-declarations
-            const playerInfo = this.$store.getters['users/user'] // Contains id_user && username
-            socket.emit(
-              'CanStartGame',
-              {
-                player: playerInfo
-              },
-              // Execute callback for indicating if registration is successful
-              (data) => {
-                if (typeof data === 'string') {
-                  console.error(data)
-                  throw new Error(data)
-                }
-              }
-            )
-            // TO DO LATER
             break
           case 'PLAYING':
             this.quizzLoaded = true
@@ -483,6 +467,8 @@ export default {
       socket.on('UpdatePlayers', (data) => {
         console.log('UpdatePlayers Received message from server : ', data)
         this.playerList = c(data)
+        console.log(data)
+        console.log(this.playerList)
       })
     },
     /**
