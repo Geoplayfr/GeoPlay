@@ -142,7 +142,7 @@ export default {
     socket.removeAllListeners('timerFinished')
     this.highlightedRegions = []
     this.cacheRegionClassList = []
-    socket.emit('disableServerTimer')
+    socket.emit('disableServerTimer', { player: this.$store.getters['users/user'] })
     await this.$axios
       .request({
         method: 'get',
@@ -168,7 +168,7 @@ export default {
   },
   methods: {
     stopTimerAndQuit () {
-      socket.emit('disableServerTimer')
+      socket.emit('disableServerTimer', { player: this.$store.getters['users/user'] })
       this.$router.push('/homepage')
     },
     /***
@@ -324,7 +324,7 @@ export default {
     enableServerTimer (currentQuestion) {
       console.log('>>>Enabled server timer' + Date.now())
       this.timeRemaining = currentQuestion.duration
-      socket.emit('enableServerTimer', { duration: currentQuestion.duration }) // Sending the duration in seconds to the server
+      socket.emit('enableServerTimer', { duration: currentQuestion.duration, id: this.$store.getters['users/user'].id }) // Sending the duration in seconds to the server
       socket.once('timerFinished', (data) => {
         console.log('timerFinished ' + Date.now())
         this.showEndQuestionMenu(currentQuestion.id_question)
