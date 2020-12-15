@@ -148,7 +148,7 @@ export default {
     }
   },
   async mounted () {
-    this.$route.params.id_quiz = 8
+    this.$route.params.id_quiz = 18
     this.room = 0 // Is pushed to the server
     await this.$axios
       .request({

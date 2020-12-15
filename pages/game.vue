@@ -1,10 +1,23 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="10" md="10">
-      <div v-if="quizzLoaded && playerList" class="text-left">
+  <v-row
+    justify="center"
+    align="center"
+  >
+    <v-col
+      cols="12"
+      sm="10"
+      md="10"
+    >
+      <div
+        v-if="quizzLoaded && playerList"
+        class="text-left"
+      >
         Welcome {{ $store.getters["users/user"].username }}
       </div>
-      <div v-if="quizzLoaded" class="text-right">
+      <div
+        v-if="quizzLoaded"
+        class="text-right"
+      >
         <div>Loaded quizz : {{ quiz.name }}</div>
         <div><v-icon>mdi-timer </v-icon> Timer {{ timeRemaining }}</div>
       </div>
@@ -15,33 +28,49 @@
           :color="circularColor"
           :size="120"
         >
-          {{ loadText }}</v-progress-circular
-        >
+          {{ loadText }}
+        </v-progress-circular>
         <v-row>
           <v-col xs="12">
-            <v-card class="pa-4" v-if="quizzLoaded" elevation="10">
-              <div class="my-2">Q{{ questionIndex + 1 }}</div>
-              <div class="my-2">{{ currentQuestion.question_tag }}</div>
-              <v-btn to="/homepage">Quit</v-btn>
+            <v-card
+              v-if="quizzLoaded"
+              class="pa-4"
+              elevation="10"
+            >
+              <div class="my-2">
+                Q{{ questionIndex + 1 }}
+              </div>
+              <div class="my-2">
+                {{ currentQuestion.question_tag }}
+              </div>
+              <v-btn to="/homepage">
+                Quit
+              </v-btn>
               <v-btn
                 v-show="nextButtonVisible"
                 :disabled="!nextButtonVisible"
                 color="accent"
                 @click="nextQuestion()"
-                >{{ this.nextButtonText }}</v-btn
               >
-              <v-spacer></v-spacer>
+                {{ nextButtonText }}
+              </v-btn>
+              <v-spacer />
               <!-- For aligning the score the to right -->
-              <div class="mt-5">Current score {{ score }} / {{ maxScore }}</div>
+              <div class="mt-5">
+                Current score {{ score }} / {{ maxScore }}
+              </div>
             </v-card>
           </v-col>
-          <v-col :cols="mapSize" xs="12">
+          <v-col
+            :cols="mapSize"
+            xs="12"
+          >
             <radio-svg-map
-              id="map"
-              :location-class="mapStyle"
               v-if="quizzLoaded"
-              :map="quizzMap"
+              id="map"
               v-model="selectedLocation"
+              :location-class="mapStyle"
+              :map="quizzMap"
               @click="onMapRegionClicked"
             />
           </v-col>
@@ -55,21 +84,15 @@ import { RadioSvgMap } from 'vue-svg-map'
 import FranceRegions from '@svg-maps/france.regions'
 import World from '@svg-maps/world'
 import FranceDep from '@svg-maps/france.departments'
-import Vue from 'vue'
 import socket from '~/plugins/socket.io.js'
 
 export default {
-  head () {
-    return {
-      script: [{ src: '/svg-pan-zoom.min.js' }]
-    }
-  },
-  layout: 'game',
-  name: 'game',
-  middleware: 'game',
+  name: 'Game',
   components: {
     RadioSvgMap
   },
+  layout: 'game',
+  middleware: 'game',
   data () {
     return {
       FranceRegions,
@@ -147,18 +170,46 @@ export default {
       }
     }
   },
+  head () {
+    return {
+      script: [{ src: '/svg-pan-zoom.min.js' }]
+    }
+  },
   computed: {
     currentQuestion () {
       return this.quiz.questions[this.questionIndex]
     }
+  },
+  async mounted () {
+    await this.$axios
+      .request({
+        method: 'get',
+        url: '/api/quizzes/' + this.$route.params.id_quiz
+      })
+      .then((response) => {
+        this.quiz = response.data
+        this.loadQuizz(this.quiz)
+        if (this.zoomEnabled) {
+          setTimeout(() => {
+            const zoomPlugin = svgPanZoom('#map')
+            document.getElementById('map').style = 'height:700px;width:100%'
+          }, 1000)
+        }
+      })
+      .catch((error) => {
+        this.loadText = 'No input Quizz'
+        this.circularColor = 'red'
+        console.log(error)
+        console.log('Error when loading quizz (not found)')
+      })
   },
   methods: {
     /***
      * Check if the border needs to be activated with the param this.borderEnabled
      */
     checkBorder () {
+      const map = document.getElementById('map')
       if (this.borderEnabled === true || this.settings.forceBorder === true) {
-        const map = document.getElementById('map')
         map.style.border = '0.25rem solid rgb(30, 30, 30)'
       } else {
         map.style.border = 'none'
@@ -216,7 +267,7 @@ export default {
       let regionToColor = null
       // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
       if (
-        mapHtml.children.length == 1 &&
+        mapHtml.children.length === 1 &&
         mapHtml.children[0].className.baseVal === 'svg-pan-zoom_viewport'
       ) {
         regionToColor = mapHtml.children[0].children.namedItem(regionId)
@@ -287,7 +338,7 @@ export default {
             this.mapSize = 6
             return FranceDep
           default:
-            throw new Error('Map not found')
+            throw new Error('Map not found : ' + name)
         }
       }
       throw new Error('Map name not defined')
@@ -407,29 +458,6 @@ export default {
         this.circularColor = 'red'
       }
     }
-  },
-  async mounted () {
-    await this.$axios
-      .request({
-        method: 'get',
-        url: '/api/quizzes/' + this.$route.params.id_quiz
-      })
-      .then((response) => {
-        this.quiz = response.data
-        this.loadQuizz(this.quiz)
-        if (this.zoomEnabled) {
-          setTimeout(() => {
-            const zoomPlugin = svgPanZoom('#map')
-            document.getElementById('map').style = 'height:700px;width:100%'
-          }, 1000)
-        }
-      })
-      .catch((error) => {
-        this.loadText = 'No input Quizz'
-        this.circularColor = 'red'
-        console.log(error)
-        console.log('Error when loading quizz (not found)')
-      })
   }
 }
 </script>
