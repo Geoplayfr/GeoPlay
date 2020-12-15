@@ -153,7 +153,7 @@ export default {
     }
   },
   async mounted () {
-    this.$route.params.id_quiz = 91
+    this.$route.params.id_quiz = 15
     this.room = 0 // Is pushed to the server
     await this.$axios
       .request({
@@ -432,20 +432,6 @@ export default {
             this.loadQuizz = true
             this.loadText = 'Waiting for players'
             // eslint-disable-next-line no-case-declarations
-            const playerInfo = this.$store.getters['users/user'] // Contains id_user && username
-            socket.emit(
-              'CanStartGame',
-              {
-                player: playerInfo
-              },
-              // Execute callback for indicating if registration is successful
-              (data) => {
-                if (typeof data === 'string') {
-                  console.error(data)
-                  throw new Error(data)
-                }
-              }
-            )
             break
           case 'PLAYING':
             this.quizzLoaded = true

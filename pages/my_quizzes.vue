@@ -14,7 +14,7 @@
     </v-btn>
     <v-list-item-content
       v-for="quizz in quizzes"
-      :key="quizz.id"
+      :key="quizz.id_quiz"
     >
       <quizz-profile-item
         :quizz="quizz"
@@ -158,7 +158,7 @@ export default {
           this.dialogDelete = false
           this.selectedQuizId = ''
           try {
-            const response = await this.$axios
+            await this.$axios
               .get('/api/users/' + this.us.id + '/quizzes')
               .then((res) => {
                 this.quizzes = res.data

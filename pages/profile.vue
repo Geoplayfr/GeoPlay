@@ -170,7 +170,6 @@
 </template>
 <script>
 import { mapGetters } from 'vuex'
-import QuizzProfileItem from '../components/QuizzProfileItem.vue'
 
 export default {
   layout: 'default',
