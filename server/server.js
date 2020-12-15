@@ -19,8 +19,8 @@ async function start () {
     builder.build()
   }
   app.use(nuxt.render)
-  const port = 3000
-  http.listen(port, '0.0.0.0')
+  const port = process.env.PORT || 3000
+  http.listen(port, process.env.HOST)
   console.log('Server listening on localhost:' + port) // eslint-disable-line no-console
 
   app.use(logger('dev'))
