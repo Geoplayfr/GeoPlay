@@ -1,10 +1,10 @@
 import express from 'express'
-const router = express.Router()
 
 import userRouter from './user.js'
 import quizRouter from './quiz.js'
 import questionRouter from './question.js'
 import scoreRouter from './score.js'
+const router = express.Router()
 
 router.use('/users', userRouter)
 router.use('/quizzes', quizRouter)

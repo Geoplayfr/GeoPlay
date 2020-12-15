@@ -31,17 +31,22 @@ export default {
   // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
-    '@nuxtjs/vuetify',
+    '@nuxtjs/vuetify'
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     '@nuxtjs/axios',
+    '~/io'
   ],
+
+  env: {
+    WS_URL: process.env.WS_URL || 'http://localhost:3000'
+  },
 
   axios: {
     // extra config e.g
-    BaseURL: 'http://localhost:3000/'
+    baseURL: process.env.SERVER_URL || 'http://localhost:3000/'
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
@@ -69,5 +74,5 @@ export default {
 
   serverMiddleware: [
     '~/server/server.js'
-  ],   
+  ]
 }

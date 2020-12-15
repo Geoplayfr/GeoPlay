@@ -24,55 +24,64 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar :clipped-left="clipped" fixed app>
+    <v-app-bar
+      :clipped-left="clipped"
+      fixed
+      app
+    >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
+      <v-btn
+        icon
+        @click.stop="miniVariant = !miniVariant"
+      >
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
       </v-btn>
-      <div style=" font-size: 1.3em; cursor:pointer" @click="$router.push('/homepage')">{{ title }}</div>
+      <div
+        style=" font-size: 1.3em; cursor:pointer"
+        @click="$router.push('/homepage')"
+      >
+        {{ title }}
+      </div>
       <v-spacer />
-      <ProfileAvatar :user="$store.getters['users/user']"/>
+      <ProfileAvatar :user="$store.getters['users/user']" />
     </v-app-bar>
     <v-main>
       <v-container>
         <nuxt />
       </v-container>
     </v-main>
-    <v-footer :absolute="!fixed" app>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
-    </v-footer>
   </v-app>
 </template>
 
 <script>
 export default {
-  data() {
+  data () {
     return {
       clipped: false,
       drawer: false,
       fixed: false,
       items: [
         {
-          icon: "mdi-account-circle",
-          title: "Welcome",
-          to: "/homepage",
+          icon: 'mdi-account-circle',
+          title: 'Welcome',
+          to: '/homepage'
         },
         {
-          icon: "mdi-account-circle",
-          title: "Profile",
-          to: "/profile",
+          icon: 'mdi-account-circle',
+          title: 'Profile',
+          to: '/profile'
         },
         {
-          icon: "mdi-crosshairs-question",
-          title: "Create Quiz",
-          to: "/create_quizz",
-        },
+          icon: 'mdi-crosshairs-question',
+          title: 'Create Quiz',
+          to: '/create_quizz'
+        }
       ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: "Geoplay",
-    };
-  },
-};
+      title: 'Geoplay'
+    }
+  }
+}
 </script>

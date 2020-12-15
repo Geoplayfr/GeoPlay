@@ -24,9 +24,16 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar :clipped-left="clipped" fixed app>
+    <v-app-bar
+      :clipped-left="clipped"
+      fixed
+      app
+    >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
+      <v-btn
+        icon
+        @click.stop="miniVariant = !miniVariant"
+      >
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
       </v-btn>
       <div
@@ -39,10 +46,12 @@
       <ProfileAvatar :user="$store.getters['users/user']" />
     </v-app-bar>
     <v-main>
-      <!-- Removed the container to give more space to game components -->
       <nuxt />
     </v-main>
-    <v-footer :absolute="!fixed" app>
+    <v-footer
+      :absolute="!fixed"
+      app
+    >
       <span>&copy; {{ new Date().getFullYear() }}</span>
     </v-footer>
   </v-app>
@@ -50,33 +59,33 @@
 
 <script>
 export default {
-  data() {
+  data () {
     return {
       clipped: false,
       drawer: false,
       fixed: false,
       items: [
         {
-          icon: "mdi-account-circle",
-          title: "Welcome",
-          to: "/homepage",
+          icon: 'mdi-account-circle',
+          title: 'Welcome',
+          to: '/homepage'
         },
         {
-          icon: "mdi-account-circle",
-          title: "Profile",
-          to: "/profile",
+          icon: 'mdi-account-circle',
+          title: 'Profile',
+          to: '/profile'
         },
         {
-          icon: "mdi-crosshairs-question",
-          title: "Create Quiz",
-          to: "/create_quizz",
-        },
+          icon: 'mdi-crosshairs-question',
+          title: 'Create Quiz',
+          to: '/create_quizz'
+        }
       ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: "Quit Game",
-    };
-  },
-};
+      title: 'Quit Game'
+    }
+  }
+}
 </script>

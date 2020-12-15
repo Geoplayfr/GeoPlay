@@ -21,20 +21,25 @@
         >
           <h3>Quizz finished !</h3>
           <br>
-          <div v-if="loaded">
+          <div
+            v-for="player in sortedPlayers"
+            :key="player.id"
+            class="ma-5"
+          >
             <div
               justify="center"
               align="center"
             >
-              Final score {{ score }} / {{ maxScore }}
+              Score for {{ player.username }} : {{ player.score }} /
+              {{ maxScore }}
             </div>
             <br>
             <v-progress-circular
-              :value="percent"
+              :value="getPercentPlayer(player)"
               :size="150"
               ma-3
             >
-              <strong>{{ Math.ceil(percent) }}%</strong>
+              <strong>{{ Math.ceil(getPercentPlayer(player)) }}%</strong>
             </v-progress-circular>
           </div>
         </div>
@@ -67,32 +72,39 @@ export default {
       snackbarMsg: '',
       snackbar: false,
       snackBarColor: 'error',
-      loaded: false
+      playerList: []
+    }
+  },
+  computed: {
+    sortedPlayers () {
+      if (this.playerList.length > 0) {
+        return this.playerList.sort((a, b) => b.score - a.score)
+      }
+      return this.playerList
     }
   },
   async mounted () {
-    if (
-      this.$route.params.hasOwnProperty('score') &&
-      this.$route.params.hasOwnProperty('maxScore') &&
-      this.$route.params.hasOwnProperty('quizId')
-    ) {
-      this.score = this.$route.params.score
-      this.maxScore = this.$route.params.maxScore
-      this.loaded = true
-      this.percent = (this.$route.params.score / this.$route.params.maxScore) * 100
-      await this.$axios
-        .post('/api/scores/add', {
-          quizId: this.$route.params.quizId,
-          userId: parseInt(this.$store.getters['users/user'].id),
-          score_value: parseInt(this.score)
-        })
-        .catch((error) => {
-          this.showSnackbar('Error while submitting your score', 'error')
-          console.log(error)
-        })
-    }
+    const game = this.$route.params.game
+    this.maxScore = game.quizz.nb_questions
+    this.playerList = game.playerList
+    const userId = parseInt(this.$store.getters['users/user'].id)
+    await this.$axios
+      .post('/api/scores/add', {
+        quizId: game.quizz.id_quiz,
+        userId: userId,
+        score_value: parseInt(
+          game.playerList.find((p) => p.id === userId).score
+        )
+      })
+      .catch((error) => {
+        this.showSnackbar('Error while submitting your score', 'error')
+        console.log(error)
+      })
   },
   methods: {
+    getPercentPlayer (player) {
+      return player.score / this.maxScore * 100
+    },
     showSnackbar (msg, color, show = true, timeout = 4000) {
       this.snackbarMsg = msg
       this.snackBarColor = color

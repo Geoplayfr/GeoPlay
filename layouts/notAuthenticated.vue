@@ -18,6 +18,7 @@
 
 <script>
 export default {
+  middleware: 'disconnect',
   data () {
     return {
       clipped: false,
@@ -25,7 +26,6 @@ export default {
       right: true,
       title: 'Welcome'
     }
-  },
-  middleware: 'disconnect'
+  }
 }
 </script>
