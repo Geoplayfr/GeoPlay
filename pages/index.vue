@@ -42,9 +42,9 @@
               About
             </div>
             <div class="text-left">
-              Play an exceedingly fun game where you must guess a location on
-              more than 42 maps. Each game consists of questions that correspond
-              to a location.
+              Play an exceedingly fun game where you must guess a location on 3
+              different maps. Each game consists of questions that correspond to
+              a location.
             </div>
           </v-row>
           <v-row class="left ma-12">
@@ -76,6 +76,12 @@
     </div>
   </v-container>
 </template>
+<script>
+export default {
+  layout: 'blank'
+}
+</script>
+
 <style scoped>
 .blue-text-shadow {
   text-shadow: 1px 1px 20px blue;
@@ -90,9 +96,3 @@
   border-radius: 0px;
 }
 </style>
-
-<script>
-export default {
-  layout: 'blank'
-}
-</script>

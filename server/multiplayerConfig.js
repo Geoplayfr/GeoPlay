@@ -136,13 +136,13 @@ function setupGameSockets (io) {
         }
         game.id_game = gameId++
         io.to(socket.id).emit(GAME_STATE_RECEIVED, game.state)
-        axios.get('http://localhost:3000/api/quizzes/' + data.id_quiz).then((response) => {
+        axios.get('/api/quizzes/' + data.id_quiz).then((response) => {
           game.quizz = response.data
           const waitForQuestions = new Promise((resolve, reject) => {
             for (let index = 0; index < game.quizz.questions.length; index++) {
               const q = game.quizz.questions[index]
               game.quizz.questions[index].response_location_id =
-                                    axios.get('http://localhost:3000/api/questions/response/' + q.id_question).then(respQuestion => {
+                                    axios.get('/api/questions/response/' + q.id_question).then(respQuestion => {
                                       q.response_location_id = respQuestion.data[0].response_location_id
                                       if (index === game.quizz.questions.length - 1) {
                                         resolve()
