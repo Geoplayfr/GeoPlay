@@ -221,9 +221,9 @@ function setupGameSockets (io) {
               }
               data.score = 0
               games.push(game)
-              io.to(data.room).emit('UpdatePlayers', data)
+              console.log('before update player :', game.playerList)
+              io.to(data.room).emit('UpdatePlayers', game.playerList)
               io.to(socket.id).emit('GameStateReceived', game.state)
-              setupGameTimer(io, socket, game)
               io.to(data.room).emit('addUser', game.playerList)
           }).catch((error) => {
               console.error(error)
@@ -238,6 +238,8 @@ function setupGameSockets (io) {
                   })
               }
           }
+          io.to(data.room).emit('UpdatePlayers', assignedGame.playerList)
+          io.to(socket.id).emit('GameStateReceived', assignedGame.state)
           io.to(data.room).emit('addUser', assignedGame.playerList)
       }
       })
@@ -270,6 +272,8 @@ function setupGameSockets (io) {
         })
         socket.on('launchGame', (data, errorCallback) => {
           io.to(data.room).emit('startGame', {})
+          let assignedGame = games.find(g => g.room === data.room)
+          setupGameTimer(io, socket, assignedGame)
         })
   })
 }

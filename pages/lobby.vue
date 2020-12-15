@@ -86,13 +86,21 @@ export default {
         else return data;
       }
       socket.on("addUser", (serverData) => {
+        console.log('coucou : ', serverData)
         this.playerList = serverData
       })
       socket.on("playerLeave", (serverData) => {
         this.$router.push({path: 'homepage'})
       })
       socket.on('startGame', (serverData) => {
-        this.$router.push({path: 'game_multi'})
+        this.$router.push({
+          path: 'game_multi',
+          name: 'game_multi',
+          params: {
+            id_quiz: this.$route.params.id_quiz,
+            room: this.$route.query.room
+          }
+        })
       })
     },
     goBack() {

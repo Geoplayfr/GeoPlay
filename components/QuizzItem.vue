@@ -28,16 +28,6 @@
             class="pt-0 pb-0"
           >
           <v-row>
-            <v-col
-              ><v-card-text class="pb-0"
-                >Difficulty: {{ quizz.difficulty }}</v-card-text
-              ></v-col
-            >
-            <v-col
-              ><v-card-text class="pb-0"
-                >Duration: {{ quizz.duration }} sec</v-card-text
-              ></v-col
-            >
             <v-col>
               <v-card-text
                 class="pb-0"

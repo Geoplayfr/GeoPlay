@@ -88,7 +88,6 @@ export default {
          })
       })
       socket.on('fullRoom', (serverData) => {
-        console.log('zekjrzehrkjezhrkhezj')
         this.dialogFullRoom = true
       })
     }
