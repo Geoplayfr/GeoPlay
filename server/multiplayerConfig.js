@@ -135,7 +135,6 @@ function setupGameSockets (io) {
           status: 'WAITING'
         }
         game.id_game = gameId++
-        console.log('Requesting quiz')
         io.to(socket.id).emit(GAME_STATE_RECEIVED, game.state)
         axios.get('http://localhost:3000/api/quizzes/' + data.id_quiz).then((response) => {
           game.quizz = response.data

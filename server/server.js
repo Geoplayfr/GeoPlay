@@ -12,7 +12,7 @@ postgresStore.init(config.postgres)
 config.dev = process.env.NODE_ENV !== 'production'
 const io = require('socket.io')(http)
 
-async function start() {
+async function start () {
   const nuxt = new Nuxt(config)
   // Start build process in dev mode
   if (config.dev) {
@@ -22,8 +22,7 @@ async function start() {
   app.use(nuxt.render)
   const port = 3000
   http.listen(port, '0.0.0.0')
-  console.log('Server listening on localhost:' + port) // eslint-disable-line no-console
-
+  console.log('Server listening on http://localhost:' + port) // eslint-disable-line no-console
 
   app.use(logger('dev'))
   app.use(session({
@@ -35,8 +34,6 @@ async function start() {
   app.use(express.urlencoded({ extended: false }))
 
   app.use('/api/', apiRouter)
-
-
 }
 start()
 export default app

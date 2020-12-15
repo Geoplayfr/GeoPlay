@@ -163,7 +163,6 @@ export default {
         this.loadText = 'No input Quizz'
         this.circularColor = 'red'
         console.log(error)
-        console.log('Error when loading quizz (not found)')
       })
   },
   methods: {
@@ -215,7 +214,6 @@ export default {
      * Remove all the region highlighted from the map and apply the style present before the highlight
      */
     removeHighlighting () {
-      console.log('rmvHighlight, regions :', this.highlightedRegions)
       for (let i = 0; i < this.highlightedRegions.length; i++) {
         this.highlightedRegions[i].classList.remove(
           ...this.highlightedRegions[i].classList
@@ -231,7 +229,6 @@ export default {
      *  @param color {String} the theme to apply, possible values : 'green' | 'red'
      */
     highlightMapRegion (map, regionId, color) {
-      console.log('highlight : ' + regionId + ' in : ' + color)
       if (regionId === undefined || regionId === null) {
         return
       }
@@ -322,11 +319,9 @@ export default {
      * at the end of this timer, the "correction menu" is shown
      */
     enableServerTimer (currentQuestion) {
-      console.log('>>>Enabled server timer' + Date.now())
       this.timeRemaining = currentQuestion.duration
       socket.emit('enableServerTimer', { duration: currentQuestion.duration, id: this.$store.getters['users/user'].id }) // Sending the duration in seconds to the server
       socket.once('timerFinished', (data) => {
-        console.log('timerFinished ' + Date.now())
         this.showEndQuestionMenu(currentQuestion.id_question)
       })
 
@@ -360,7 +355,6 @@ export default {
           this.removeHighlighting()
 
           if (this.settings.noHoverAfterQuestion) {
-            console.log('setting hover effect')
             this.setMapHoverEffect(true)
           }
 
@@ -383,7 +377,6 @@ export default {
      * @param {JSON} questionId The question to be evaluated, and corrected
      */
     async showEndQuestionMenu (questionId) {
-      console.log('Showing end question menu for question :', questionId)
       this.timeRemaining = 0
       await this.$axios
         .request({

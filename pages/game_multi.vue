@@ -54,6 +54,7 @@
               <v-btn to="/homepage">
                 Quit
               </v-btn>
+              <!--
               <v-btn
                 v-show="nextButtonVisible"
                 :disabled="!nextButtonVisible"
@@ -62,6 +63,7 @@
               >
                 {{ nextButtonText }}
               </v-btn>
+              -->
               <v-spacer />
               <!-- For aligning the score the to right -->
               <div class="mt-5">
@@ -383,7 +385,6 @@ export default {
       this.nextButtonVisible = true
     },
     setupSocketIO () {
-      console.log('>>> Loading socket io')
       socket.on('RequestQuestionResult', (data) => {
         const result = {
           id: this.$store.getters['users/user'].id,
@@ -408,7 +409,6 @@ export default {
         } else return data
       }
       socket.on('GameStateReceived', (serverData) => {
-        // OK ?
         console.log(
           'GameStateReceived Received message from server : ',
           serverData
@@ -416,7 +416,7 @@ export default {
         const state = c(serverData).status
         this.state = state
         switch (state) {
-          case 'STOPPED': // OK
+          case 'STOPPED':
             this.removeHighlighting()
             this.cacheRegionClassList = []
             // Quizz finished (arrived too late / bug)
@@ -427,7 +427,7 @@ export default {
               }
             })
             break
-          case 'WAITING': // OK
+          case 'WAITING':
             this.quizzLoaded = false
             this.loadQuizz = true
             this.loadText = 'Waiting for players'
@@ -446,7 +446,6 @@ export default {
                 }
               }
             )
-            // TO DO LATER
             break
           case 'PLAYING':
             this.quizzLoaded = true
@@ -499,7 +498,6 @@ export default {
         this.questionIndex = 0
         this.setupSocketIO()
         this.quizzLoaded = true
-        console.log('Requesting game state...')
         socket.emit('RequestGameState', {
           username: this.$store.getters['users/user'].username,
           id: this.$store.getters['users/user'].id,
