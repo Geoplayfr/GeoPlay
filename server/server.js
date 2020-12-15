@@ -20,7 +20,7 @@ async function start () {
     builder.build()
   }
   app.use(nuxt.render)
-  http.listen(process.env.PORT || 5000, 'https://geoplayfr.herokuapp.com/')
+  http.listen(process.env.PORT || 5000, process.env.HOST)
   console.log('Server listening on http://localhost:' + process.env.PORT) // eslint-disable-line no-console
 
   app.use(logger('dev'))
