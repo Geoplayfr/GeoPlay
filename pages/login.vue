@@ -27,7 +27,7 @@
             sm="8"
             md="4"
           >
-          
+
             <v-card class="elevation-12">
               <v-card-text>
                 <v-form v-model="valid">
@@ -55,7 +55,7 @@
                 <v-spacer />
                 <v-row align="center">
                   <v-btn
-                  color="primary" 
+                  color="primary"
                   :disabled="!valid"
                   @click="login">Login</v-btn>
                 </v-row>
@@ -63,11 +63,11 @@
               <v-card-actions>
                 <v-spacer />
                 <v-row align="center">
-                  <div style="color:gray">Not registered yet ? 
+                  <div style="color:gray">Not registered yet ?
                   <NuxtLink to="/register">
                   click here</NuxtLink>
                   </div>
-                </v-row>              
+                </v-row>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -81,40 +81,40 @@ export default {
   layout: 'notAuthenticated',
   data () {
     return {
-      errorMsg:"",
+      errorMsg: '',
       snackbar: false,
-      username:"",
-      password:"",
+      username: '',
+      password: '',
       show1: false,
       valid: false,
       pseudoRules: [
-      (username) => !!username || 'A username is required',
-      (username) => username.trim() !== '' || 'A username cannot have only whitespaces'
+        (username) => !!username || 'A username is required',
+        (username) => username.trim() !== '' || 'A username cannot have only whitespaces'
       ],
       passwordRules: [
         (password) => !!password || 'A password is required',
-        (password) => password.trim() !== '' || 'A password cannot have only whitespaces',
-      ],
+        (password) => password.trim() !== '' || 'A password cannot have only whitespaces'
+      ]
     }
   },
   methods: {
-    async login() {
+    async login () {
       this.username = this.username.trim()
       this.password = this.password.trim()
       await this.$axios.post('/api/users/check', {
         username: this.username,
         password: this.password
-      }).then(response => { 
+      }).then(response => {
         this.errorMsg = 'Welcome Back'
         this.snackbar = true
-        this.$store.commit('users/connect', { id: response.data.id_user, username: response.data.username})
+        this.$store.commit('users/connect', { id: response.data.id_user, username: response.data.username })
         this.$router.push('/homepage')
       })
-      .catch(error => {
-        this.errorMsg = 'Incorrect credentials'
-        this.snackbar = true
-        console.log(error)
-      })
+        .catch(error => {
+          this.errorMsg = 'Incorrect credentials'
+          this.snackbar = true
+          console.log(error)
+        })
     }
   }
 }
