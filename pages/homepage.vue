@@ -1,5 +1,18 @@
 <template>
   <div id="app">
+    <v-row>
+      <v-col>
+        <v-text-field
+          v-model="roomId"
+          label="Join a multiplayer lobby by enter an id"
+        />
+      </v-col>
+      <v-col>
+        <v-btn
+        color="primary"
+        @click="joinLobby(roomId)">Join</v-btn>
+      </v-col>
+    </v-row>
     <v-list-item-content v-for="quizz in filteredQuizzes" :key="quizz.id">
       <quizz-item :quizz="quizz" />
     </v-list-item-content>
@@ -20,10 +33,21 @@
       </v-row>
     </v-card>
     <v-btn to="/gameMulti">Multi Test</v-btn>
+  <v-dialog
+   v-model="dialogFullRoom"
+   width="500"
+   >
+   <v-card>
+        <v-card-title class="headline">
+          <v-icon class="mr-2">mdi-alert</v-icon>
+          This room is already full
+        </v-card-title>
+   </v-card></v-dialog>
   </div>
 </template>
 <script>
-import QuizzItem from "../components/QuizzItem.vue";
+import QuizzItem from "../components/QuizzItem.vue"
+import socket from "~/plugins/socket.io.js"
 export default {
   layout: "default",
   middleware: "auth",
@@ -34,7 +58,30 @@ export default {
     return {
       quizzes: [],
       quizzAvailable: false,
+      roomId: '',
+      dialogFullRoom: false
     };
+  },
+  methods: {
+    joinLobby(id) {
+      socket.emit("joinLobby", {
+        username: this.$store.getters["users/user"].username,
+        id: this.$store.getters["users/user"].id,
+        room: id
+      })
+      socket.on('validateJoin', (serverData) => {
+         this.$router.push({
+           path: 'lobby',
+           name: 'lobby',
+           query: {room: id},
+           params: {id_quiz: serverData.quiz_id, nbPlayers: serverData.nbPlayers} 
+         })
+      })
+      socket.on('fullRoom', (serverData) => {
+        console.log('zekjrzehrkjezhrkhezj')
+        this.dialogFullRoom = true
+      })
+    }
   },
   computed: {
     filteredQuizzes() {
