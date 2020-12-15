@@ -60,7 +60,7 @@
                 color="accent"
                 @click="askNextQuestion()"
               >
-                {{ this.nextButtonText }}
+                {{ nextButtonText }}
               </v-btn>
               <v-spacer />
               <!-- For aligning the score the to right -->
@@ -88,6 +88,7 @@
     </v-col>
   </v-row>
 </template>
+
 <script>
 import { RadioSvgMap } from 'vue-svg-map'
 import FranceRegions from '@svg-maps/france.regions'
@@ -95,6 +96,7 @@ import World from '@svg-maps/world'
 import FranceDep from '@svg-maps/france.departments'
 import PlayerList from '../components/PlayerList.vue'
 import socket from '~/plugins/socket.io.js'
+
 export default {
   name: 'Game',
   // middleware: "game",
@@ -104,6 +106,8 @@ export default {
   layout: 'game',
   middleware: 'auth',
   data () {
+    // eslint-disable-next-line no-unused-expressions
+    PlayerList
     return {
       FranceRegions,
       World,
@@ -147,7 +151,7 @@ export default {
     }
   },
   async mounted () {
-    this.$route.params.id_quiz = 18
+    this.$route.params.id_quiz = 91
     this.room = 0 // Is pushed to the server
     await this.$axios
       .request({
@@ -159,7 +163,8 @@ export default {
         this.loadQuizz(this.quiz)
         if (this.zoomEnabled) {
           setTimeout(() => {
-            const zoomPlugin = svgPanZoom('#map')
+            // eslint-disable-next-line no-undef
+            svgPanZoom('#map')
             document.getElementById('map').style = 'height:700px;width:100%'
           }, 1000)
         }
@@ -345,29 +350,12 @@ export default {
         this.setMapHoverEffect(true)
       }
       this.enableRemainingSecondsTimer(serverData.remainingSeconds)
-
-      // TO MOVE TO SERVER
-      // this.enableTimer(this.quiz.questions[this.questionIndex].duration);
     },
     /**
      * serverData : response_location_id + score
      * @param {JSON} serverData The data from the server
      */
     async showEndQuestionMenu (serverData) {
-      /*
-      await this.$axios
-        .request({
-          method: "get",
-          url: "/api/questions/response/" + question_id,
-        })
-        .then((response) => {
-          this.question = response.data;
-        })
-        .catch((error) => {
-          console.log("Error while downloading response", "error");
-          console.log(error);
-        });
-        */
       this.timeRemaining = serverData.correction_duration
       if (this.selectedLocation !== serverData.response_location_id) {
         // Show the location you selected
@@ -443,6 +431,7 @@ export default {
             this.quizzLoaded = false
             this.loadQuizz = true
             this.loadText = 'Waiting for players'
+            // eslint-disable-next-line no-case-declarations
             const playerInfo = this.$store.getters['users/user'] // Contains id_user && username
             socket.emit(
               'CanStartGame',
@@ -459,14 +448,14 @@ export default {
             )
             // TO DO LATER
             break
-          case 'PLAYING': // OK
+          case 'PLAYING':
             this.quizzLoaded = true
             this.loadQuizz = false
             this.questionIndex = serverData.playing_data.questionIndex
             this.currentQuestion = c(serverData.playing_data.question)
             this.showCurQuestionMenu(c(serverData.playing_data))
             break
-          case 'CORRECTING': // OK
+          case 'CORRECTING':
             this.showEndQuestionMenu(c(serverData.correcting_data))
             break
           default:
@@ -474,12 +463,8 @@ export default {
         }
       })
 
-      // Future update Ping system
-      // socket.on("PingReceived", (data) => socket.emit('PlayerStillConnected', $store.getters["users/user"].id))
-
       // Can be updated dynamically (the results can appear as the you are watching the correction)
       socket.on('CurQuestionResultsReceived', (data) => {
-        // OK
         console.log(
           'CurQuestionResultsReceived Received message from server : ',
           data
@@ -488,7 +473,6 @@ export default {
       })
 
       socket.on('CurQuestionReceived', (data) => {
-        // OK
         console.log(
           'CurQuestionReceived Received message from server : ',
           data
@@ -497,7 +481,6 @@ export default {
       })
 
       socket.on('UpdatePlayers', (data) => {
-        // OK
         console.log('UpdatePlayers Received message from server : ', data)
         this.playerList = c(data)
       })
@@ -517,7 +500,6 @@ export default {
         this.setupSocketIO()
         this.quizzLoaded = true
         console.log('Requesting game state...')
-        // Entry point for network game
         socket.emit('RequestGameState', {
           username: this.$store.getters['users/user'].username,
           id: this.$store.getters['users/user'].id,

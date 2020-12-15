@@ -99,48 +99,6 @@ export default {
       World,
       loadText: 'Loading Quizz',
       quizzMap: null,
-      quizz: {
-        id_quiz: 2,
-        name: 'TEST 2',
-        description: 'AUTO description',
-        mapid: 'Map of France regions',
-        difficulty: 'easy',
-        duration: 60,
-        id_user: 1,
-        nb_questions: 5,
-        creator: [
-          {
-            username: 'fr'
-          }
-        ],
-        questions: [
-          {
-            id_question: 6,
-            question_tag: 'Where is idf',
-            duration: 5
-          },
-          {
-            id_question: 7,
-            question_tag: 'What is ges',
-            duration: 5
-          },
-          {
-            id_question: 8,
-            question_tag: 'cvl?',
-            duration: 5
-          },
-          {
-            id_question: 9,
-            question_tag: 'bfc?',
-            duration: 5
-          },
-          {
-            id_question: 10,
-            question_tag: 'naq?',
-            duration: 5
-          }
-        ]
-      },
       question: null,
       selectedLocation: null,
       borderEnabled: false,
@@ -195,7 +153,8 @@ export default {
         this.loadQuizz(this.quiz)
         if (this.zoomEnabled) {
           setTimeout(() => {
-            const zoomPlugin = svgPanZoom('#map')
+            // eslint-disable-next-line no-undef
+            svgPanZoom('#map')
             document.getElementById('map').style = 'height:700px;width:100%'
           }, 1000)
         }
@@ -421,15 +380,15 @@ export default {
     },
     /**
      * Load the input quizz json & start the game
-     * @param {JSON} question_id The question to be evaluated, and corrected
+     * @param {JSON} questionId The question to be evaluated, and corrected
      */
-    async showEndQuestionMenu (question_id) {
-      console.log('Showing end question menu for question :', question_id)
+    async showEndQuestionMenu (questionId) {
+      console.log('Showing end question menu for question :', questionId)
       this.timeRemaining = 0
       await this.$axios
         .request({
           method: 'get',
-          url: '/api/questions/response/' + question_id
+          url: '/api/questions/response/' + questionId
         })
         .then((response) => {
           this.question = response.data

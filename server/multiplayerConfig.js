@@ -16,14 +16,13 @@ let games = []
  * @param {Socket} io
  */
 function setupCorrectionListener (socket, game, io) {
-  socket.off('QuestionResult', () => {})
+  socket.removeAllListeners('QuestionResult')
   if (!socket.eventNames().includes('QuestionResult')) {
     socket.on('QuestionResult', (data) => {
       if (!data.id) {
         throw new Error('Player id not found')
       }
       const player = game.playerList.find(p => p.id === data.id)
-      console.log('Received result from', player.username)
       // Verify player's answer
       if (data.response_location_id === game.quizz.questions[game.curQuestionIndex].response_location_id) {
         player.score++
@@ -49,9 +48,7 @@ function setupCorrectionListener (socket, game, io) {
  */
 function setupGameTimer (io, socket, game, firstTime = true) {
   console.log('>>>    Starting game round ...')
-  // console.log('Game to start quiz : ', game.quizz.questions)
   // Show cur question
-  console.log(game.curQuestionIndex, '/', game.nb_questions - 1)
   if (game.curQuestionIndex < game.quizz.nb_questions) {
     const questionDur = game.quizz.questions[game.curQuestionIndex].duration
     const obj = {
@@ -81,17 +78,14 @@ function setupGameTimer (io, socket, game, firstTime = true) {
           correction_duration: game.correction_duration
         }
       }
-      console.log('IO', io.on)
       // React to each player answer for the current question
-
-      // IDEE : mauvais socket utilisé quand le joueur rejoint la partie
       // Prendre l'ensemble des sockets dans la room
       if (firstTime) { setupCorrectionListener(socket, game, io) }
       setTimeout(() => {
         game.curQuestionIndex++
         setupGameTimer(io, socket, game, false)
       }, game.correction_duration * 1000)
-    }, 4 * 1000)
+    }, questionDur * 1000)
   } else {
     game.playerList.forEach(p => p)
     io.to(game.room).emit(GAME_STATE_RECEIVED, {
@@ -101,7 +95,6 @@ function setupGameTimer (io, socket, game, firstTime = true) {
       }
     })
     games = games.filter(g => g.room !== game.room)
-    console.log('Number of games after delete : ', games.length)
   }
 }
 
@@ -152,7 +145,6 @@ function setupGameSockets (io) {
               game.quizz.questions[index].response_location_id =
                                     axios.get('http://localhost:3000/api/questions/response/' + q.id_question).then(respQuestion => {
                                       q.response_location_id = respQuestion.data[0].response_location_id
-                                      console.log('Got answer : ', respQuestion.data[0].response_location_id)
                                       if (index === game.quizz.questions.length - 1) {
                                         resolve()
                                       }
@@ -160,7 +152,6 @@ function setupGameSockets (io) {
             }
           })
           waitForQuestions.then(() => {
-            // console.log('Quiz obtained', game.quizz)
             game.room = data.room
             delete data.quiz_id // Not needed because referenced in the game
             game.playerList = [data]
@@ -196,7 +187,6 @@ function setupGameSockets (io) {
         }
         setupCorrectionListener(socket, assignedGame, io)
         io.to(data.room).emit(UPDATE_PLAYERS, assignedGame.playerList)
-        // TODO send game state to everyone
         io.to(data.room).emit(GAME_STATE_RECEIVED, assignedGame.state)
       }
     })

@@ -8,9 +8,9 @@ function setupSingleplayerSockets (io) {
   io.on('connection', socket => {
     socket.on('enableServerTimer', data => {
       timerId = setTimeout(() => {
-          console.log('EMIT')
+        console.log('EMIT')
         socket.emit('timerFinished')
-      }, /* data.duration */ 2 * 1000)
+      }, data.duration * 1000)
     })
 
     socket.on('disableServerTimer', data => {
