@@ -1,7 +1,10 @@
 <template>
   <div>
     <v-card fluid>
-      <v-row no-gutters style="padding: 0px">
+      <v-row
+        no-gutters
+        style="padding: 0px"
+      >
         <v-col>
           <v-card-title>
             {{ quizz.name }}
@@ -24,9 +27,10 @@
             </v-col>
           </v-card-title>
           <v-card-text
-            v-if="!!quizz.description"
             class="pt-0 pb-0"
           >
+            Description: {{ quizz.description }}
+          </v-card-text>
           <v-row>
             <v-col>
               <v-card-text
@@ -56,17 +60,16 @@
                 Creator: {{ quizz.creator }}
               </v-card-text>
             </v-col>
-            <v-col
-              class="text-right"
-              style="margin:10px"
-            >
             <v-col class="text-right">
-              <v-dialog v-model="dialog" width="600">
-                <template v-slot:activator="{ on, attrs }">
+              <v-dialog
+                v-model="dialog"
+                width="600"
+              >
+                <template #activator="{ on, attrs }">
                   <v-btn
                     style="margin: 0 0 10px 10px"
                     color="primary"
-                    v-bind="attrs" 
+                    v-bind="attrs"
                     v-on="on"
                   >
                     Multiplayer
@@ -77,26 +80,26 @@
                   <v-card-title>
                     Room Settings
                   </v-card-title>
-                  <br />
+                  <br>
                   <v-card-text>
                     <v-slider
-                    v-model="playersNumber"
-                    label="Number of player"
-                    max="10"
-                    min="2"
-                    step="1"
-                    class="align-center"
-                    thumb-label="always"
-                    >
-                  </v-slider>
+                      v-model="playersNumber"
+                      label="Number of player"
+                      max="10"
+                      min="2"
+                      step="1"
+                      class="align-center"
+                      thumb-label="always"
+                    />
                   </v-card-text>
-                  <v-divider></v-divider>
+                  <v-divider />
                   <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn 
+                    <v-spacer />
+                    <v-btn
                       color="primary"
-                      text @click="multiplayerSettings = false"
-                      :to="{ name: 'lobby', query: {room: username + Date.now() + '-' + quizz.id_quiz +  '-' + playersNumber}, params: { id_quiz: quizz.id_quiz, nbPlayers: playersNumber} }"
+                      text
+                      :to="{ name: 'lobby', query: {room: username + Date.now() + '-' + quizz.id_quiz + '-' + playersNumber}, params: { id_quiz: quizz.id_quiz, nbPlayers: playersNumber} }"
+                      @click="multiplayerSettings = false"
                     >
                       Create
                     </v-btn>
@@ -104,17 +107,15 @@
                 </v-card>
               </v-dialog>
             </v-col>
-              <v-btn
-                style="margin: 12px 20px 10px 10px"
-                color="primary"
-                nuxt
-                :to="{ name: 'game', params: { id_quiz: quizz.id_quiz } }"
-              >
-                Solo
-              </v-btn>
-            </v-col>
+            <v-btn
+              style="margin: 12px 20px 10px 10px"
+              color="primary"
+              nuxt
+              :to="{ name: 'game', params: { id_quiz: quizz.id_quiz } }"
+            >
+              Solo
+            </v-btn>
           </v-row>
-          </v-card-text>
         </v-col>
       </v-row>
     </v-card>
@@ -127,11 +128,11 @@ export default {
       required: true
     }
   },
-  data() {
+  data () {
     return {
       multiplayerSettings: false,
       playersNumber: 2,
-      username: this.$store.getters["users/user"].username
+      username: this.$store.getters['users/user'].username
     }
   }
 }

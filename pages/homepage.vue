@@ -9,11 +9,17 @@
       </v-col>
       <v-col>
         <v-btn
-        color="primary"
-        @click="joinLobby(roomId)">Join</v-btn>
+          color="primary"
+          @click="joinLobby(roomId)"
+        >
+          Join
+        </v-btn>
       </v-col>
     </v-row>
-    <v-list-item-content v-for="quizz in filteredQuizzes" :key="quizz.id">
+    <v-list-item-content
+      v-for="quizz in filteredQuizzes"
+      :key="quizz.id"
+    >
       <quizz-item :quizz="quizz" />
     </v-list-item-content>
     <v-card v-if="!quizzAvailable">
@@ -42,22 +48,27 @@
         </v-col>
       </v-row>
     </v-card>
-    <v-btn to="/game_multi">Multi Test</v-btn>
-  <v-dialog
-   v-model="dialogFullRoom"
-   width="500"
-   >
-   <v-card>
+    <v-btn to="/game_multi">
+      Multi Test
+    </v-btn>
+    <v-dialog
+      v-model="dialogFullRoom"
+      width="500"
+    >
+      <v-card>
         <v-card-title class="headline">
-          <v-icon class="mr-2">mdi-alert</v-icon>
+          <v-icon class="mr-2">
+            mdi-alert
+          </v-icon>
           This room is already full
         </v-card-title>
-   </v-card></v-dialog>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 <script>
-import QuizzItem from "../components/QuizzItem.vue"
-import socket from "~/plugins/socket.io.js"
+import QuizzItem from '../components/QuizzItem.vue'
+import socket from '~/plugins/socket.io.js'
 export default {
   components: {
     QuizzItem
@@ -113,6 +124,27 @@ export default {
         this.showSnackbar('Error while downloading quizzes', 'error')
         console.log(error)
       })
+  },
+  methods: {
+    joinLobby (id) {
+      socket.emit('joinLobby', {
+        username: this.$store.getters['users/user'].username,
+        id: this.$store.getters['users/user'].id,
+        room: id
+      })
+      socket.on('validateJoin', (serverData) => {
+        this.$router.push({
+          path: 'lobby',
+          name: 'lobby',
+          query: { room: id },
+          params: { id_quiz: serverData.quiz_id, nbPlayers: serverData.nbPlayers }
+        })
+      })
+      socket.on('fullRoom', (serverData) => {
+        console.log('zekjrzehrkjezhrkhezj')
+        this.dialogFullRoom = true
+      })
+    }
   }
 }
 </script>

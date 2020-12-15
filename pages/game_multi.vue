@@ -184,8 +184,9 @@ export default {
      * @return {Array<String>} the player list
      */
     getPlayerList () {
-      if (this.$route.params.quizz && this.$route.params.quizz.playerList) {
-        return this.$route.params.quizz.playerList
+      console.log(this.$route.params.playerList)
+      if (this.$route.params && this.$route.params.playerList) {
+        return this.$route.params.playerList
       } else {
         return [
           { username: 'Guest', score: 0, id: 0 },
@@ -407,7 +408,6 @@ export default {
         } else return data
       }
       socket.on('GameStateReceived', (serverData) => {
-        // OK ?
         console.log(
           'GameStateReceived Received message from server : ',
           serverData
@@ -415,7 +415,7 @@ export default {
         const state = c(serverData).status
         this.state = state
         switch (state) {
-          case 'STOPPED': // OK
+          case 'STOPPED':
             this.removeHighlighting()
             this.cacheRegionClassList = []
             // Quizz finished (arrived too late / bug)
@@ -430,8 +430,6 @@ export default {
             this.quizzLoaded = false
             this.loadQuizz = true
             this.loadText = 'Waiting for players'
-            // eslint-disable-next-line no-case-declarations
-            // TO DO LATER
             break
           case 'PLAYING':
             this.quizzLoaded = true
