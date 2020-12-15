@@ -10,7 +10,7 @@ const http = require('http').createServer(app)
 
 postgresStore.init(config.postgres)
 config.dev = process.env.NODE_ENV !== 'production'
-const io = require('socket.io')(http)
+// const io = require('socket.io')(http)
 
 async function start () {
   const nuxt = new Nuxt(config)
