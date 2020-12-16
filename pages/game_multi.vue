@@ -435,6 +435,7 @@ export default {
             this.loadText = 'Waiting for players'
             break
           case 'PLAYING':
+            this.endMenuEnabled = true
             this.quizzLoaded = true
             this.loadQuizz = false
             this.questionIndex = serverData.playing_data.questionIndex
@@ -442,7 +443,10 @@ export default {
             this.showCurQuestionMenu(c(serverData.playing_data))
             break
           case 'CORRECTING':
-            this.showEndQuestionMenu(c(serverData.correcting_data))
+            if (this.endMenuEnabled) {
+              this.showEndQuestionMenu(c(serverData.correcting_data))
+              this.endMenuEnabled = false
+            }
             break
           default:
             throw new Error('Unknown game state ' + state)
