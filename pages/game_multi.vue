@@ -223,13 +223,7 @@ export default {
      * Remove all the region highlighted from the map and apply the style present before the highlight
      */
     removeHighlighting () {
-      for (let i = 0; i < this.highlightedRegions.length; i++) {
-        this.highlightedRegions[i].classList.remove(
-          ...this.highlightedRegions[i].classList
-        )
-        this.highlightedRegions[i].classList.add(...this.cacheRegionClassList)
-      }
-      this.highlightedRegions = []
+      this.mapStyle = this.oldStyle
     },
     /**
      * Highlight a region for the given map, any highlighted
@@ -252,7 +246,7 @@ export default {
       } else {
         regionToColor = mapHtml.children.namedItem(regionId)
       }
-      this.cacheRegionClassList = [...regionToColor.classList]
+      // this.cacheRegionClassList = [...regionToColor.classList]
       regionToColor.classList.remove(...regionToColor.classList) // Remove all classes from regionToColor
       regionToColor.blur() // Stop the focus
 
@@ -269,7 +263,7 @@ export default {
       if (!this.highlightedRegions) {
         this.highlightedRegions = []
       }
-      this.highlightedRegions.push(regionToColor)
+      // this.highlightedRegions.push(regionToColor)
     },
     /**
      * Highlight the map for a few seconds
@@ -443,10 +437,7 @@ export default {
             this.showCurQuestionMenu(c(serverData.playing_data))
             break
           case 'CORRECTING':
-            if (this.endMenuEnabled) {
-              this.showEndQuestionMenu(c(serverData.correcting_data))
-              this.endMenuEnabled = false
-            }
+            this.showEndQuestionMenu(c(serverData.correcting_data))
             break
           default:
             throw new Error('Unknown game state ' + state)
@@ -481,6 +472,7 @@ export default {
      */
     loadQuizz (quiz) {
       try {
+        this.oldStyle = this.mapStyle
         this.loadText = 'Loading Map'
         this.playerList = this.getPlayerList()
         this.quizzMap = this.getMapByName(quiz.mapid)
