@@ -215,6 +215,8 @@ function setupGameSockets (io) {
         }
         game.id_game = gameId++
         console.log('Requesting quiz')
+        const URL = serverUrl + '/api/quizzes/' + data.id_quiz
+        console.log('>>>>>>> URL is : ', URL)
         axios.get(serverUrl + '/api/quizzes/' + data.id_quiz).then((response) => {
           game.quizz = response.data
           console.log('Quiz obtained', game.quizz)
