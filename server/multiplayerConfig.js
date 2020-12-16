@@ -137,6 +137,7 @@ function setupGameSockets (io) {
         axios.get(serverUrl + '/api/quizzes/' + data.id_quiz).then((response) => {
           game.quizz = response.data
           const waitForQuestions = new Promise((resolve, reject) => {
+            console.log(game.quizz)
             for (let index = 0; index < game.quizz.questions.length; index++) {
               const q = game.quizz.questions[index]
               game.quizz.questions[index].response_location_id =
