@@ -51,9 +51,6 @@
               >
                 {{ currentQuestion.question_tag }}
               </div>
-              <v-btn to="/homepage">
-                Quit
-              </v-btn>
               <!--
               <v-btn
                 v-show="nextButtonVisible"
@@ -153,7 +150,6 @@ export default {
     }
   },
   async mounted () {
-    this.$route.params.id_quiz = 15
     this.room = 0 // Is pushed to the server
     await this.$axios
       .request({
@@ -187,8 +183,9 @@ export default {
      * @return {Array<String>} the player list
      */
     getPlayerList () {
-      if (this.$route.params.quizz && this.$route.params.quizz.playerList) {
-        return this.$route.params.quizz.playerList
+      console.log(this.$route.params.playerList)
+      if (this.$route.params && this.$route.params.playerList) {
+        return this.$route.params.playerList
       } else {
         return [
           { username: 'Guest', score: 0, id: 0 },
@@ -431,7 +428,6 @@ export default {
             this.quizzLoaded = false
             this.loadQuizz = true
             this.loadText = 'Waiting for players'
-            // eslint-disable-next-line no-case-declarations
             break
           case 'PLAYING':
             this.quizzLoaded = true
@@ -467,7 +463,7 @@ export default {
 
       socket.on('UpdatePlayers', (data) => {
         console.log('UpdatePlayers Received message from server : ', data)
-        this.playerList = c(data)
+        this.playerList = (data)
       })
     },
     /**
@@ -488,7 +484,7 @@ export default {
           username: this.$store.getters['users/user'].username,
           id: this.$store.getters['users/user'].id,
           id_quiz: this.$route.params.id_quiz,
-          room: this.room
+          room: this.$route.params.room
         })
       } catch (e) {
         this.loadText = e.message

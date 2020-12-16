@@ -10,11 +10,8 @@ export default function () {
     setupMultiplayer(io)
 
     // overwrite nuxt.server.listen()
-    this.nuxt.server.listen = (port, host) => new Promise(resolve => server.listen(port || process.env.PORT || 3000, host || 'localhost', resolve))
+    this.nuxt.server.listen = (port, host) => new Promise(resolve => server.listen(port || process.env.PORT || 3000, process.env.HOST || 'localhost', resolve))
     // close this server on 'close' event
     this.nuxt.hook('close', () => new Promise(server.close))
-
-    // Add socket.io events
-    const messages = []
   })
 }
