@@ -31,10 +31,10 @@
           />
         </div>
         <div class="font-weight-bold mb-3">
-          Placeholder
+          Online Game
         </div>
         <div class="feature-text">
-          This is a placeholder
+          Share a multiplayer game and play in real time with your friends
         </div>
       </v-col>
       <v-col>

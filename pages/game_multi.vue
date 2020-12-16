@@ -51,6 +51,7 @@
               >
                 {{ currentQuestion.question_tag }}
               </div>
+              <!--
               <v-btn
                 v-show="nextButtonVisible"
                 :disabled="!nextButtonVisible"
@@ -59,6 +60,7 @@
               >
                 {{ nextButtonText }}
               </v-btn>
+              -->
               <v-spacer />
               <!-- For aligning the score the to right -->
               <div class="mt-5">
@@ -380,7 +382,6 @@ export default {
       this.nextButtonVisible = true
     },
     setupSocketIO () {
-      console.log('>>> Loading socket io')
       socket.on('RequestQuestionResult', (data) => {
         const result = {
           id: this.$store.getters['users/user'].id,
@@ -423,7 +424,7 @@ export default {
               }
             })
             break
-          case 'WAITING': // OK
+          case 'WAITING':
             this.quizzLoaded = false
             this.loadQuizz = true
             this.loadText = 'Waiting for players'
@@ -479,7 +480,6 @@ export default {
         this.questionIndex = 0
         this.setupSocketIO()
         this.quizzLoaded = true
-        console.log('Requesting game state...')
         socket.emit('RequestGameState', {
           username: this.$store.getters['users/user'].username,
           id: this.$store.getters['users/user'].id,

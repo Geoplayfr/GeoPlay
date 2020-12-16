@@ -81,26 +81,6 @@ export default {
       quizzAvailable: false,
       roomId: '',
       dialogFullRoom: false
-    };
-  },
-  methods: {
-    joinLobby(id) {
-      socket.emit("joinLobby", {
-        username: this.$store.getters["users/user"].username,
-        id: this.$store.getters["users/user"].id,
-        room: id
-      })
-      socket.on('validateJoin', (serverData) => {
-         this.$router.push({
-           path: 'lobby',
-           name: 'lobby',
-           query: {room: id},
-           params: {id_quiz: serverData.quiz_id, nbPlayers: serverData.nbPlayers} 
-         })
-      })
-      socket.on('fullRoom', (serverData) => {
-        this.dialogFullRoom = true
-      })
     }
   },
   computed: {
@@ -130,18 +110,20 @@ export default {
       socket.emit('joinLobby', {
         username: this.$store.getters['users/user'].username,
         id: this.$store.getters['users/user'].id,
-        room: id
+        room: id.trim()
       })
       socket.on('validateJoin', (serverData) => {
         this.$router.push({
           path: 'lobby',
           name: 'lobby',
           query: { room: id },
-          params: { id_quiz: serverData.quiz_id, nbPlayers: serverData.nbPlayers }
+          params: {
+            id_quiz: serverData.quiz_id,
+            nbPlayers: serverData.nbPlayers
+          }
         })
       })
       socket.on('fullRoom', (serverData) => {
-        console.log('zekjrzehrkjezhrkhezj')
         this.dialogFullRoom = true
       })
     }

@@ -27,6 +27,7 @@
             </v-col>
           </v-card-title>
           <v-card-text
+            v-if="quizz.description"
             class="pt-0 pb-0"
           >
             Description: {{ quizz.description }}

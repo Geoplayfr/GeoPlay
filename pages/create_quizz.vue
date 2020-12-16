@@ -204,7 +204,9 @@
                               {{ item.question_tag }}
                             </v-list-item-title>
                             <v-list-item-subtitle>
-                              Location: {{ item.locationName }} ({{ item.duration }}
+                              Location: {{ item.locationName }} ({{
+                                item.duration
+                              }}
                               sec)
                             </v-list-item-subtitle>
                           </v-list-item-content>
@@ -212,7 +214,9 @@
                           <v-list-item-action>
                             <v-icon
                               small
-                              @click="questions.splice(questions.indexOf(item), 1)"
+                              @click="
+                                questions.splice(questions.indexOf(item), 1)
+                              "
                             >
                               mdi-delete
                             </v-icon>
@@ -257,7 +261,9 @@
                 label="Map"
                 readonly
               />
-              <h3>{{ questionsNumber }} questions: ({{ totalDuration }} sec)</h3>
+              <h3>
+                {{ questionsNumber }} questions: ({{ totalDuration }} sec)
+              </h3>
               <v-virtual-scroll
                 :items="questions"
                 height="270"
@@ -273,7 +279,9 @@
                         {{ item.question_tag }}
                       </v-list-item-title>
                       <v-list-item-subtitle>
-                        Location: {{ item.locationName }} ({{ item.duration }}sec)
+                        Location: {{ item.locationName }} ({{
+                          item.duration
+                        }}sec)
                       </v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>
@@ -364,9 +372,9 @@ import { RadioSvgMap } from 'vue-svg-map'
 import FranceReg from '@svg-maps/france.regions'
 import World from '@svg-maps/world'
 import France from '@svg-maps/france.departments'
+import socket from '~/plugins/socket.io.js'
 
 export default {
-
   components: {
     RadioSvgMap
   },
@@ -431,6 +439,9 @@ export default {
   },
   mounted () {
     this.duration = this.defaultDuration
+    socket.emit('disableServerTimer', {
+      player: this.$store.getters['users/user']
+    })
   },
   methods: {
     /**
@@ -442,7 +453,11 @@ export default {
       ).name
     },
     submitQuestion () {
-      if (this.questions.length >= this.questionsNumber) { alert('Please modify the number of questions if you want to add questions') } else {
+      if (this.questions.length >= this.questionsNumber) {
+        alert(
+          'Please modify the number of questions if you want to add questions'
+        )
+      } else {
         this.duration = parseInt(this.duration)
         this.questions.push({
           locationName: this.selectedLocationName,

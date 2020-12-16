@@ -8,26 +8,10 @@ export default function () {
     const io = socketIO(server)
     setupSingleplayer(io)
     setupMultiplayer(io)
-    
 
     // overwrite nuxt.server.listen()
-    this.nuxt.server.listen = (port, host) => new Promise(resolve => server.listen(port || 3000, host || 'localhost', resolve))
+    this.nuxt.server.listen = (port, host) => new Promise(resolve => server.listen(port || process.env.PORT || 3000, process.env.HOST || 'localhost', resolve))
     // close this server on 'close' event
     this.nuxt.hook('close', () => new Promise(server.close))
-
-    // Add socket.io events
-    const messages = []
-
-    /*
-    io.on('connection', (socket) => {
-      // Sending every 5 seconds a message to the game (test)
-      setInterval(() => {
-        socket.emit('msg-to-game', 'curdate test : ' + Date.now())
-      }, 5000);
-      socket.on('send-message', function (message) {
-        console.log('Server received something : ' + message)
-      })
-    })
-    */
   })
 }
