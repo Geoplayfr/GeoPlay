@@ -41,7 +41,7 @@ export default {
   ],
 
   env: {
-    WS_URL: process.env.WS_URL || 'http://localhost:3000'
+    WS_URL: process.env.SERVER_URL || 'http://localhost:3000'
   },
 
   axios: {
