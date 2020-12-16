@@ -36,8 +36,7 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    '@nuxtjs/axios',
-    '~/io'
+    '@nuxtjs/axios'
   ],
 
   env: {
