@@ -20,6 +20,11 @@ export default function (ctx) {
           ctx.redirect('/homepage')
         }
         break
+      case 'result_multi':
+        if (!canLoadResultsMulti(ctx)) {
+          ctx.redirect('/homepage')
+        }
+        break
     }
   }
 }
