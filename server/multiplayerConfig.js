@@ -136,8 +136,9 @@ function setupGameSockets (io) {
         io.to(socket.id).emit(GAME_STATE_RECEIVED, game.state)
         axios.get(serverUrl + '/api/quizzes/' + data.id_quiz).then((response) => {
           game.quizz = response.data
+          console.log('starting buggy loop')
+          console.log('quizz is :', game.quizz)
           const waitForQuestions = new Promise((resolve, reject) => {
-            console.log(game.quizz)
             for (let index = 0; index < game.quizz.questions.length; index++) {
               const q = game.quizz.questions[index]
               game.quizz.questions[index].response_location_id =
