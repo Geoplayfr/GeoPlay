@@ -48,9 +48,6 @@
         </v-col>
       </v-row>
     </v-card>
-    <v-btn to="/game_multi">
-      Multi Test
-    </v-btn>
     <v-dialog
       v-model="dialogFullRoom"
       width="500"
