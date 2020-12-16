@@ -127,6 +127,8 @@ export default {
       mapStyle: '',
       mapSize: 8,
       currentQuestion: null,
+      unselectedMapStyle:
+        'unselect-svg-map unselect-svg-map__location unselect-svg-map__location:focus unselect-svg-map__location:hover unselect-svg-map__location[aria-checked="true"]',
       greenMapStyle:
         'green green-svg-map__location green-svg-map__location:focus green-svg-map__location:hover green-svg-map__location[aria-checked="true"]',
       redMapStyle:
@@ -347,6 +349,7 @@ export default {
         this.nextButtonText = this.goToResultPageText
       }
       this.removeHighlighting()
+      this.mapStyle = this.unselectedMapStyle
       if (this.settings.noHoverAfterQuestion) {
         this.setMapHoverEffect(true)
       }
