@@ -94,6 +94,7 @@ function setupGameTimer (io, socket, game, firstTime = true) {
       }
     })
     games = games.filter(g => g.room !== game.room)
+    socket.leave(game.room)
   }
 }
 

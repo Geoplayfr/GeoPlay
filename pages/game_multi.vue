@@ -151,6 +151,8 @@ export default {
   },
   async mounted () {
     this.room = 0 // Is pushed to the server
+    this.highlightedRegions = []
+    this.cacheRegionClassList = []
     await this.$axios
       .request({
         method: 'get',
@@ -463,7 +465,7 @@ export default {
 
       socket.on('UpdatePlayers', (data) => {
         console.log('UpdatePlayers Received message from server : ', data)
-        this.playerList = (data)
+        this.playerList = data
       })
     },
     /**
