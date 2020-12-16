@@ -260,13 +260,15 @@ function setupGameSockets (io) {
       }
       socket.join(data.room)
       const assignedGame = games.find(g => g.room === data.room)
-      if (assignedGame.playerList.length < data.room.split('-')[2]) {
-        io.to(data.room).emit('validateJoin', {
-          quiz_id: data.room.split('-')[1],
-          nbPlayers: data.room.split('-')[2]
-        })
-      } else {
-        io.emit('fullRoom', {})
+      if (assignedGame !== undefined) {
+        if (assignedGame.playerList.length < data.room.split('-')[2]) {
+          io.to(data.room).emit('validateJoin', {
+            quiz_id: data.room.split('-')[1],
+            nbPlayers: data.room.split('-')[2]
+          })
+        } else {
+          io.emit('fullRoom', {})
+        }
       }
     })
     socket.on('leaveRoom', (data, errorCallback) => {
