@@ -48,7 +48,11 @@ export default {
     // extra config e.g
     baseURL: process.env.SERVER_URL || 'http://localhost:3000/'
   },
-
+  privateRuntimeConfig: {
+    axios: {
+      baseURL: process.env.SERVER_URL
+    }
+  },
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {
     customVariables: ['~/assets/variables.scss'],

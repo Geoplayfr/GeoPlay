@@ -215,13 +215,13 @@ function setupGameSockets (io) {
         }
         game.id_game = gameId++
         console.log('Requesting quiz')
-        const URL = serverUrl + '/api/quizzes/' + data.id_quiz
+        const URL = serverUrl + 'api/quizzes/' + data.id_quiz
         console.log('>>>>>>> URL is : ', URL)
-        axios.get(serverUrl + '/api/quizzes/' + data.id_quiz).then((response) => {
+        axios.get(serverUrl + 'api/quizzes/' + data.id_quiz).then((response) => {
           game.quizz = response.data
           console.log('Quiz obtained', game.quizz)
           game.room = data.room
-          delete data.quiz_id // Not needed because referenced in the game
+          // delete data.quiz_id // Not needed because referenced in the game
           game.playerList = []
           if (game.playerList.length < data.room_size) {
             const userAlreadyConnected = game.playerList.find(o => o.id === data.id)
