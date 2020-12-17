@@ -1,9 +1,12 @@
 import Game from './models/game.model'
 const axios = require('axios')
 const GAME_STATE_RECEIVED = 'GameStateReceived'
-const UPDATE_PLAYERS = 'UpdatePlayers'
 let gameId = 0
-const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
+let serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
+if (serverUrl.endsWith('/')) {
+  serverUrl = serverUrl.slice(0, -1)
+}
+
 /**
  * List of game sessions
  * @type {Array<Game>}
@@ -25,23 +28,31 @@ function setupCorrectionListener (socket, game, io) {
       // Verify player's answer
       if (data.response_location_id === game.quizz.questions[game.curQuestionIndex].response_location_id) {
         player.score++
-        io.to(game.room).emit(UPDATE_PLAYERS, game.playerList)
+        game.updatePlayerList()
       }
-      const correction = {
-        status: 'CORRECTING',
-        correcting_data: {
-          response_location_id: game.quizz.questions[game.curQuestionIndex].response_location_id,
-          score: parseInt(player.score),
-          correction_duration: game.correction_duration
+      // If player is still in the game
+      if (player !== undefined) {
+        const correction = {
+          status: 'CORRECTING',
+          correcting_data: {
+            response_location_id: game.quizz.questions[game.curQuestionIndex].response_location_id,
+            score: parseInt(player.score),
+            correction_duration: game.correction_duration
+          }
         }
+        io.to(socket.id).emit(GAME_STATE_RECEIVED, correction)
+        console.log('Emitted correction to client, wait ' + game.correction_duration + ' seconds')
+      } else {
+        game.updatePlayerList()
       }
-      io.to(socket.id).emit(GAME_STATE_RECEIVED, correction)
-      console.log('Emitted correction to client, wait ' + game.correction_duration + ' seconds')
     })
   }
 }
 
 /**
+ * Starts the server timer, that will start a game round.
+ * In the default gamemode, each round consist of a 2 phases: a playing phase and a correction phase
+ *
  * @param {Socket} socket
  * @param {Game} game
  */
@@ -68,7 +79,6 @@ function setupGameTimer (io, socket, game, firstTime = true) {
       console.log('Collecting player results')
       io.to(game.room).emit('RequestQuestionResult')
 
-      // For new players
       game.state = {
         status: 'CORRECTING',
         correcting_data: {
@@ -82,11 +92,12 @@ function setupGameTimer (io, socket, game, firstTime = true) {
       if (firstTime) { setupCorrectionListener(socket, game, io) }
       setTimeout(() => {
         game.curQuestionIndex++
+        // Start the next round of the quiz
         setupGameTimer(io, socket, game, false)
       }, game.correction_duration * 1000)
     }, questionDur * 1000)
   } else {
-    game.playerList.forEach(p => p)
+    delete game.io // Very important to delete the reference, not doing so will result in a server crash (because of recursive socket calls)
     io.to(game.room).emit(GAME_STATE_RECEIVED, {
       status: 'STOPPED',
       stopped_data: {
@@ -99,7 +110,7 @@ function setupGameTimer (io, socket, game, firstTime = true) {
 }
 
 /**
- * Socket IO configuration for GeoPlay online
+ * Socket IO configuration for GeoPlay online, must be called once, when instantiating socket IO server
  * @param {Socket} io
  */
 function setupGameSockets (io) {
@@ -110,7 +121,7 @@ function setupGameSockets (io) {
         const playerToRmv = g.playerList.find(p => p.socketId === socket.id)
         if (playerToRmv !== undefined) {
           g.playerList = g.playerList.filter(p => p !== playerToRmv)
-          io.to(g.room).emit(UPDATE_PLAYERS, g.playerList)
+          g.updatePlayerList()
         }
       })
     })
@@ -120,107 +131,59 @@ function setupGameSockets (io) {
       if (!data.id || !data.username) {
         return errorCallback('Invalid data format for the user requesting the game state')
       }
-      console.log('Client wants to start game', data)
+      console.log('Client wants to start game')
 
       socket.join(data.room)
       let player
       const assignedGame = games.find(g => g.room === data.room)
-      if (!assignedGame) {
-        console.log('MODE : New game')
-        // First player to start the game, instantiate the Game room
-        const game = new Game()
-        game.curQuestionIndex = 0
-        game.state = {
-          status: 'WAITING'
-        }
-        game.id_game = gameId++
-        io.to(socket.id).emit(GAME_STATE_RECEIVED, game.state)
-        axios.get(serverUrl + 'api/quizzes/' + data.id_quiz).then((response) => {
-          game.quizz = response.data
-          console.log('starting buggy loop')
-          console.log('quizz is :', game.quizz)
-          const waitForQuestions = new Promise((resolve, reject) => {
-            for (let index = 0; index < game.quizz.questions.length; index++) {
-              const q = game.quizz.questions[index]
-              game.quizz.questions[index].response_location_id =
-                                    axios.get(serverUrl + 'api/questions/response/' + q.id_question).then(respQuestion => {
-                                      q.response_location_id = respQuestion.data[0].response_location_id
-                                      if (index === game.quizz.questions.length - 1) {
-                                        resolve()
-                                      }
-                                    })
-            }
-          })
-          waitForQuestions.then(() => {
-            game.room = data.room
-            delete data.quiz_id // Not needed because referenced in the game
-            game.playerList = [data]
-            data.socketId = socket.id
-            data.score = 0
-            games.push(game)
-            io.to(data.room).emit(UPDATE_PLAYERS, game.playerList)
-            io.to(socket.id).emit(GAME_STATE_RECEIVED, game.state)
-            setupGameTimer(io, socket, game)
-          }).catch((error) => {
-            console.error(error.message)
-            console.error(error.stack)
-            console.error(error)
-          })
-        }).catch((error) => {
-          console.error(error.message)
-          console.error(error.stack)
-          console.error(error)
-        })
-      } else {
-        console.log('MODE : Join')
-        for (let index = 0; index < assignedGame.quizz.questions.length; index++) {
-          const q = assignedGame.quizz.questions[index]
-          assignedGame.quizz.questions[index].response_location_id =
-                                axios.get(serverUrl + 'api/questions/response/' + q.id_question).then(respQuestion => {
+      console.log('MODE : Join')
+      for (let index = 0; index < assignedGame.quizz.questions.length; index++) {
+        const q = assignedGame.quizz.questions[index]
+        assignedGame.quizz.questions[index].response_location_id =
+                                axios.get(serverUrl + '/api/questions/response/' + q.id_question).then(respQuestion => {
                                   console.log('response of question ' + q.id_question + ' : ' + respQuestion)
                                   q.response_location_id = respQuestion.data[0].response_location_id
                                   if (index === assignedGame.quizz.questions.length - 1) {
                                     // resolve()
                                   }
                                 })
-        }
-        games.forEach(g => {
-          if (player === undefined) {
-            player = g.playerList.find(p => p.id === data.id)
-          }
-        })
-        // New player
-        if (player === undefined) {
-          player = data
-          player.score = 0
-          data.socketId = socket.id
-          assignedGame.playerList.push(player)
-        }
-        setupCorrectionListener(socket, assignedGame, io)
-        io.to(data.room).emit(UPDATE_PLAYERS, assignedGame.playerList)
-        io.to(data.room).emit(GAME_STATE_RECEIVED, assignedGame.state)
       }
+      games.forEach(g => {
+        if (player === undefined) {
+          player = g.playerList.find(p => p.id === data.id)
+        }
+      })
+      // New player
+      if (player === undefined) {
+        player = data
+        player.score = 0
+        data.socketId = socket.id
+        assignedGame.playerList.push(player)
+      }
+      setupCorrectionListener(socket, assignedGame, io)
+      assignedGame.updatePlayerList()
+      io.to(data.room).emit(GAME_STATE_RECEIVED, assignedGame.state)
     })
     socket.on('createLobby', (data, errorCallback) => {
-      if (!data.id || !data.username) {
+      if (!data.id || !data.username || !data.id_quiz || !data.room) {
         return errorCallback('Invalid data format for the user requesting the game state')
       }
       socket.join(data.room)
       const assignedGame = games.find(g => g.room === data.room)
       if (!assignedGame) {
         // First player to start the game, instantiate the Game room
-        const game = new Game()
+        const game = new Game(io)
         game.curQuestionIndex = 0
         game.state = {
           status: 'WAITING'
         }
         game.id_game = gameId++
         console.log('Requesting quiz')
-        const URL = serverUrl + 'api/quizzes/' + data.id_quiz
+        const URL = serverUrl + '/api/quizzes/' + data.id_quiz
         console.log('>>>>>>> URL is : ', URL)
-        axios.get(serverUrl + 'api/quizzes/' + data.id_quiz).then((response) => {
+        axios.get(serverUrl + '/api/quizzes/' + data.id_quiz).then((response) => {
           game.quizz = response.data
-          console.log('Quiz obtained', game.quizz)
+          // console.log('Quiz obtained', game.quizz)
           game.room = data.room
           // delete data.quiz_id // Not needed because referenced in the game
           game.playerList = []
@@ -230,6 +193,7 @@ function setupGameSockets (io) {
               game.playerList.push({
                 id: data.id,
                 username: data.username,
+                socketId: socket.id,
                 score: 0
               })
             }
@@ -237,7 +201,7 @@ function setupGameSockets (io) {
           data.score = 0
           games.push(game)
           console.log('before update player :', game.playerList)
-          io.to(data.room).emit('UpdatePlayers', game.playerList)
+          game.updatePlayerList()
           io.to(socket.id).emit('GameStateReceived', game.state)
           io.to(data.room).emit('addUser', game.playerList)
         }).catch((error) => {
@@ -250,33 +214,43 @@ function setupGameSockets (io) {
             assignedGame.playerList.push({
               id: data.id,
               username: data.username,
+              socketId: socket.id,
               score: 0
             })
           }
         }
-        io.to(data.room).emit('UpdatePlayers', assignedGame.playerList)
+        assignedGame.updatePlayerList()
         io.to(socket.id).emit('GameStateReceived', assignedGame.state)
         io.to(data.room).emit('addUser', assignedGame.playerList)
       }
     })
-    socket.on('joinLobby', (data, errorCallback) => {
-      if (!data.id || !data.username) {
-        return errorCallback('Invalid data format for the user requesting the game state')
-      }
-      socket.join(data.room)
+    socket.on('joinLobby', (data) => {
       const assignedGame = games.find(g => g.room === data.room)
       if (assignedGame !== undefined) {
-        if (assignedGame.playerList.length < data.room.split('-')[2]) {
-          io.to(data.room).emit('validateJoin', {
-            quiz_id: data.room.split('-')[1],
-            nbPlayers: data.room.split('-')[2]
-          })
+        if (assignedGame.lobbyOpen) {
+          socket.join(data.room)
+          if (assignedGame.playerList.length < data.room.split('-')[2]) {
+            io.to(data.room).emit('validateJoin', {
+              quiz_id: data.room.split('-')[1],
+              nbPlayers: data.room.split('-')[2]
+            })
+          } else {
+            io.emit('fullRoom', { msg: 'Game lobby is full (' + assignedGame.playerLimit + '/' + assignedGame.playerLimit + ')' })
+          }
         } else {
-          io.emit('fullRoom', {})
+          io.emit('lockedRoom', { msg: 'Game lobby is locked' })
         }
       }
     })
-    socket.on('leaveRoom', (data, errorCallback) => {
+    // When the creator locks or unlocks the game lobby
+    socket.on('lobbyLock', (data) => {
+      const assignedGame = games.find(g => g.room === data.room)
+      assignedGame.lobbyOpen = data.lobbyOpen
+      // console.log('Lobby locked : ', assignedGame.lobbyOpen)
+      io.to(data.room).emit('setRoomInfo', { lobbyOpen: assignedGame.lobbyOpen ? 'Open' : 'Locked' })
+    })
+    // When a player (non creator) leaves the lobby
+    socket.on('leaveRoom', (data) => {
       socket.emit('playerLeave', {})
       socket.leave(data.room)
       const assignedGame = games.find(g => g.room === data.room)
@@ -284,11 +258,21 @@ function setupGameSockets (io) {
       assignedGame.playerList.splice(index, 1)
       io.to(data.room).emit('addUser', assignedGame.playerList)
     })
-    socket.on('leaveRoomCreator', (data, errorCallback) => {
+    // When a player wants to be kicked, we indicate the room and the id of the player to kick
+    socket.on('requestKick', clientData => {
+      const assignedGame = games.find(g => g.room === clientData.room)
+      const player = assignedGame.playerList.find(o => o.id === clientData.id)
+      assignedGame.playerList.splice(assignedGame.playerList.indexOf(player), 1)
+      io.to(player.socketId).emit('playerLeave', {})
+      io.to(assignedGame.room).emit('addUser', assignedGame.playerList)
+    })
+
+    // When the creator of the quits the lobby, everyone quits
+    socket.on('leaveRoomCreator', (data) => {
       io.to(data.room).emit('playerLeave', {})
       socket.leave(data.room)
     })
-    socket.on('launchGame', (data, errorCallback) => {
+    socket.on('launchGame', (data) => {
       io.to(data.room).emit('startGame', {})
       const assignedGame = games.find(g => g.room === data.room)
       setupGameTimer(io, socket, assignedGame)

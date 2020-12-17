@@ -5,7 +5,7 @@ export async function putModifyScore (req, res) {
   const newScore = req.body.newScore
   const score = await Score.updateScore(scoreId, newScore)
   if (!score) {
-		  res.status(404).json(score)
+    res.status(404).json(score)
   } else {
     res.status(200).json(score)
   }

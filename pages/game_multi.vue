@@ -98,7 +98,7 @@ import socket from '~/plugins/socket.io.js'
 
 export default {
   name: 'Game',
-  // middleware: "game",
+  middleware: 'game',
   components: {
     RadioSvgMap
   },
@@ -144,11 +144,6 @@ export default {
         noHoverAfterQuestion: true,
         noClickAfterQuestion: false
       }
-    }
-  },
-  head () {
-    return {
-      script: [{ src: '/svg-pan-zoom.min.js' }]
     }
   },
   async mounted () {
@@ -223,7 +218,13 @@ export default {
      * Remove all the region highlighted from the map and apply the style present before the highlight
      */
     removeHighlighting () {
-      this.mapStyle = this.oldStyle
+      for (let i = 0; i < this.highlightedRegions.length; i++) {
+        this.highlightedRegions[i].classList.remove(
+          ...this.highlightedRegions[i].classList
+        )
+        this.highlightedRegions[i].classList.add(...this.cacheRegionClassList)
+      }
+      this.highlightedRegions = []
     },
     /**
      * Highlight a region for the given map, any highlighted
@@ -236,34 +237,35 @@ export default {
         return
       }
       const mapHtml = document.getElementById('map')
-      let regionToColor = null
-      // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
-      if (
-        mapHtml.children.length === 1 &&
-        mapHtml.children[0].className.baseVal === 'svg-pan-zoom_viewport'
-      ) {
-        regionToColor = mapHtml.children[0].children.namedItem(regionId)
-      } else {
-        regionToColor = mapHtml.children.namedItem(regionId)
+      if (mapHtml) {
+        let regionToColor = null
+        // If loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
+        if (
+          mapHtml.children.length === 1 &&
+          mapHtml.children[0].className.baseVal === 'svg-pan-zoom_viewport'
+        ) {
+          regionToColor = mapHtml.children[0].children.namedItem(regionId)
+        } else {
+          regionToColor = mapHtml.children.namedItem(regionId)
+        }
+        this.cacheRegionClassList = [...regionToColor.classList]
+        regionToColor.classList.remove(...regionToColor.classList) // Remove all classes from regionToColor
+        regionToColor.blur() // Stop the focus
+        switch (color) {
+          case 'green':
+            regionToColor.classList.add(...this.greenMapStyle.split(' '))
+            break
+          case 'red':
+            regionToColor.classList.add(...this.redMapStyle.split(' '))
+            break
+          default:
+            break
+        }
+        if (!this.highlightedRegions) {
+          this.highlightedRegions = []
+        }
+        this.highlightedRegions.push(regionToColor)
       }
-      // this.cacheRegionClassList = [...regionToColor.classList]
-      regionToColor.classList.remove(...regionToColor.classList) // Remove all classes from regionToColor
-      regionToColor.blur() // Stop the focus
-
-      switch (color) {
-        case 'green':
-          regionToColor.classList.add(...this.greenMapStyle.split(' '))
-          break
-        case 'red':
-          regionToColor.classList.add(...this.redMapStyle.split(' '))
-          break
-        default:
-          break
-      }
-      if (!this.highlightedRegions) {
-        this.highlightedRegions = []
-      }
-      // this.highlightedRegions.push(regionToColor)
     },
     /**
      * Highlight the map for a few seconds
@@ -491,6 +493,11 @@ export default {
         this.loadText = e.message
         this.circularColor = 'red'
       }
+    }
+  },
+  head () {
+    return {
+      script: [{ src: '/svg-pan-zoom.min.js' }]
     }
   }
 }
