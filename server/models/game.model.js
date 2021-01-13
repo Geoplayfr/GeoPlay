@@ -36,14 +36,6 @@ export default class Game {
     }
 
     /**
-     * Get all the client sockets for this room
-     * @returns {Array<Socket>}
-     */
-    getAllSockets() {
-        return this.io.sockets.adapter.rooms[this.room].sockets
-    }
-
-    /**
      * Send to every player in the room the current playerlist
      * @returns {void}
      */

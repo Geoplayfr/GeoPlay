@@ -55,7 +55,7 @@
           <v-col cols="10" />
           <v-col cols="1  ">
             <v-btn
-              v-if="!isCreator"
+              v-if="isCreator"
               @click="requestKick(player.id)"
             >
               Kick
@@ -161,7 +161,6 @@ export default {
 
       socket.on('addUser', (serverData) => {
         this.playerList = serverData
-        console.log(this.playerList)
       })
       socket.on('playerLeave', (serverData) => {
         this.$router.push({ path: 'homepage' })

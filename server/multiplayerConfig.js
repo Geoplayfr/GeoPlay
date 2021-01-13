@@ -41,7 +41,6 @@ function setupCorrectionListener (socket, game, io) {
           }
         }
         io.to(socket.id).emit(GAME_STATE_RECEIVED, correction)
-        console.log('Emitted correction to client, wait ' + game.correction_duration + ' seconds')
       } else {
         game.updatePlayerList()
       }
@@ -57,7 +56,6 @@ function setupCorrectionListener (socket, game, io) {
  * @param {Game} game
  */
 function setupGameTimer (io, socket, game, firstTime = true) {
-  console.log('>>>    Starting game round ...')
   // Show cur question
   if (game.curQuestionIndex < game.quizz.nb_questions) {
     const questionDur = game.quizz.questions[game.curQuestionIndex].duration
@@ -72,11 +70,9 @@ function setupGameTimer (io, socket, game, firstTime = true) {
     game.state = obj
     // Start the game
     io.to(game.room).emit(GAME_STATE_RECEIVED, obj)
-    console.log('Waiting for the question to end: ', questionDur, ' seconds')
 
     // Collect the results & edit score
     setTimeout(() => {
-      console.log('Collecting player results')
       io.to(game.room).emit('RequestQuestionResult')
 
       game.state = {
@@ -88,7 +84,6 @@ function setupGameTimer (io, socket, game, firstTime = true) {
         }
       }
       // React to each player answer for the current question
-      // Prendre l'ensemble des sockets dans la room
       if (firstTime) { setupCorrectionListener(socket, game, io) }
       setTimeout(() => {
         game.curQuestionIndex++
@@ -114,7 +109,6 @@ function setupGameTimer (io, socket, game, firstTime = true) {
  * @param {Socket} io
  */
 function setupGameSockets (io) {
-  console.log('>>> Setting up socket IO')
   io.on('connection', socket => {
     socket.on('disconnect', function () {
       games.forEach(g => {
@@ -131,21 +125,15 @@ function setupGameSockets (io) {
       if (!data.id || !data.username) {
         return errorCallback('Invalid data format for the user requesting the game state')
       }
-      console.log('Client wants to start game')
 
       socket.join(data.room)
       let player
       const assignedGame = games.find(g => g.room === data.room)
-      console.log('MODE : Join')
       for (let index = 0; index < assignedGame.quizz.questions.length; index++) {
         const q = assignedGame.quizz.questions[index]
         assignedGame.quizz.questions[index].response_location_id =
                                 axios.get(serverUrl + '/api/questions/response/' + q.id_question).then(respQuestion => {
-                                  console.log('response of question ' + q.id_question + ' : ' + respQuestion)
                                   q.response_location_id = respQuestion.data[0].response_location_id
-                                  if (index === assignedGame.quizz.questions.length - 1) {
-                                    // resolve()
-                                  }
                                 })
       }
       games.forEach(g => {
@@ -164,6 +152,8 @@ function setupGameSockets (io) {
       assignedGame.updatePlayerList()
       io.to(data.room).emit(GAME_STATE_RECEIVED, assignedGame.state)
     })
+
+    // Create a new lobby that can group players for an new game
     socket.on('createLobby', (data, errorCallback) => {
       if (!data.id || !data.username || !data.id_quiz || !data.room) {
         return errorCallback('Invalid data format for the user requesting the game state')
@@ -178,14 +168,9 @@ function setupGameSockets (io) {
           status: 'WAITING'
         }
         game.id_game = gameId++
-        console.log('Requesting quiz')
-        const URL = serverUrl + '/api/quizzes/' + data.id_quiz
-        console.log('>>>>>>> URL is : ', URL)
         axios.get(serverUrl + '/api/quizzes/' + data.id_quiz).then((response) => {
           game.quizz = response.data
-          // console.log('Quiz obtained', game.quizz)
           game.room = data.room
-          // delete data.quiz_id // Not needed because referenced in the game
           game.playerList = []
           if (game.playerList.length < data.room_size) {
             const userAlreadyConnected = game.playerList.find(o => o.id === data.id)
@@ -200,7 +185,6 @@ function setupGameSockets (io) {
           }
           data.score = 0
           games.push(game)
-          console.log('before update player :', game.playerList)
           game.updatePlayerList()
           io.to(socket.id).emit('GameStateReceived', game.state)
           io.to(data.room).emit('addUser', game.playerList)
@@ -224,6 +208,8 @@ function setupGameSockets (io) {
         io.to(data.room).emit('addUser', assignedGame.playerList)
       }
     })
+
+    // Join an existing lobby
     socket.on('joinLobby', (data) => {
       const assignedGame = games.find(g => g.room === data.room)
       if (assignedGame !== undefined) {
@@ -246,7 +232,6 @@ function setupGameSockets (io) {
     socket.on('lobbyLock', (data) => {
       const assignedGame = games.find(g => g.room === data.room)
       assignedGame.lobbyOpen = data.lobbyOpen
-      // console.log('Lobby locked : ', assignedGame.lobbyOpen)
       io.to(data.room).emit('setRoomInfo', { lobbyOpen: assignedGame.lobbyOpen ? 'Open' : 'Locked' })
     })
     // When a player (non creator) leaves the lobby
@@ -272,6 +257,8 @@ function setupGameSockets (io) {
       io.to(data.room).emit('playerLeave', {})
       socket.leave(data.room)
     })
+
+    // Start the game, and signal game start to players
     socket.on('launchGame', (data) => {
       io.to(data.room).emit('startGame', {})
       const assignedGame = games.find(g => g.room === data.room)
