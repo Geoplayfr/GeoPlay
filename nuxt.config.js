@@ -37,9 +37,17 @@ export default {
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     '@nuxtjs/axios',
+    '@nuxtjs/proxy',
     '~/io'
   ],
-
+  proxy: {
+    '/api': {
+      target: process.env.SERVER_URL || 'http://localhost:3000',
+      pathRewrite: {
+        '^/api': '/'
+      }
+    }
+  },
   env: {
     WS_URL: process.env.SERVER_URL || 'http://localhost:3000'
   },
