@@ -55,6 +55,7 @@ export default {
 
   axios: {
     // extra config e.g
+    proxy: true,
     baseURL: process.env.SERVER_URL || 'http://localhost:3000/'
   },
   privateRuntimeConfig: {
