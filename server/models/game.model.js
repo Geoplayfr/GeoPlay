@@ -52,36 +52,6 @@ export default class Game {
     }
 
     /**
-     * Request a quiz with all the possible answers
-     * @param {String} id_quiz
-     * @returns {Promise<Quiz>}
-     */
-    RequestQuizWithAnswers(id_quiz) {
-
-        if(id_quiz === undefined || id_quiz === null ) {
-            //throw new ReferenceError('id_quiz is null or undefined')
-        }
-
-        if(typeof id_quiz !== 'string') {
-           //throw new TypeError('id_quiz must be of type string for requesting a quiz')
-        }
-        console.log('axios req')
-        axios.get(serverUrl + 'api/quizzes/' + id_quiz).then(() => {
-            return new Promise((resolve, reject) => {
-                for (let index = 0; index < this.quizz.questions.length; index++) {
-                  const q = this.quizz.questions[index]
-                  this.quizz.questions[index].response_location_id = axios.get(serverUrl + 'api/questions/response/' + q.id_question).then(respQuestion => {
-                                          q.response_location_id = respQuestion.data[0].response_location_id
-                                          if (index === this.quizz.questions.length - 1) {
-                                            resolve(this.quizz)
-                                          }
-                                        })
-                }
-              })
-        })
-    }
-
-    /**
      * Determines if new players can connect to the game
      */
     canJoin() {
