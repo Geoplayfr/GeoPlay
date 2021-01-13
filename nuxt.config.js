@@ -45,7 +45,8 @@ export default {
       target: process.env.SERVER_URL || 'http://localhost:3000',
       pathRewrite: {
         '^/api': '/'
-      }
+      },
+      changeOrigin: true
     }
   },
   env: {
