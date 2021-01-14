@@ -13,7 +13,7 @@ export default function () {
     try {
       await postgresStore.init(config.postgres)
 
-      const queryString = 'IF (SELECT * from users)'
+      const queryString = 'IF (SELECT * from users) '
       const query = await postgresStore.client.query({
         text: queryString
       })
