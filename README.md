@@ -1,6 +1,8 @@
 # GeoPlay
 <h3 align="center">GeoPlay Synopsis</h3>
 
+
+Secure Coding Course 
 ## Table of Contents
 
 * [Synthesis](#synthesis)
