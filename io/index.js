@@ -24,7 +24,7 @@ export default function () {
     } catch (e) {
       e.message += ' \ndid you try to initialize the database with \'npm run db \'?'
       throw e
-    } 
+    }
     // overwrite nuxt.server.listen()
     this.nuxt.server.listen = (port, host) => new Promise(resolve => server.listen(port || process.env.PORT || 3000, process.env.HOST || 'localhost', resolve))
     // close this server on 'close' event
