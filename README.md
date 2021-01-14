@@ -2,7 +2,7 @@
 <h3 align="center">GeoPlay Synopsis</h3>
 
 
-Secure Coding Course 
+Secure Coding Course, using ngrok at the moment for webhook detection (jenkins)
 ## Table of Contents
 
 * [Synthesis](#synthesis)
