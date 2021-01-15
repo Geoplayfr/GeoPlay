@@ -12,7 +12,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.12.2",
+    "@nuxtjs/axios": "^5.12.5",
+    "@nuxtjs/proxy": "^2.1.0",
+    "@nuxtjs/vuetify": "^1.11.2",
     "@svg-maps/france.departments": "^1.0.1",
     "@svg-maps/france.regions": "^1.1.1",
     "@svg-maps/world": "^1.0.1",
@@ -27,19 +29,26 @@
     "vue-svg-map": "^1.2.0"
   },
   "devDependencies": {
-    "@nuxtjs/vuetify": "^1.11.2",
     "@vue/cli-plugin-eslint": "^4.5.9",
     "@vue/eslint-config-standard": "^5.1.2",
     "@vue/test-utils": "^1.1.0",
-    "babel-core": "7.0.0-bridge.0",
-    "babel-jest": "^26.5.0",
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",
-    "eslint-plugin-vue": "^7.0.0-beta.4",
+    "eslint-plugin-vue": "^6.2.2",
     "jest": "^26.5.0",
+    "lint-staged": "^9.5.0",
     "vue-jest": "^3.0.4"
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue}": [
+      "vue-cli-service lint",
+      "git add"
+    ]
   }
 }

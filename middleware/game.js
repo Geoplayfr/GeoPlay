@@ -1,13 +1,8 @@
-import socket from '~/plugins/socket.io.js'
 export default function (ctx) {
   updateData(ctx.app)
   if (!isAuth()) {
     ctx.redirect('/login')
   } else {
-    // Auto quit current online game
-    if (ctx.route.previous === 'game_multi') {
-      socket.emit('QuitGame', ctx.app.store.getters['users/user'])
-    }
     // Only load the game pages if the passed params are recognized
     switch (ctx.route.name) {
       case 'game':

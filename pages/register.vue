@@ -93,14 +93,17 @@ export default {
       valid: false,
       pseudoRules: [
         (username) => !!username || 'A username is required',
-        (username) => username.trim() !== '' || 'A username cannot have only whitespaces'
+        (username) =>
+          username.trim() !== '' || 'A username cannot have only whitespaces'
       ],
       passwordRules: [
         (password) => !!password || 'A password is required',
-        (password) => password.trim() !== '' || 'A password cannot have only whitespaces'
+        (password) =>
+          password.trim() !== '' || 'A password cannot have only whitespaces'
       ],
       confirmPasswordRules: [
-        (passwordConfirm) => !!passwordConfirm || 'Please confirm your password'
+        (passwordConfirm) =>
+          !!passwordConfirm || 'Please confirm your password'
       ]
     }
   },
@@ -110,15 +113,21 @@ export default {
         this.errorMsg = 'The two passwords do not match'
         this.snackbar = true
       } else {
-        await this.$axios.post('/api/users/add', {
-          username: this.username,
-          password: this.password
-        }).then(response => {
-          this.$store.commit('users/connect', { id: response.data.id_user, username: response.data.username })
-          this.$router.push('/homepage')
-        })
-          .catch(error => {
-            this.errorMsg = 'Incorrect credentials: ' + error.response.data.message
+        await this.$axios
+          .post('/api/users/add', {
+            username: this.username,
+            password: this.password
+          })
+          .then((response) => {
+            this.$store.commit('users/connect', {
+              id: response.data.id_user,
+              username: response.data.username
+            })
+            this.$router.push('/homepage')
+          })
+          .catch((error) => {
+            this.errorMsg =
+              'Incorrect credentials: ' + error.response.data.message
             this.snackbar = true
             console.log(error.response.data.message)
           })

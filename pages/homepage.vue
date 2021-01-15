@@ -4,7 +4,7 @@
       <v-col>
         <v-text-field
           v-model="roomId"
-          label="Join a multiplayer lobby by enter an id"
+          label="Join a multiplayer lobby by entering an id"
         />
       </v-col>
       <v-col>
@@ -49,7 +49,7 @@
       </v-row>
     </v-card>
     <v-dialog
-      v-model="dialogFullRoom"
+      v-model="dialogRoomError"
       width="500"
     >
       <v-card>
@@ -57,7 +57,7 @@
           <v-icon class="mr-2">
             mdi-alert
           </v-icon>
-          This room is already full
+          {{ dialogRoomMsg }}
         </v-card-title>
       </v-card>
     </v-dialog>
@@ -77,7 +77,8 @@ export default {
       quizzes: [],
       quizzAvailable: false,
       roomId: '',
-      dialogFullRoom: false
+      dialogRoomError: false,
+      dialogRoomMsg: ''
     }
   },
   computed: {
@@ -86,6 +87,10 @@ export default {
     }
   },
   async created () {
+    socket.removeAllListeners('joinLobby')
+    socket.removeAllListeners('validateJoin')
+    socket.removeAllListeners('fullRoom')
+    socket.removeAllListeners('lockedRoom')
     await this.$axios
       .request({
         method: 'get',
@@ -103,11 +108,23 @@ export default {
       })
   },
   methods: {
+    /**
+     * Show a dialog for the room to join with the specified text message
+     */
+    showRoomDialog (msg) {
+      if (msg !== undefined) {
+        this.dialogRoomMsg = msg
+      } else {
+        this.dialogRoomMsg = 'Can\'t join this room (no message is specified)'
+      }
+      this.dialogRoomError = true
+    },
     joinLobby (id) {
+      id = id.trim()
       socket.emit('joinLobby', {
         username: this.$store.getters['users/user'].username,
         id: this.$store.getters['users/user'].id,
-        room: id.trim()
+        room: id
       })
       socket.on('validateJoin', (serverData) => {
         this.$router.push({
@@ -121,7 +138,10 @@ export default {
         })
       })
       socket.on('fullRoom', (serverData) => {
-        this.dialogFullRoom = true
+        this.showRoomDialog(serverData.msg)
+      })
+      socket.on('lockedRoom', (serverData) => {
+        this.showRoomDialog(serverData.msg)
       })
     }
   }

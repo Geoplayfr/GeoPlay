@@ -16,7 +16,7 @@ module.exports = {
 
   extends: [
     '@vue/standard',
-    'plugin:vue/recommended' // Use recommended instead of essential to also parse vue.js templates
-    //'plugin:vue/essential'
+    'plugin:vue/recommended',
+    'plugin:vue/essential'
   ]
 }

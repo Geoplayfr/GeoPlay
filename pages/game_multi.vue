@@ -98,7 +98,7 @@ import socket from '~/plugins/socket.io.js'
 
 export default {
   name: 'Game',
-  // middleware: "game",
+  middleware: 'game',
   components: {
     RadioSvgMap
   },
@@ -144,11 +144,6 @@ export default {
         noHoverAfterQuestion: true,
         noClickAfterQuestion: false
       }
-    }
-  },
-  head () {
-    return {
-      script: [{ src: '/svg-pan-zoom.min.js' }]
     }
   },
   async mounted () {
@@ -242,34 +237,35 @@ export default {
         return
       }
       const mapHtml = document.getElementById('map')
-      let regionToColor = null
-      // Loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
-      if (
-        mapHtml.children.length === 1 &&
-        mapHtml.children[0].className.baseVal === 'svg-pan-zoom_viewport'
-      ) {
-        regionToColor = mapHtml.children[0].children.namedItem(regionId)
-      } else {
-        regionToColor = mapHtml.children.namedItem(regionId)
+      if (mapHtml) {
+        let regionToColor = null
+        // If loading with the svg-pan plugin see https://github.com/ariutta/svg-pan-zoom
+        if (
+          mapHtml.children.length === 1 &&
+          mapHtml.children[0].className.baseVal === 'svg-pan-zoom_viewport'
+        ) {
+          regionToColor = mapHtml.children[0].children.namedItem(regionId)
+        } else {
+          regionToColor = mapHtml.children.namedItem(regionId)
+        }
+        this.cacheRegionClassList = [...regionToColor.classList]
+        regionToColor.classList.remove(...regionToColor.classList) // Remove all classes from regionToColor
+        regionToColor.blur() // Stop the focus
+        switch (color) {
+          case 'green':
+            regionToColor.classList.add(...this.greenMapStyle.split(' '))
+            break
+          case 'red':
+            regionToColor.classList.add(...this.redMapStyle.split(' '))
+            break
+          default:
+            break
+        }
+        if (!this.highlightedRegions) {
+          this.highlightedRegions = []
+        }
+        this.highlightedRegions.push(regionToColor)
       }
-      this.cacheRegionClassList = [...regionToColor.classList]
-      regionToColor.classList.remove(...regionToColor.classList) // Remove all classes from regionToColor
-      regionToColor.blur() // Stop the focus
-
-      switch (color) {
-        case 'green':
-          regionToColor.classList.add(...this.greenMapStyle.split(' '))
-          break
-        case 'red':
-          regionToColor.classList.add(...this.redMapStyle.split(' '))
-          break
-        default:
-          break
-      }
-      if (!this.highlightedRegions) {
-        this.highlightedRegions = []
-      }
-      this.highlightedRegions.push(regionToColor)
     },
     /**
      * Highlight the map for a few seconds
@@ -435,6 +431,7 @@ export default {
             this.loadText = 'Waiting for players'
             break
           case 'PLAYING':
+            this.endMenuEnabled = true
             this.quizzLoaded = true
             this.loadQuizz = false
             this.questionIndex = serverData.playing_data.questionIndex
@@ -477,6 +474,7 @@ export default {
      */
     loadQuizz (quiz) {
       try {
+        this.oldStyle = this.mapStyle
         this.loadText = 'Loading Map'
         this.playerList = this.getPlayerList()
         this.quizzMap = this.getMapByName(quiz.mapid)
@@ -495,6 +493,11 @@ export default {
         this.loadText = e.message
         this.circularColor = 'red'
       }
+    }
+  },
+  head () {
+    return {
+      script: [{ src: '/svg-pan-zoom.min.js' }]
     }
   }
 }

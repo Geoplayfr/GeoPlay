@@ -1,5 +1,8 @@
 <template>
-  <v-app color="primary" dark>
+  <v-app
+    color="primary"
+    dark
+  >
     <v-app-bar
       :clipped-left="clipped"
       fixed

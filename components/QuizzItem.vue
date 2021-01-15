@@ -63,7 +63,6 @@
             </v-col>
             <v-col class="text-right">
               <v-dialog
-                v-model="dialog"
                 width="600"
               >
                 <template #activator="{ on, attrs }">
